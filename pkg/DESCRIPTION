@@ -1,0 +1,11 @@
+Package: MMSA
+Type: Package
+Title: Markov Models in Sequence Analysis
+Version: 0.0-1
+Date: 2009-10-12
+Author: Michael Hahsler
+Maintainer: Michael Hahsler <michael@hahsler.net>
+Description: Implementations of several Markov Models (MM) for comparing, matching and analyzing genetic sequences. E.g., simple MM, HMM, profile HMM and profile EMM.
+License: GPL-2
+Depends: seqinr, rEMM
+LazyLoad: yes
