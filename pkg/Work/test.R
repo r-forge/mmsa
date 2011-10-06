@@ -36,7 +36,7 @@ gs <- GenSequences(s, class=gc, type="seq")
 ## tool chain
 NSVs <- toNSV(gs)
 
-model <- GenModel(NSVs)
+model <- GenModel(NSVs, threshold=3)
 
 
 ## plot emm

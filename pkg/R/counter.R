@@ -34,7 +34,7 @@ NSV_list_counter <- function(x, window=50, overlap=0, word=3,
         last_window=last_window)
 
 
-NVS_make_stream <- function(cnt, use_ss=TRUE, ss_val = NA) {
+NSV_make_stream <- function(cnt, use_ss=TRUE, ss_val = NA) {
     ## start state
     ss <- NULL
     if(use_ss) ss <- rep(ss_val, ncol(cnt[[1]]))
