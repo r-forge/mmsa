@@ -6,7 +6,10 @@ GenCollection <- function(classification,
 	annotation=NA, ...) {
 
     type <- match.arg(type)
-    x <- list(data=list(), type= type, annotation=annotation, ...)
+    x <- list(data=list(), 
+	    classification=classification, 
+	    type= type, 
+	    annotation=annotation, ...)
     
     class(x) <- "GenCollection"
     x
@@ -22,6 +25,21 @@ print.GenCollection <- function(object) {
 add.GenCollection <- function(x, newdata) {
     stop("Not implemented!")
 }
+
+#length.GenCollection <- function(x) {}
+
+## make count a generic
+count.GenCollection <- function(x, level) {
+s
+    stop("Not implemented!")
+}
+
+#subset.GenCollection <- function() {}
+
+select.GenCollection <- function(x, level, value) {
+    stop("Not implemented!")
+}
+
 
 ## gets a GenCollection of type sequence and returns the same structure 
 ## with NSV (counts)

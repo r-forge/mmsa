@@ -51,3 +51,12 @@ plot(model, mark=c(1, 2), col=c("red", "green"))
 
 ## implement tool chain for GenCollection
 ## selection for GenCollection
+
+
+col <- GenCollection(GenClass16S_NCBI(), "sequences")
+
+
+add(col, gs)
+
+col.NSV <- toNSV(col)
+
