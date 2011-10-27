@@ -1,12 +1,3 @@
-#load libraries
-library("seqinr")
-source("counter.R")
-## FIXME: make it a tree
-window <- 100
-overlap <- 0
-last_window <- FALSE
-#mer size
-word <- 3
 
 ## classification hierarchy for 16S
 GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA, 
@@ -19,7 +10,7 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 
 
 
-read_Greengenes <- function(object, dir)
+read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALSE, word=3)
 {
     num_objects=length(object$data)
     green_sequences<- list()

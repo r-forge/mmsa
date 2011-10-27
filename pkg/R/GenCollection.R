@@ -1,6 +1,3 @@
-#source dependencies
-
-source("Greengenes.R")
 ## Collection of GenSequences in a classification tree
 ## Creator function creates an empty collection
 
