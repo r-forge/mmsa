@@ -52,12 +52,14 @@ findList <- function(x,location,currLocation=1)
   if (currLocation ==location)
   {
       listLast<-NULL
-      for(j in 1:length(x))
-      {
-        listLast<-c(listLast,names(x[j]))        
+      #for(j in 1:length(x))
+      #{
+      #  listLast<-c(listLast,names(x[j]))        
+      #}
+      
+      #return (listLast)
+      return(names(x))
       }
-      return (listLast)
-  }
   else
     #recursion
   {
@@ -96,17 +98,18 @@ count.GenCollection <- function(object, location)
 }
 
 #helper function
-findCount <- function(x,location,currLocation=1)
+findCount2 <- function(x,location,currLocation=1)
 {
   count=0
   if (currLocation ==location)
   {
-      countLast=0
-      for(j in 1:length(x))
-      {
-        countLast=countLast+1
-      }
-      return (countLast)
+      #countLast=0
+      #for(j in 1:length(x))
+      #{
+      #  countLast=cophyuntLast+1
+      #}
+      #return (countLast)
+      return(length(x))
   }
   else
     #recursion
@@ -119,6 +122,16 @@ findCount <- function(x,location,currLocation=1)
     }
   }
   return(count)
+}
+
+findCount <- function(x,location)
+{
+  if (location<=0) return(length(x))
+  else {
+    #recursion
+    return(sum(sapply(x, FUN= function(y) findCount(y, location-1))))
+  
+  }
 }
 
 
