@@ -12,8 +12,9 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 
 read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALSE, word=3)
 {
-    num_objects=length(object$data)
-    green_sequences<- list()
+    #green_sequences<- list()
+    #num_objects=length(object$data)
+    #green_sequences<- list()
     for(f in dir(dir, full.names=T))
     {
 	    if(!is(try(sequences <- read.fasta(f)), "try-error")){
@@ -21,12 +22,17 @@ read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALS
 	        {
 		        tempObject <-readSequence_Greengenes(object,sequences[i],green_sequences)
             #this is to make sure the data is appended and not overwritten
-            object$data[[num_objects+i]]<-tempObject[[1]]
-            object$classification[[num_objects+i]]<-tempObject[[2]]
+            
+            desc <- tempObject$classification
+            object$data[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <-tempObject
+
+            
+     #       object$data[[num_objects+i]]<-tempObject[[1]]
+    #        object$classification[[num_objects+i]]<-tempObject[[2]]
             
             #make tree start
-            desc <- as.vector(c(object$classification[[i]]))
-            names(desc) <- as.vector(c(names(object$classification[[i]])))            
+    #        desc <- as.vector(c(object$classification[[i]]))
+    #        names(desc) <- as.vector(c(names(object$classification[[i]])))            
             
 	        } #for(i in 1:length(sequences))
 	    }
@@ -96,7 +102,7 @@ readSequence_Greengenes <- function(object,currSequence,green_sequences)
         #make a GenClass16S_Greengenes class object
         gen16class<- GenClass16S_Greengenes(kingdom,phylum,class,order,family,genus,species,otu,org_name)
         sequence<- getSequence(currSequence[[1]],as.string=T)
-        return(list(sequence,gen16class))
+        return(GenSequences(sequence,gen16class, type="sequence"))
               
         
   #end processing

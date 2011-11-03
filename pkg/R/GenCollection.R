@@ -103,7 +103,12 @@ genModel.GenCollection<- function(object,location)
     #find NSV finds the NSVs for that object
     NSVData <-make_stream(findNSV(obj[[i]]))     
     emm<-build(emm,NSVData)
+    plotname<-paste(names(obj[[i]]),i,".pdf",sep="")
+    #plot to file
+    pdf(plotname)
     plot(emm,main=paste(names(obj[[i]]),i))
+    dev.off()
+    
     reset(emm)
     }
     
@@ -113,10 +118,6 @@ genModel.GenCollection<- function(object,location)
   
 }
 
-plot.GenCollection<-function(model,threshold)
-{
-  
-}
 
 #helper function
 #returns a subtree
@@ -169,13 +170,28 @@ findNSV<- function(x)
 
 
 
-
 select.GenCollection <- function(x, location) {
-    stop("Not implemented!")
+      d <- x$data[[location]]  
+      d2 <- list()
+      for (i in 1:length(location)) {
+        d2 <- list(d2)
+      }
+      d2[[rep(1, length(location))]] <- d
+      
+      x$data <- d2
+      x
 }
 
 
 getGenSequences.GenCollection <- function(x) {
+    .unlist(x, 1, length(x$classification))
+  
+}
+
+.unlist <- function(x, level, maxLevel) {
+    if(level >= (maxLevel)) return(x)
+    
+    return(unlist(lapply(x, .unlist, level+1, maxLevel), recursive=FALSE))
 }
 
 
