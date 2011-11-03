@@ -16,60 +16,43 @@ GenCollection <- function(classification=GenClass16S_Greengenes(),
 
 list.GenCollection <- function(object, location)
 {
-    ### FIXME: like count but without the counting
-  
-    levels <- c(as.vector(names(object$classification[[1]])),"org_name")
+     
+    levels <- as.vector(names(object$classification[[1]]))
     index <- which(levels==location,arr.ind=T)
-    #if(length(index)<0)
-    #  stop("error in level")
-    
+       
     m <- pmatch(location,levels)
     if (is.na(m)) stop("error in level")
     
-   totalElements <- length(object$classification)
-   if (length(names(object$data[[1]]))==totalElements)
-        return(totalElements)
-    else
+
       #recursion
     {
       
         nameList<-findList(object$data,m)
-        cat(location," Levels are :\n")
-        for(k in 1:length(nameList))
-          cat(k," ",nameList[k],"\n")
-        
+        names(nameList)<- seq(1:length(nameList))
+        #cat(location," Levels are :\n")
+        #for(k in 1:length(nameList))
+        #  cat(k," ",nameList[[k]],"\n")
+        return(nameList)        
       
     }
 
 }
-
 #helper function
-findList <- function(x,location,currLocation=1)
+findList <- function(x, location)
 {
-  if (currLocation ==location)
-  {
-      listLast<-NULL
-      #for(j in 1:length(x))
-      #{
-      #  listLast<-c(listLast,names(x[j]))        
-      #}
-      
-      #return (listLast)
+  if (location<=1) {
       return(names(x))
-      }
-  else
+    } 
+    
+  else {
     #recursion
-  {
-    currLocation <- currLocation + 1
-    nameList<-NULL
-    for(i in 1:length(x))    
-    {        
-      tmpList<-findList(x[[i]],location,currLocation)
-      nameList = c(nameList,tmpList)      
-    }
+    
+    return(unlist((sapply(x, FUN= function(y) findList(y, location-1)))))
+    
   }
-  return(nameList)
 }
+
+
 
 
 count.GenCollection <- function(object, location)
@@ -81,55 +64,110 @@ count.GenCollection <- function(object, location)
     m <- pmatch(location,levels)
     if (is.na(m)) stop("error in level")
     
-   totalElements <- length(object$classification)
-   if (length(names(object$data[[1]]))==totalElements)
-        return(totalElements)
-    else
+
       #recursion
     {
   
         count=findCount(object$data,m)
-        cat("There are  ",count," levels\n")
+        cat("There are  ",count," levels \n")
       
     }
 }
 
 #helper function
-findCount2 <- function(x,location,currLocation=1)
-{
-  count=0
-  if (currLocation ==location)
-  {
-      #countLast=0
-      #for(j in 1:length(x))
-      #{
-      #  countLast=cophyuntLast+1
-      #}
-      #return (countLast)
-      return(length(x))
-  }
-  else
-    #recursion
-  {
-    currLocation <- currLocation + 1
-    for(i in 1:length(x))    
-    {        
-      tmpCount<-findCount(x[[i]],location,currLocation)
-      count = count + tmpCount
-    }
-  }
-  return(count)
-}
-
 findCount <- function(x,location)
 {
-  if (location<=0) return(length(x))
+  if (location<=1) return(length(x)) 
   else {
     #recursion
-    return(sum(sapply(x, FUN= function(y) findCount(y, location-1))))
-  
+    return(sum(sapply(x, FUN= function(y) findCount(y, location-1))))  
   }
 }
+
+genModel.GenCollection<- function(object,location)
+{
+  
+  levels <- as.vector(names(object$classification[[1]]))
+  leafLocation <- length(levels)
+  index <- which(levels==location,arr.ind=T)
+  m <- pmatch(location,levels)
+  if (is.na(m)) stop("error in level")
+  #start model
+  #findSubTree finds sub-tree at the specified level eg: kingdom, phylum, etc
+  locationObjects <- findSubTree(object$data,m)
+  for(obj in locationObjects)
+  {
+    emm <- EMM("Manhattan", threshold=0.10)
+    for(i in 1:length(obj))
+    {
+    #find NSV finds the NSVs for that object
+    NSVData <-make_stream(findNSV(obj[[i]]))     
+    emm<-build(emm,NSVData)
+    plot(emm,main=paste(names(obj[[i]]),i))
+    reset(emm)
+    }
+    
+    #print(obj)
+  }
+  #end model
+  
+}
+
+plot.GenCollection<-function(model,threshold)
+{
+  
+}
+
+#helper function
+#returns a subtree
+findSubTree <- function(x, location)
+{
+  levelList <- NULL
+  if (location<=1) {
+      return(x)
+    } 
+    
+  else {
+    #recursion      
+       for(i in 1:length(x))
+       {
+         ll<-findSubTree(x[[i]],location-1)
+         levelList <- c(levelList,ll)
+       }
+  }
+  return(levelList)
+}
+
+findNSV<- function(x)
+{
+  
+  finalNSV <- NULL
+  if(length(names(x))==0)
+  {
+    return(x)
+  }
+    
+  else
+  {
+    for(i in 1:length(x))
+    {
+      tempNSV<- findNSV(x[[i]])
+      #cat("location = ",location)
+      if (length(tempNSV)>0)
+      {
+        finalNSV<- c(finalNSV,tempNSV)  
+      }
+      
+    }
+    #return(c(sapply(x, FUN= function(y) findNSV(y, location-1))))    
+  }
+  return(finalNSV)
+}
+
+
+
+
+
 
 
 select.GenCollection <- function(x, location) {

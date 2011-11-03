@@ -1,11 +1,11 @@
 
 ## classification hierarchy for 16S
 GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA, 
-	family=NA, genus=NA, species=NA, otu=NA) {
+	family=NA, genus=NA, species=NA, otu=NA,org_name=NA) {
 
     c(kingdom=kingdom, phylum=phylum, class=class,
 	    order=order, family=family, genus=genus, species=species,
-	    otu=otu)
+	    otu=otu,org_name=org_name)
 }
 
 
@@ -20,38 +20,19 @@ read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALS
 	        for(i in 1:length(sequences))
 	        {
 		        tempObject <-readSequence_Greengenes(object,sequences[i],green_sequences)
+            #this is to make sure the data is appended and not overwritten
             object$data[[num_objects+i]]<-tempObject[[1]]
             object$classification[[num_objects+i]]<-tempObject[[2]]
-            org_name <-tempObject[[3]]
+            
             #make tree start
-            desc <- as.vector(c(object$classification[[i]],org_name))
-            names(desc) <- as.vector(c(names(object$classification[[i]]),"org_name"))
-            #call the function count_sequences in the file counter.R
-            cnt <- count_sequences(sequences,
-            window=window, overlap=overlap, word=word, 
-            last_window=last_window)
-            stream <- make_stream(cnt)
-            
-            f <- sub(".fasta$",".txt",f)
-            #cat("f is ",f,"\n")
-            temp<-strsplit(f,"/")
-            
-            f1<-temp[[1]][length(temp[[1]])]
-            #cat("f1 is ",f1,"\n")
-            write.table(stream, file = f1,
-                    sep = "\t", col.names=FALSE, row.names=FALSE)
-        
-            ### save stream        
-                                  
-            green_sequences[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <- cnt
-            
-            #make tree end
+            desc <- as.vector(c(object$classification[[i]]))
+            names(desc) <- as.vector(c(names(object$classification[[i]])))            
             
 	        } #for(i in 1:length(sequences))
 	    }
 
     }
-    object$data <- green_sequences
+    #object$data <- green_sequences
     return(object)
 }
 
@@ -70,8 +51,8 @@ readSequence_Greengenes <- function(object,currSequence,green_sequences)
   classification[[1]]=c("kingdom","phylum","class","order","family","genus","species","otu")
   classification[[2]]=c("k__","p__","c__","o__","f__","g__","s__","otu_")
   classification[[3]]=""
-  #for(j in 1:length(classification[[1]]))
-  for(j in 1:8)
+  for(j in 1:length(classification[[1]]))
+  #for(j in 1:8)
   {
     location <-regexpr(text=annot,pattern=classification[[2]][j])
     if(location[1]!=-1)
@@ -95,9 +76,11 @@ readSequence_Greengenes <- function(object,currSequence,green_sequences)
         }
         else
             classification[[3]][j]='UNKNOWN'
+        cat(paste(classification[[3]][j],"\t"),file="summary.txt",append=T)
+        
                 
       } #for (j in 1:8)
-        
+        cat("\n",file="summary.txt",append=T)
         org_name<-strsplit(annot,split=" k__")[[1]][1]
         org_name<-sub(";","",org_name)
         org_name <- sub(" ","",org_name)
@@ -111,14 +94,38 @@ readSequence_Greengenes <- function(object,currSequence,green_sequences)
         otu = classification[[3]][8]
         #end1
         #make a GenClass16S_Greengenes class object
-        gen16class<- GenClass16S_Greengenes(kingdom,phylum,class,order,family,genus,species,otu)
+        gen16class<- GenClass16S_Greengenes(kingdom,phylum,class,order,family,genus,species,otu,org_name)
         sequence<- getSequence(currSequence[[1]],as.string=T)
-        return(list(sequence,gen16class,org_name))
-        #gs <- GenSequences(getSequence(currSequence[[1]],as.string=T),gen16class,"sequence") 
-        #return(gs) 
-        
+        return(list(sequence,gen16class))
+              
         
   #end processing
   
 }
 
+toNSV <- function(object, window=100, overlap=0, last_window=FALSE, word=3)
+{
+    num_objects=length(object$data)
+    cat("num objects = ",num_objects,"\n")
+    green_sequences<- list()
+    for(i in 1:length(object$data))
+    {
+      
+      #call the function count_sequences in the file counter.R
+      sequence <- object$data[[i]]
+      desc <- as.vector(c(object$classification[[i]]))
+      names(desc) <- as.vector(c(names(object$classification[[i]])))
+      cnt <- count_sequences(sequence,
+            window=window, overlap=overlap, word=word, 
+            last_window=last_window)
+      stream <- make_stream(cnt)
+            
+      ### save stream at appropriate node in tree                                 
+      green_sequences[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <- cnt
+      #make tree end      
+    }
+    object$data <- green_sequences
+    object$type<- "NSV"
+    return(object)
+
+}
