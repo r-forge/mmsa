@@ -14,6 +14,13 @@ GenCollection <- function(classification=GenClass16S_Greengenes(),
     
 }
 
+GenCollectionNew <- function()
+{
+    x<- list()
+    class(x) <- "GenCollection"
+    return(x)
+}
+
 list.GenCollection <- function(object, location)
 {
      
@@ -139,33 +146,64 @@ findSubTree <- function(x, location)
   return(levelList)
 }
 
-findNSV<- function(x)
+findLeaves<- function(x)
 {
   
-  finalNSV <- NULL
-  if(length(names(x))==0)
+  finalLeaves <- NULL
+
+   if(names(x)[[1]]=="sequences")
   {
-    return(x)
+	#cat("Type of Last is ",class(x),"\n")
+	#print(x$classification) 
+	return(x$sequences)
   }
     
   else
   {
     for(i in 1:length(x))
     {
-      tempNSV<- findNSV(x[[i]])
+      tempLeaf<- findLeaves(x[[i]])
       #cat("location = ",location)
-      if (length(tempNSV)>0)
+      if (length(tempLeaf)>0)
       {
-        finalNSV<- c(finalNSV,tempNSV)  
+        finalLeaves<- c(finalLeaves,tempLeaf)  	
       }
       
     }
     #return(c(sapply(x, FUN= function(y) findNSV(y, location-1))))    
   }
-  return(finalNSV)
+  return(finalLeaves)
 }
 
-
+findLeavesNSV<- function(x)
+{
+  
+  finalLeaves<-list()
+  count <-0
+   if(names(x)[[1]]=="sequences")
+  {
+	#cat("Type of Last is ",class(x),"\n")
+	#print(x$classification) 
+	print(class(x$sequences))   
+	return(x$sequences)
+  }
+    
+  else
+  {
+    for(i in 1:length(x))
+    {
+      tempLeaf<- findLeaves(x[[i]])
+      #cat("location = ",location)
+      if (length(tempLeaf)>0)
+      {
+	finalLeaves<-c(finalLeaves,tempLeaf)
+      }
+      
+    }
+        
+  }
+  return(finalLeaves)
+}
 
 
 
@@ -205,6 +243,32 @@ print.GenCollection <- function(object) {
 
 ## gets a GenCollection of type sequence and returns the same structure 
 ## with NSV (counts)
-toNSV.GenCollection <- function(x) {
-    stop("Not implemented")
+toNSV.GenCollection <- function(x,window=100, overlap=0, last_window=FALSE, word=3) {
+    	  #x<- object$data
+	  if(names(x)[[1]]=="sequences")
+	  {
+		cnt <- count_sequences(x$sequences,window=window, overlap=overlap, word=word,last_window=last_window)
+      		stream <- make_stream(cnt)
+ 		x$sequences<-cnt		
+		#names(x[[1]])<-"sequences"
+		return(x)
+	  }
+	    
+	  else
+	  {
+	    for(i in 1:length(x))
+	    {
+	      #tempLeaf<- findLeaves(x[[i]])
+	      #cat("location = ",location)
+	      #if (length(tempLeaf)>0)
+	      #{
+		#finalLeaves<- c(finalLeaves,tempLeaf)  
+	      #}
+	      x[[i]]<-toNSV.GenCollection(x[[i]])
+	      
+	    }
+	    #return(c(sapply(x, FUN= function(y) findNSV(y, location-1))))    
+	  }
+	  #object$data <- x
+	  return(x)
 }

@@ -20,30 +20,31 @@ read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALS
 	    if(!is(try(sequences <- read.fasta(f)), "try-error")){
 	        for(i in 1:length(sequences))
 	        {
-		        tempObject <-readSequence_Greengenes(object,sequences[i],green_sequences)
-            #this is to make sure the data is appended and not overwritten
+		        tempObject <-.readSequence(object,sequences[i],green_sequences)
+            		
             
-            desc <- tempObject$classification
-            object$data[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <-tempObject
+            		desc <- tempObject$classification
+            		object$data[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <-tempObject
 
             
-     #       object$data[[num_objects+i]]<-tempObject[[1]]
-    #        object$classification[[num_objects+i]]<-tempObject[[2]]
-            
-            #make tree start
-    #        desc <- as.vector(c(object$classification[[i]]))
-    #        names(desc) <- as.vector(c(names(object$classification[[i]])))            
+		     	#	object$data[[num_objects+i]]<-tempObject[[1]]
+		     	#       object$classification[[num_objects+i]]<-tempObject[[2]]
+			    
+			#	make tree start
+		    	#       desc <- as.vector(c(object$classification[[i]]))
+		    	#       names(desc) <- as.vector(c(names(object$classification[[i]])))            
             
 	        } #for(i in 1:length(sequences))
 	    }
 
     }
-    #object$data <- green_sequences
+    object$type="sequence"
+    
     return(object)
 }
 
 #helper function
-readSequence_Greengenes <- function(object,currSequence,green_sequences)
+.readSequence <- function(object,currSequence,green_sequences)
 {
   seq <- currSequence[[1]]
   #start processing
@@ -108,6 +109,7 @@ readSequence_Greengenes <- function(object,currSequence,green_sequences)
   #end processing
   
 }
+
 
 toNSV <- function(object, window=100, overlap=0, last_window=FALSE, word=3)
 {
