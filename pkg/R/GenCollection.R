@@ -182,8 +182,6 @@ findLeavesNSV<- function(x)
   count <-0
    if(names(x)[[1]]=="sequences")
   {
-	#cat("Type of Last is ",class(x),"\n")
-	#print(x$classification) 
 	print(class(x$sequences))   
 	return(x$sequences)
   }
@@ -193,7 +191,6 @@ findLeavesNSV<- function(x)
     for(i in 1:length(x))
     {
       tempLeaf<- findLeaves(x[[i]])
-      #cat("location = ",location)
       if (length(tempLeaf)>0)
       {
 	finalLeaves<-c(finalLeaves,tempLeaf)
@@ -258,17 +255,9 @@ toNSV.GenCollection <- function(x,window=100, overlap=0, last_window=FALSE, word
 	  {
 	    for(i in 1:length(x))
 	    {
-	      #tempLeaf<- findLeaves(x[[i]])
-	      #cat("location = ",location)
-	      #if (length(tempLeaf)>0)
-	      #{
-		#finalLeaves<- c(finalLeaves,tempLeaf)  
-	      #}
 	      x[[i]]<-toNSV.GenCollection(x[[i]])
 	      
 	    }
-	    #return(c(sapply(x, FUN= function(y) findNSV(y, location-1))))    
 	  }
-	  #object$data <- x
 	  return(x)
 }
