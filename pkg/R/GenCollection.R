@@ -93,35 +93,72 @@ findCount <- function(x,location)
 
 genModel.GenCollection<- function(object,location)
 {
-  
-  levels <- as.vector(names(object$classification[[1]]))
-  leafLocation <- length(levels)
-  index <- which(levels==location,arr.ind=T)
-  m <- pmatch(location,levels)
-  if (is.na(m)) stop("error in level")
+	levels <- as.vector(names(object$classification[[1]]))
+  	m <- pmatch(location,levels)
+  	if (is.na(m)) stop("error in level")
+	SubTrees <- findSubTree(object$data,m)
+	if (!file.exists("plots")){
+    		dir.create(file.path(getwd(), "/plots"))
+    	}
+	setwd(paste(getwd(),"/plots",sep=""))
+	for(i in 1:length(SubTrees))
+	{
+		leaves <- findLeavesNSV(SubTrees[[i]])
+		emm <- EMM("Kullback",threshold=0.10)
+		for(leaf in leaves)
+			{
+				emm<- build(emm,leaf+1)
+			}
+		plotName<-paste(names(SubTrees)[[i]],".pdf",sep="")
+		pdf(plotName)
+		plot(emm,main=paste(names(SubTrees)[[i]],"level =",location))
+		dev.off()
+		fileName<-sub("pdf","RData",plotName)
+		save(emm,file=fileName)
+		
+		reset(emm)	
+	}
+  #start
+	#leaves<- findLeavesNSV(object)
+	#emm<- EMM("Kullback",threshold=0.10)
+	#for(leaf in leaves)
+	#{#
+	#	emm<- build(emm,leaf+1)	
+		#reset(emm)	
+	#}	
+  #end   
+
+  #levels <- as.vector(names(object$classification[[1]]))
+  #leafLocation <- length(levels)
+  #index <- which(levels==location,arr.ind=T)
+  #m <- pmatch(location,levels)
+  #if (is.na(m)) stop("error in level")
   #start model
   #findSubTree finds sub-tree at the specified level eg: kingdom, phylum, etc
-  locationObjects <- findSubTree(object$data,m)
-  for(obj in locationObjects)
-  {
-    emm <- EMM("Manhattan", threshold=0.10)
-    for(i in 1:length(obj))
-    {
-    #find NSV finds the NSVs for that object
-    NSVData <-make_stream(findNSV(obj[[i]]))     
-    emm<-build(emm,NSVData)
-    plotname<-paste(names(obj[[i]]),i,".pdf",sep="")
-    #plot to file
-    pdf(plotname)
-    plot(emm,main=paste(names(obj[[i]]),i))
-    dev.off()
+  #locationObjects <- findSubTree(object$data,m)
+  #for(obj in locationObjects)
+  #{
+  #  emm <- EMM("Manhattan", threshold=0.10)
+  #  for(i in 1:length(obj))
+  #  {
+  #  #find NSV finds the NSVs for that object
+  #  NSVData <-make_stream(findNSV(obj[[i]]))     
+  #  emm<-build(emm,NSVData)
+  #  plotname<-paste(names(obj[[i]]),i,".pdf",sep="")
+  #  #plot to file
+  #  pdf(plotname)
+  #  plot(emm,main=paste(names(obj[[i]]),i))
+  #  dev.off()
     
-    reset(emm)
-    }
+  #  reset(emm)
+  #  }
     
     #print(obj)
-  }
+  #}
   #end model
+	WD<-getwd()
+	WD<-sub("/plots","",WD)	
+	setwd(WD)
   
 }
 
@@ -153,8 +190,6 @@ findLeaves<- function(x)
 
    if(names(x)[[1]]=="sequences")
   {
-	#cat("Type of Last is ",class(x),"\n")
-	#print(x$classification) 
 	return(x$sequences)
   }
     
@@ -163,7 +198,6 @@ findLeaves<- function(x)
     for(i in 1:length(x))
     {
       tempLeaf<- findLeaves(x[[i]])
-      #cat("location = ",location)
       if (length(tempLeaf)>0)
       {
         finalLeaves<- c(finalLeaves,tempLeaf)  	
@@ -247,7 +281,6 @@ toNSV.GenCollection <- function(x,window=100, overlap=0, last_window=FALSE, word
 		cnt <- count_sequences(x$sequences,window=window, overlap=overlap, word=word,last_window=last_window)
       		stream <- make_stream(cnt)
  		x$sequences<-cnt		
-		#names(x[[1]])<-"sequences"
 		return(x)
 	  }
 	    
@@ -258,6 +291,10 @@ toNSV.GenCollection <- function(x,window=100, overlap=0, last_window=FALSE, word
 	      x[[i]]<-toNSV.GenCollection(x[[i]])
 	      
 	    }
+	    return(x)
 	  }
-	  return(x)
+	  #x$type="NSV"
+	  #return(x)
 }
+
+
