@@ -122,6 +122,12 @@ getSequences<- function(x, location=NULL) {
     .unlist(data, 1, .getHeight(data))    
 }
 
+.getSequencesData<- function(x, location=NULL) {
+    if (is.null(location)) data <- x
+    else data <- .getSubTree(x, location)
+    
+    .unlist(data, 1, .getHeight(data))    
+}
 
 ## gets a GenCollection of type sequence and returns the same structure 
 ## with NSV (counts)
@@ -158,81 +164,60 @@ toNSV.GenCollection <- function(object, window=100,
 }
 
 
-
-genModel.GenCollection<- function(object,location, method, threshold)
+#location is a numeric vector indicating subtree
+genModel.GenCollection<- function(object,location, measure="Kullback", threshold=0.10)
 {
-    
-    # getSubtree (location)
-    # findLeaves
-    # loop to add to EMM
-    # return EMM
-    
-    levels <- as.vector(names(object$classification[[1]]))
-  	m <- pmatch(rank,levels)
-  	if (is.na(m)) stop("error in level")
-	SubTrees <- findSubTree(object$data,m)
-	if (!file.exists("plots")){
-    		dir.create(file.path(getwd(), "/plots"))
-    	}
-	setwd(paste(getwd(),"/plots",sep=""))
-	for(i in 1:length(SubTrees))
+	if (object$type != "NSV") 
+		stop("Not in NSV format")
+	x<-object$data
+	subTree<- x[[location]]
+	GenSequences <- .getSequencesData(subTree)
+	emm<- EMM(measure=measure,threshold=threshold)
+	for(GenSequence in GenSequences)
 	{
-		leaves <- findLeavesNSV(SubTrees[[i]])
-		emm <- EMM("Kullback",threshold=0.10)
-		for(leaf in leaves)
-			{
-				emm<- build(emm,leaf+1)
-			}
-		plotName<-paste(names(SubTrees)[[i]],".pdf",sep="")
-		pdf(plotName)
-		plot(emm,main=paste(names(SubTrees)[[i]],"level =",rank))
-		dev.off()
-		fileName<-sub("pdf","RData",plotName)
-		save(emm,file=fileName)
-		
-		reset(emm)	
+		sequence<-as.data.frame(GenSequence$sequences)		
+		emm<-build(emm,sequence+1)
 	}
-  #start
-	#leaves<- findLeavesNSV(object)
-	#emm<- EMM("Kullback",threshold=0.10)
-	#for(leaf in leaves)
-	#{#
-	#	emm<- build(emm,leaf+1)	
-		#reset(emm)	
-	#}	
-  #end   
+	#remove last element from location
+	location1<-location[1:length(location)-1]
+	rank<-names(object$classification)[[3]]
+	value<-names(x[[location1]])[location[length(location)]]
+	#cat("rank: ",rank," value:",value,"\n")
+	op<-paste("Rank : ",rank," Value : ",value)
+	names(emm)<-op
+	emm    
+}
 
-  #levels <- as.vector(names(object$classification[[1]]))
-  #leafLocation <- length(levels)
-  #index <- which(levels==rank,arr.ind=T)
-  #m <- pmatch(rank,levels)
-  #if (is.na(m)) stop("error in level")
-  #start model
-  #findSubTree finds sub-tree at the specified level eg: kingdom, phylum, etc
-  #rankObjects <- findSubTree(object$data,m)
-  #for(obj in rankObjects)
-  #{
-  #  emm <- EMM("Manhattan", threshold=0.10)
-  #  for(i in 1:length(obj))
-  #  {
-  #  #find NSV finds the NSVs for that object
-  #  NSVData <-make_stream(findNSV(obj[[i]]))     
-  #  emm<-build(emm,NSVData)
-  #  plotname<-paste(names(obj[[i]]),i,".pdf",sep="")
-  #  #plot to file
-  #  pdf(plotname)
-  #  plot(emm,main=paste(names(obj[[i]]),i))
-  #  dev.off()
-    
-  #  reset(emm)
-  #  }
-    
-    #print(obj)
-  #}
-  #end model
-	WD<-getwd()
-	WD<-sub("/plots","",WD)	
-	setwd(WD)
-  
+#location is a numeric vector indicating subtree
+genPlotModel.GenCollection<- function(object,location, measure="Kullback", threshold=0.10)
+{
+	if (object$type != "NSV") 
+		stop("Not in NSV format")
+	x<-object$data
+	subTree<- x[[location]]
+	GenSequences <- .getSequencesData(subTree)
+	emm<- EMM(measure=measure,threshold=threshold)
+	for(GenSequence in GenSequences)
+	{
+		sequence<-as.data.frame(GenSequence$sequences)		
+		emm<-build(emm,sequence+1)
+	}
+	#remove last element from location
+	location1<-location[1:length(location)-1]
+	rank<-names(object$classification)[[3]]
+	value<-names(x[[location1]])[location[length(location)]]
+	plotName<-paste("plots/",value,".pdf",sep="")
+	title<-paste("Rank : ",rank," Value : ",value)
+	pdf(plotName)
+	plot(emm,main=title)
+	dev.off()	
+	fileName<-sub("pdf","RData",plotName)
+	save(emm,file=fileName)
+	emm
+}
+
+plot.GenModel<-function(emm,title)
+{
+	plot(emm,main=title)
 }
 
