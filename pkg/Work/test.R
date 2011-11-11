@@ -1,62 +1,35 @@
-# library("mmsa")
-library("seqinr")
-library("rEMM")
+library(MMSA)
 
+gc<-GenCollection()
+gc
 
+## find rank as number
+findRank(gc, "Phy")
 
-path <- "../R"
-for(f in dir(path, full.names=TRUE)) source(f)
+gc<-read_Greengenes(gc,"./greengenes/")
+gc
 
-## custom classification hierarchy for NCBI
-GenClass16S_NCBI <- function(phylum=NA, class=NA, order=NA,
-	family=NA, genus=NA, species=NA, strain=NA) {
+showRank(gc, "Phy")
+nNodesRank(gc, "Phy")
 
-    c(phylum=phylum, class=class, species=species,
-	    strain=strain)
-}
+## how many sequences
+nSequences(gc)
 
+loc <- findLocation(gc, 3, "Deinoco")
+loc
 
-sequences <- read.fasta("Zymomonas_mobilis_ZM416s.wri")
-annot <- getAnnot(sequences)
-annot <- sub(">", "", annot)
-annot <- strsplit(annot, split=": ")
-annot
+## get all squence objects
+length(getSequences(gc))
+## get only the leaves below loc
+length(getSequences(gc, loc))
 
-## create a GenSequence
-s <- lapply(getSequence(sequences), c2s)
-gc <- GenClass16S_NCBI(
-	strain="Mobilis ZM4",
-	species="Zymomonas mobilis", 
-	class="Alphaproteobacteria", 
-	phylum="Proteobacteria" 
-	)
+gc.NSV <- toNSV.GenCollection(gc)
+gc.NSV
 
-gs <- GenSequences(s, class=gc, type="seq")
+## this is how far I did it for now...
 
-## tool chain
-NSVs <- toNSV(gs)
+m <- genModel.GenCollection(gc.NSV, loc)
 
-model <- GenModel(NSVs, threshold=3)
-
-
-## plot emm
-plot(model)
-
-## show sequence names (data.frame with the classification)
-model$sequences
-
-## plot 1st sequence red and 2nd green
-plot(model, mark=c(1, 2), col=c("red", "green")) 
-
-
-## implement tool chain for GenCollection
-## selection for GenCollection
-
-
-col <- GenCollection(GenClass16S_NCBI(), "sequences")
-
-
-add(col, gs)
-
-col.NSV <- toNSV(col)
+plot(m)
+save(m, file="model.Rda")
 
