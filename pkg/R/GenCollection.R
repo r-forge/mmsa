@@ -15,11 +15,23 @@ GenCollection <- function(classification=GenClass16S_Greengenes(),
 }
 
 
-.findLevel <- function(x, rank) {
+print.GenCollection <- function(object) {
+    cat("Object of class GenCollection")
+    cat(" of type", object$type) 
+    cat(" with", nSequences(object), "sequences.\n")
+}
+
+
+
+## find a rank as a number
+findRank <- function(x, rank) {
     if (is.numeric(rank)) return(rank)
 
     m <- pmatch(tolower(rank),tolower(names(x$classification)))
     if (is.na(m)) stop("Error in level")
+    
+    
+    names(m) <- names(x$classification)[m]
     m
 }
 
@@ -31,24 +43,121 @@ showRank <- function(object, rank)
     .findList <- function(x, rank)
     {
 	if (rank<=1) return(names(x))
-	else {
-	    #recursion
-	    return(unlist((sapply(x, FUN= function(y) findList(y, rank-1)))))
-	}
+	return(unlist((sapply(x, FUN = function(y) 
+					.findList(y, rank-1)))))
     }
 
 
-    m <- .findLevel(object, rank)
+    m <- findRank(object, rank)
 
     #recursion
-    nameList<-.findList(object$data,m)
-    names(nameList)<- seq(1:length(nameList))
+    nameList <- .findList(object$data,m)
+    if(!is.null(nameList)) names(nameList) <- seq(1:length(nameList))
     return(nameList)        
 }
 
 
 # number of nodes at rank
-nNodesLevel <- function(object, rank) length(showLevel(object, rank))
+nNodesRank <- function(object, rank) length(showRank(object, rank))
+nSequences <- function(object) nNodesRank(object, 
+	length(object$classification))
+
+
+
+## location is a numeric vector with the indices for the ranks
+## returns a location
+findLocation <- function(x, rank, name)
+{
+    .rec <- function(x, rank){
+	if (rank<=1) {
+	    m <- pmatch(name,names(x))
+	    names(m) <- names(x)[m]
+	    return(m)
+	
+	} else {
+	    #recursion
+	    ret <- lapply(x, FUN= function(y) .rec(y, rank-1))
+	    found <- sapply(ret, FUN = function(y) !is.na(y[1]))
+
+	    if(any(found)) {
+		## FIXME: check for multiple matches!
+		m <- which(found)
+		names(m) <- names(x)[m]
+		return(c(m, ret[[which(found)]]))
+	    } else return(NA)
+	}
+    }
+    
+    .rec(x$data, rank)
+}
+
+
+## FIXME: translation from names to location
+.getSubTree <- function(x, location) x[[location]]
+
+## compute the height of a tree
+.getHeight <- function(x) {
+    height <- 0
+    while(is(x, "list")) {
+	x <- x[[1]]
+	height <- height+1
+    }   
+    height
+}
+
+## unlists a tree 
+.unlist <- function(x, level, maxLevel) {
+    if(level >= (maxLevel)) return(x)
+
+    return(unlist(lapply(x, .unlist, level+1, maxLevel), 
+		    recursive=FALSE))
+}
+
+
+## return all sequences as a list
+getSequences<- function(x, location=NULL) {
+    if (is.null(location)) data <- x$data
+    else data <- .getSubTree(x$data, location)
+    
+    .unlist(data, 1, .getHeight(data))    
+}
+
+
+## gets a GenCollection of type sequence and returns the same structure 
+## with NSV (counts)
+toNSV.GenCollection <- function(object, window=100, 
+	overlap=0, word=3, last_window=FALSE) {
+    
+    new <- object
+    new$data <- list()
+    new$type <- "NSV"
+
+    # get sequences
+    sequences <- getSequences(object)
+    
+    # count sequences
+    sequences <- lapply(sequences, toNSV, window, overlap, 
+	    word, last_window)
+
+    # build new tree
+
+    for(s in sequences) {
+	
+	## recreate branch
+	for(i in 1:length(s$classification)) {
+	    if(is.null(new$data[[s$classification[1:i]]])) {
+		new$data[[s$classification[1:i]]] <- list()
+	    }
+	}
+    
+	## insert sequence
+	new$data[[s$classification]] <- s
+    }
+
+    new
+}
+
+
 
 genModel.GenCollection<- function(object,location, method, threshold)
 {
@@ -126,160 +235,4 @@ genModel.GenCollection<- function(object,location, method, threshold)
 	setwd(WD)
   
 }
-
-
-#helper function
-
-## finds a subtree
-## location is a numeric vector with the indices for the ranks
-## FIXME: translation from names to location
-.getSubTree <- function(x, location) x[[location]]
-
-## returns a location
-.findSubTreeLocation <- function(x, rank, name)
-{
-	.rec <- function(x, rank)
-	if (rank<=1) {
-	    pmatch(name,names(x))
-	}
-	    else {
-	    #recursion
-	    ret <- lapply(x, FUN= function(y) .rec(y, rank-1))
-	    found <- sapply(ret, FUN = function(y) !is.na(y[1]))
-	    
-	    if(any(found)) {
-		## FIXME: check for multiple matches!
-		return(c(which(found), ret[[which(found)]]))
-	    } else return(NA)
-	}
-
-	.rec(x, rank)
-}
-
-
-
-
-#returns a subtree
-findSubTree <- function(x, rank)
-{
-  levelList <- NULL
-  if (rank<=1) {
-      return(x)
-    } 
-    
-  else {
-    #recursion      
-       for(i in 1:length(x))
-       {
-         ll<-findSubTree(x[[i]],rank-1)
-         levelList <- c(levelList,ll)
-       }
-  }
-  return(levelList)
-}
-
-.getHeight <- function(x) {
-    height <- 0
-    while(is(x, "list")) {
-	x <- x[[1]]
-	height <- height+1
-    }   
-    height
-}
-
-findLeaves<- function(x) .unlist(x, 1, .getHeight(x))    
-
-
-
-findLeavesNSV__remove<- function(x)
-{
-  
-  finalLeaves<-list()
-  count <-0
-   if(names(x)[[1]]=="sequences")
-  {
-	print(class(x$sequences))   
-	return(x$sequences)
-  }
-    
-  else
-  {
-    for(i in 1:length(x))
-    {
-      tempLeaf<- findLeaves(x[[i]])
-      if (length(tempLeaf)>0)
-      {
-	finalLeaves<-c(finalLeaves,tempLeaf)
-      }
-      
-    }
-        
-  }
-  return(finalLeaves)
-}
-
-
-
-
-#select.GenCollection <- function(x, rank) {
-#      d <- x$data[[rank]]  
-#      d2 <- list()
-#      for (i in 1:length(rank)) {
-#        d2 <- list(d2)
-#      }
-#      d2[[rep(1, length(rank))]] <- d
-#      
-#      x$data <- d2
-#      x
-#}
-#
-
-getGenSequences.GenCollection <- function(x) {
-    .unlist(x, 1, length(x$classification))
-  
-}
-
-.unlist <- function(x, level, maxLevel) {
-    if(level >= (maxLevel)) return(x)
-    
-    return(unlist(lapply(x, .unlist, level+1, maxLevel), recursive=FALSE))
-}
-
-
-print.GenCollection <- function(object) {
-    
-    cat("Object of class GenCollection\n")
-    
-    ## report some basic information
-}
-
-
-## gets a GenCollection of type sequence and returns the same structure 
-## with NSV (counts)
-toNSV.GenCollection <- function(object, window=100, overlap=0, last_window=FALSE, word=3) {
-    x<- object$data
-
-    .rec <- function(x) {
-	if(is(x,"GenSequences"))
-	{
-	    return(toNSV(x, window=window, overlap=overlap, last_window=last_window, word=word))
-	}
-
-	else
-	{
-	    for(i in 1:length(x))
-	    {
-		x[[i]]<-.rec(x[[i]])
-
-	    }
-	    return(x)
-	}
-    }
-
-    object$data <- x
-    object$type <- "NSV"
-
-    object
-}
-
 

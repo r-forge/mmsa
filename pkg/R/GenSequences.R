@@ -42,14 +42,14 @@ length.GenSequences <- function(x) {
 ## with NSV (counts)
 ## FIXME: this has to be toNSV.GenSequences
 toNSV <- function(x, window=100, overlap=0, word=3, 
-	offset = 0, last_window=FALSE) {
+	last_window=FALSE) {
     
     x$sequences <- 
-    NSV_list_counter(x$sequences,
-	    window=window, overlap=overlap, word=word, offset=offset, 
+    count_sequences(x$sequences,
+	    window=window, overlap=overlap, word=word, 
 	    last_window=last_window)
-    x$count_info <- c(window=window, overlap=overlap, word=word, offset=offset,
-	    last_window=last_window)
+    x$count_info <- c(window=window, overlap=overlap, 
+	    word=word, last_window=last_window)
     x$type <- "NSV"
     x
 }

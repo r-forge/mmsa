@@ -111,29 +111,29 @@ read_Greengenes <- function(object, dir, window=100, overlap=0, last_window=FALS
 }
 
 
-toNSV <- function(object, window=100, overlap=0, last_window=FALSE, word=3)
-{
-    num_objects=length(object$data)
-    cat("num objects = ",num_objects,"\n")
-    green_sequences<- list()
-    for(i in 1:length(object$data))
-    {
-      
-      #call the function count_sequences in the file counter.R
-      sequence <- object$data[[i]]
-      desc <- as.vector(c(object$classification[[i]]))
-      names(desc) <- as.vector(c(names(object$classification[[i]])))
-      cnt <- count_sequences(sequence,
-            window=window, overlap=overlap, word=word, 
-            last_window=last_window)
-      stream <- make_stream(cnt)
-            
-      ### save stream at appropriate node in tree                                 
-      green_sequences[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <- cnt
-      #make tree end      
-    }
-    object$data <- green_sequences
-    object$type<- "NSV"
-    return(object)
-
-}
+#toNSV <- function(object, window=100, overlap=0, last_window=FALSE, word=3)
+#{
+#    num_objects=length(object$data)
+#    cat("num objects = ",num_objects,"\n")
+#    green_sequences<- list()
+#    for(i in 1:length(object$data))
+#    {
+#      
+#      #call the function count_sequences in the file counter.R
+#      sequence <- object$data[[i]]
+#      desc <- as.vector(c(object$classification[[i]]))
+#      names(desc) <- as.vector(c(names(object$classification[[i]])))
+#      cnt <- count_sequences(sequence,
+#            window=window, overlap=overlap, word=word, 
+#            last_window=last_window)
+#      stream <- make_stream(cnt)
+#            
+#      ### save stream at appropriate node in tree                                 
+#      green_sequences[[desc["kingdom"]]][[desc["phylum"]]][[desc["class"]]][[desc["order"]]][[desc["family"]]][[desc["genus"]]][[desc["species"]]][[desc["otu"]]][[desc["org_name"]]] <- cnt
+#      #make tree end      
+#    }
+#    object$data <- green_sequences
+#    object$type<- "NSV"
+#    return(object)
+#
+#}
