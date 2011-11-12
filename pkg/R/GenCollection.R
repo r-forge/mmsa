@@ -87,10 +87,14 @@ findLocation <- function(x, rank, name)
 	    } else return(NA)
 	}
     }
-    
+   
+    if(!is.numeric(rank)) rank <- pmatch(tolower(rank), tolower(names(object$classification)))
+
     .rec(x$data, rank)
 }
 
+
+## tree helpers
 
 ## FIXME: translation from names to location
 .getSubTree <- function(x, location) x[[location]]
@@ -114,20 +118,17 @@ findLocation <- function(x, rank, name)
 }
 
 
-## return all sequences as a list
-getSequences<- function(x, location=NULL) {
-    if (is.null(location)) data <- x$data
-    else data <- .getSubTree(x$data, location)
-    
-    .unlist(data, 1, .getHeight(data))    
-}
-
-.getSequencesData<- function(x, location=NULL) {
+## get all sequences below a location
+.getSequences<- function(x, location=NULL) {
     if (is.null(location)) data <- x
     else data <- .getSubTree(x, location)
     
     .unlist(data, 1, .getHeight(data))    
 }
+
+
+## return all sequences as a list
+getSequences<- function(x, location=NULL) .getSequences(x$data, location)
 
 ## gets a GenCollection of type sequence and returns the same structure 
 ## with NSV (counts)
@@ -165,59 +166,34 @@ toNSV.GenCollection <- function(object, window=100,
 
 
 #location is a numeric vector indicating subtree
-genModel.GenCollection<- function(object,location, measure="Kullback", threshold=0.10)
+genModel.GenCollection<- function(object,location, 
+	measure="Kullback", threshold=0.10, plus_one=TRUE)
 {
 	if (object$type != "NSV") 
 		stop("Not in NSV format")
-	x<-object$data
-	subTree<- x[[location]]
-	GenSequences <- .getSequencesData(subTree)
-	emm<- EMM(measure=measure,threshold=threshold)
+	
+	GenSequences <- getSequences(object, location)
+	
+	emm <- EMM(measure=measure,threshold=threshold)
+	
 	for(GenSequence in GenSequences)
 	{
-		sequence<-as.data.frame(GenSequence$sequences)		
-		emm<-build(emm,sequence+1)
+		sequence<-GenSequence$sequences[[1]]
+		if(plus_one) sequence <- sequence +1
+		build(emm,sequence)
+		reset(emm)
 	}
-	#remove last element from location
-	location1<-location[1:length(location)-1]
-	rank<-names(object$classification)[[3]]
-	value<-names(x[[location1]])[location[length(location)]]
-	#cat("rank: ",rank," value:",value,"\n")
-	op<-paste("Rank : ",rank," Value : ",value)
-	names(emm)<-op
+	
+	# find rank and name and set it as the name attribute
+	rn <- GenSequence$classification[length(location)]
+	op <- paste(names(rn),": ", rn, sep = '')
+	attr(emm, "name") <- op
+	
 	emm    
 }
 
-#location is a numeric vector indicating subtree
-genPlotModel.GenCollection<- function(object,location, measure="Kullback", threshold=0.10)
+plot.GenModel<-function(emm,...)
 {
-	if (object$type != "NSV") 
-		stop("Not in NSV format")
-	x<-object$data
-	subTree<- x[[location]]
-	GenSequences <- .getSequencesData(subTree)
-	emm<- EMM(measure=measure,threshold=threshold)
-	for(GenSequence in GenSequences)
-	{
-		sequence<-as.data.frame(GenSequence$sequences)		
-		emm<-build(emm,sequence+1)
-	}
-	#remove last element from location
-	location1<-location[1:length(location)-1]
-	rank<-names(object$classification)[[3]]
-	value<-names(x[[location1]])[location[length(location)]]
-	plotName<-paste("plots/",value,".pdf",sep="")
-	title<-paste("Rank : ",rank," Value : ",value)
-	pdf(plotName)
-	plot(emm,main=title)
-	dev.off()	
-	fileName<-sub("pdf","RData",plotName)
-	save(emm,file=fileName)
-	emm
-}
-
-plot.GenModel<-function(emm,title)
-{
-	plot(emm,main=title)
+	plot(emm, main=attr(emm, "name"),...)
 }
 

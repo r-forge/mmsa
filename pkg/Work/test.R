@@ -15,7 +15,7 @@ nNodesRank(gc, "Phy")
 ## how many sequences
 nSequences(gc)
 
-loc <- findLocation(gc, 3, "Deinoco")
+loc <- findLocation(gc, "class", "Deinoco")
 loc
 
 ## get all squence objects
@@ -28,8 +28,10 @@ gc.NSV
 
 ## this is how far I did it for now...
 
-m <- genModel.GenCollection(gc.NSV, loc)
+m <- genModel.GenCollection(gc.NSV, loc, measure="Manhattan", 
+	threshold=30, plus_one=FALSE)
 
-plot(m)
+plot.GenModel(m, method="graph")
+
 save(m, file="model.Rda")
 
