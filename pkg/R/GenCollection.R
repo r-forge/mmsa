@@ -28,7 +28,7 @@ findRank <- function(x, rank) {
     if (is.numeric(rank)) return(rank)
 
     m <- pmatch(tolower(rank),tolower(names(x$classification)))
-    if (is.na(m)) stop("Error in level")
+    if (is.na(m)) stop("Rank does not exist!")
     
     
     names(m) <- names(x$classification)[m]
@@ -39,12 +39,14 @@ findRank <- function(x, rank) {
 # list the elements at one level in the tree
 showRank <- function(object, rank)
 {
+    if(length(object$data)==0) return(NULL)
+
     #helper function
     .findList <- function(x, rank)
     {
 	if (rank<=1) return(names(x))
-	return(unlist((sapply(x, FUN = function(y) 
-					.findList(y, rank-1)))))
+	return(as.vector(sapply(x, FUN = function(y) 
+					.findList(y, rank-1))))
     }
 
 
@@ -52,7 +54,7 @@ showRank <- function(object, rank)
 
     #recursion
     nameList <- .findList(object$data,m)
-    if(!is.null(nameList)) names(nameList) <- seq(1:length(nameList))
+    names(nameList) <- seq(1:length(nameList))
     return(nameList)        
 }
 
@@ -70,7 +72,7 @@ findLocation <- function(x, rank, name)
 {
     .rec <- function(x, rank){
 	if (rank<=1) {
-	    m <- pmatch(name,names(x))
+	    m <- pmatch(name,tolower(names(x)))
 	    names(m) <- names(x)[m]
 	    return(m)
 	
@@ -87,7 +89,8 @@ findLocation <- function(x, rank, name)
 	    } else return(NA)
 	}
     }
-   
+  
+    name <- tolower(name)
     if(!is.numeric(rank)) rank <- pmatch(tolower(rank), tolower(names(object$classification)))
 
     .rec(x$data, rank)
