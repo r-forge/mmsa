@@ -1,202 +1,119 @@
-## Collection of GenSequences in a classification tree
-## Creator function creates an empty collection
-
-GenCollection <- function(classification=GenClass16S_Greengenes(), 
-	type=c("sequence", "NSV"), annotation=NA) 
-{
-    type <- match.arg(type)
-    #x is the collection object, data contains sequences, 
-    #data refers to sequences or NSV data?
-    x <- list(data=list(),classification=classification, 
-	    type= type, annotation=annotation)      
-    class(x) <- "GenCollection"
-    return(x)
-    
-}
-
 
 print.GenCollection <- function(object) {
     cat("Object of class GenCollection")
-    cat(" of type", object$type) 
+    ## FIXME: Implement
+    #    cat(" of type", object$type)
     cat(" with", nSequences(object), "sequences.\n")
+    cat("Collection name:", object$collection, "\n")    
+}
+
+
+createGenCollection <- function(db, collection, 
+	classification=GenClass16S_Greengenes(),
+	type="sequence") {
+
+    ## we use a c_ prefix so SQL is happy
+    cl <- paste(paste("'",names(classification),"'", sep=''), "TEXT", collapse=', ')
+    cl <- paste(cl, "PRIMARY KEY") ## the lowest rank is the primary key
+    
+    ## FIXME: NSVs?
+    dat <- "sequence BLOB"
+
+    try(
+	    dbSendQuery(db, 
+		    statement = paste("CREATE TABLE ", collection, '(',
+			    cl, ', ', dat, ')', sep=''))
+	    )
+
+    openGenCollection(db, collection)
+}
+
+openGenCollection <- function(db, collection) {
+    col <- list(db=db, collection=collection)   
+    class(col) <- "GenCollection"
+    col
 }
 
 
 
-## find a rank as a number
-findRank <- function(x, rank) {
-    if (is.numeric(rank)) return(rank)
 
-    m <- pmatch(tolower(rank),tolower(names(x$classification)))
-    if (is.na(m)) stop("Rank does not exist!")
-    
-    
-    names(m) <- names(x$classification)[m]
-    m
+
+getClassification <- function(col) {
+    cl <- dbListFields(col$db, col$collection)
+    cl <- head(cl, length(cl)-1L)   ### remove data
+    cl
 }
 
-# the rank is a character string containing a classification level
-# list the elements at one level in the tree
-showRank <- function(object, rank)
-{
-    if(length(object$data)==0) return(NULL)
 
-    #helper function
-    .findList <- function(x, rank)
-    {
-	if (rank<=1) return(names(x))
-	return(as.vector(sapply(x, FUN = function(y) 
-					.findList(y, rank-1))))
+
+nSequences <- function(collection, rank=NULL, name=NULL) {
+    dbGetQuery(collection$db, 
+	    statement = paste("SELECT COUNT(*) FROM", collection$collection, 
+	    .getWhere(collection, rank, name)))[1,1]
+   
+}
+
+getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
+    fields <- getClassification(collection)
+    cols <- paste("[", fields[.pmatchRank(collection, rank, 
+		    numeric=TRUE)],"]", sep='')
+    dbGetQuery(collection$db, 
+	    statement = paste("SELECT DISTINCT ",cols,
+		    " FROM", collection$collection, 
+	    .getWhere(collection, whereRank, whereName)))
+}
+
+
+.pmatchRank <- function(col, rank, numeric=FALSE) {
+    fields <- dbListFields(col$db, col$collection)
+    if(is.null(rank)) m <- 1
+    else {
+	m <- pmatch(tolower(rank), tolower(fields))
+	if(any(is.na(m))) stop("Rank not found in collection!")
     }
 
-
-    m <- findRank(object, rank)
-
-    #recursion
-    nameList <- .findList(object$data,m)
-    names(nameList) <- seq(1:length(nameList))
-    return(nameList)        
-}
-
-
-# number of nodes at rank
-nNodesRank <- function(object, rank) length(showRank(object, rank))
-nSequences <- function(object) nNodesRank(object, 
-	length(object$classification))
-
-
-
-## location is a numeric vector with the indices for the ranks
-## returns a location
-findLocation <- function(x, rank, name)
-{
-    .rec <- function(x, rank){
-	if (rank<=1) {
-	    m <- pmatch(name,tolower(names(x)))
-	    names(m) <- names(x)[m]
-	    return(m)
-	
-	} else {
-	    #recursion
-	    ret <- lapply(x, FUN= function(y) .rec(y, rank-1))
-	    found <- sapply(ret, FUN = function(y) !is.na(y[1]))
-
-	    if(any(found)) {
-		## FIXME: check for multiple matches!
-		m <- which(found)
-		names(m) <- names(x)[m]
-		return(c(m, ret[[which(found)]]))
-	    } else return(NA)
-	}
+    if(numeric) m
+    else fields[m]
     }
-  
-    name <- tolower(name)
-    if(!is.numeric(rank)) rank <- pmatch(tolower(rank), tolower(names(object$classification)))
 
-    .rec(x$data, rank)
+.getWhere <- function(col, rank, name) {
+    if(is.null(rank) && is.null(name)) where <- ""
+    else where <- paste("WHERE ", .pmatchRank(col, rank), 
+		" LIKE '", name,"%'", sep='')
+    where
 }
 
-
-## tree helpers
-
-## FIXME: translation from names to location
-.getSubTree <- function(x, location) x[[location]]
-
-## compute the height of a tree
-.getHeight <- function(x) {
-    height <- 0
-    while(is(x, "list")) {
-	x <- x[[1]]
-	height <- height+1
-    }   
-    height
+getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
+    dbGetQuery(collection$db, 
+	    statement = paste("SELECT * FROM ", collection$collection, " ", 
+		    .getWhere(collection, rank, name))
+	    )
 }
 
-## unlists a tree 
-.unlist <- function(x, level, maxLevel) {
-    if(level >= (maxLevel)) return(x)
-
-    return(unlist(lapply(x, .unlist, level+1, maxLevel), 
-		    recursive=FALSE))
-}
-
-
-## get all sequences below a location
-.getSequences<- function(x, location=NULL) {
-    if (is.null(location)) data <- x
-    else data <- .getSubTree(x, location)
-    
-    .unlist(data, 1, .getHeight(data))    
-}
-
-
-## return all sequences as a list
-getSequences<- function(x, location=NULL) .getSequences(x$data, location)
-
-## gets a GenCollection of type sequence and returns the same structure 
-## with NSV (counts)
-toNSV.GenCollection <- function(object, window=100, 
+toNSV <- function(from, to, window=100,
 	overlap=0, word=3, last_window=FALSE) {
+
+    ### this might need to much memory. Use SQL LIMIT
+    d <- dbGetQuery(from$db, 
+	    statement = paste("SELECT * FROM ", from$collection))
     
-    new <- object
-    new$data <- list()
-    new$type <- "NSV"
+    for(i in 1:nrow(d)) {
+	nsv <- counter(d$sequence[i], window, overlap, word, last_window)
+	d$sequence[i] <- base64encode(serialize(nsv, NULL))
+	#enc <- base64encode(serialize(list(1:10, "A"), NULL, ascii=FALSE))
+	#unserialize(base64decode(enc, what="raw"))
 
-    # get sequences
-    sequences <- getSequences(object)
-    
-    # count sequences
-    sequences <- lapply(sequences, toNSV, window, overlap, 
-	    word, last_window)
+	dat <- paste("'",d[i,],"'", sep='', collapse=', ')
+	dbSendQuery(to$db,          
+		statement = paste("INSERT INTO ",
+			to$collection, " VALUES(", 
+			dat, ")", sep=''))
 
-    # build new tree
-
-    for(s in sequences) {
-	
-	## recreate branch
-	for(i in 1:length(s$classification)) {
-	    if(is.null(new$data[[s$classification[1:i]]])) {
-		new$data[[s$classification[1:i]]] <- list()
-	    }
-	}
-    
-	## insert sequence
-	new$data[[s$classification]] <- s
-    }
-
-    new
+    }    
 }
-
-
-#location is a numeric vector indicating subtree
-genModel.GenCollection<- function(object,location, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE)
-{
-	if (object$type != "NSV") 
-		stop("Not in NSV format")
-	
-	GenSequences <- getSequences(object, location)
-	
-	emm <- EMM(measure=measure,threshold=threshold)
-	
-	for(GenSequence in GenSequences)
-	{
-		sequence<-GenSequence$sequences[[1]]
-		if(plus_one) sequence <- sequence +1
-		build(emm,sequence)
-		reset(emm)
-	}
-	
-	# find rank and name and set it as the name attribute
-	rn <- GenSequence$classification[length(location)]
-	op <- paste(names(rn),": ", rn, sep = '')
-	attr(emm, "name") <- op
-	
-	emm    
-}
-
-plot.GenModel<-function(emm,...)
-{
-	plot(emm, main=attr(emm, "name"),...)
+    
+decodeSequence <- function(sequence) {
+    if(length(sequence)==1) unserialize(base64decode(sequence, what="raw"))
+    else lapply(sequence, FUN=function(x) unserialize(base64decode(x, what="raw")))
 }
 
