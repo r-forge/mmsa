@@ -117,3 +117,27 @@ decodeSequence <- function(sequence) {
     else lapply(sequence, FUN=function(x) unserialize(base64decode(x, what="raw")))
 }
 
+genModel <- function(collection,rank=NULL,name=NULL,n=-1,measure="Kullback", threshold=0.10, plus_one=TRUE) {
+	#if (collection$collection ! ="nsv")
+	#	stop("Not in NSV format")
+	emm <- EMM(measure=measure,threshold=threshold)	
+	d<-getSequences(nsv, rank, name)
+	for(i in 1:length(d$sequence))
+	{
+		sequence<-decodeSequence(d$sequence[i])
+		if(plus_one) sequence <- sequence +1
+		build(emm,sequence)
+		reset(emm)
+	}	
+	op <- paste(rank,": ", name, sep = '')
+	attr(emm, "name") <- op	
+	emm    
+	
+}
+
+plot.GenCollection<-function(emm)
+{
+	plot(emm, main=attr(emm, "name"))
+	
+}
+
