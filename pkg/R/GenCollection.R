@@ -34,17 +34,17 @@ openGenCollection <- function(db, collection) {
     col
 }
 
-
-
-
+removeGenCollection <- function(db, name) {
+	    dbSendQuery(db, 
+		    statement = paste("DROP TABLE ", name, sep=''))
+	    )
+}
 
 getClassification <- function(col) {
     cl <- dbListFields(col$db, col$collection)
     cl <- head(cl, length(cl)-1L)   ### remove data
     cl
 }
-
-
 
 nSequences <- function(collection, rank=NULL, name=NULL) {
     dbGetQuery(collection$db, 
@@ -62,6 +62,14 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    " FROM", collection$collection, 
 	    .getWhere(collection, whereRank, whereName)))
 }
+
+getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
+    dbGetQuery(collection$db, 
+	    statement = paste("SELECT * FROM ", collection$collection, " ", 
+		    .getWhere(collection, rank, name))
+	    )
+}
+
 
 
 .pmatchRank <- function(col, rank, numeric=FALSE) {
@@ -83,13 +91,6 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
     where
 }
 
-getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
-    dbGetQuery(collection$db, 
-	    statement = paste("SELECT * FROM ", collection$collection, " ", 
-		    .getWhere(collection, rank, name))
-	    )
-}
-
 toNSV <- function(from, to, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 
@@ -104,40 +105,17 @@ toNSV <- function(from, to, window=100,
 	#unserialize(base64decode(enc, what="raw"))
 
 	dat <- paste("'",d[i,],"'", sep='', collapse=', ')
-	dbSendQuery(to$db,          
-		statement = paste("INSERT INTO ",
-			to$collection, " VALUES(", 
-			dat, ")", sep=''))
-
+	try(
+		dbSendQuery(to$db,          
+			statement = paste("INSERT INTO ",
+				to$collection, " VALUES(", 
+				dat, ")", sep=''))
+		)
     }    
 }
     
 decodeSequence <- function(sequence) {
     if(length(sequence)==1) unserialize(base64decode(sequence, what="raw"))
     else lapply(sequence, FUN=function(x) unserialize(base64decode(x, what="raw")))
-}
-
-genModel <- function(collection,rank=NULL,name=NULL,n=-1,measure="Kullback", threshold=0.10, plus_one=TRUE) {
-	#if (collection$collection ! ="nsv")
-	#	stop("Not in NSV format")
-	emm <- EMM(measure=measure,threshold=threshold)	
-	d<-getSequences(nsv, rank, name)
-	for(i in 1:length(d$sequence))
-	{
-		sequence<-decodeSequence(d$sequence[i])
-		if(plus_one) sequence <- sequence +1
-		build(emm,sequence)
-		reset(emm)
-	}	
-	op <- paste(rank,": ", name, sep = '')
-	attr(emm, "name") <- op	
-	emm    
-	
-}
-
-plot.GenCollection<-function(emm)
-{
-	plot(emm, main=attr(emm, "name"))
-	
 }
 

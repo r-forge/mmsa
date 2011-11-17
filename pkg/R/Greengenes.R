@@ -9,7 +9,7 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 }
 
 
-addSequencesGreengenes <- function(collection, file) {
+addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 
     #helper function
     .readSequence <- function(currSequence)
@@ -81,11 +81,12 @@ addSequencesGreengenes <- function(collection, file) {
     ok <- 0
     fail <- 0
 
-    if(file.info(file)[1,"isdir"]) files <- dir(dir, full.names=TRUE)
+    if(file.info(file)[1,"isdir"]) files <- dir(file, full.names=TRUE)
     else files <- file
 
-	dbBeginTransaction(collection$db)
+    dbBeginTransaction(collection$db)
     for(f in files){
+	if(verb) cat("Processing:", f, "\n")
 	if(!is(try(sequences <- read.fasta(f)), "try-error")){
 	    for(i in 1:length(sequences)){
 
@@ -117,6 +118,78 @@ addSequencesGreengenes <- function(collection, file) {
 
 }
 
+
+
+
+addSequencesGreengenes_large <- function(collection, file) {
+
+    #helper function
+    .parseAnnotation <- function(annot)
+    {
+	
+	fields <- c("k__", "p__", "c__", "o__", "f__", "g__", "s__", "otu_") 
+	## add out and org_name
+	
+	# remove leading ">"
+	annot <- sub(">", "", annot)
+	# split at "k__" 
+	tmp <- strsplit(annot, " *k__")[[1]]
+	org_name <- tmp[1]
+	tmp <- strsplit(paste('k__',tmp[2], sep=''), '; *')[[1]]
+	cl <- sapply(fields, FUN=function(f) {
+		    val <- grep(f, tmp, value=TRUE)
+		    val <- sub('^.__', '', val)
+		    if(length(val) ==0) val <- "unknown"
+		    val
+		})
+
+	c(cl, org_name)
+    }
+
+    ok <- 0
+    fail <- 0
+    total <- 0
+
+    dbBeginTransaction(collection$db)
+    f <- file(file)
+    open(f)
+
+    while(TRUE)  {
+	
+	annot <- ''
+	while(substr(annot,1,1) != '>') {	
+	    annot <- readLines(f,1)
+	    if(length(annot) ==0) break
+	}
+	dat <- tolower(readLines(f,1))
+	
+	if(length(annot) ==0) break
+	cl <- .parseAnnotation(annot)
+	cl <- paste("'",cl,"'", sep='', collapse=', ') 
+
+
+	## Insert into DB
+	tr <- try(dbSendQuery(collection$db,          
+			statement = paste("INSERT INTO ",
+				collection$collection, " VALUES(", 
+				cl, ", '", dat, "')", sep='')), silent=TRUE)
+
+	if(!is(tr, "try-error")) ok <- ok+1
+	else fail <- fail+1
+	total <- total+1
+
+	if(total%%100 == 0) cat("Read", total, "entries (ok:", ok, 
+		"/ fail:", fail,")\n")
+
+    }
+    dbCommit(collection$db)
+
+    close(f)
+    
+    cat("Read", ok+fail, "entries. Added", ok , "entries to", 
+	    collection$collection,"\n")
+
+}
 
 
 
