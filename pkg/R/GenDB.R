@@ -5,6 +5,7 @@
 
 openGenDB <- function(dbName) {
     if(!file.exists(dbName)) cat("Creating a new GenDB.\n")
+    else stop("DB already exists")
     con<-dbConnect(drv, dbname = dbName);
 
     cat("Tables: ")

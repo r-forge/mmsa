@@ -8,7 +8,7 @@ print.GenCollection <- function(object) {
 }
 
 
-createGenCollection <- function(db, collection, 
+createGenCollection1 <- function(db, collection, 
 	classification=GenClass16S_Greengenes(),
 	type="sequence") {
 
@@ -28,6 +28,43 @@ createGenCollection <- function(db, collection,
     openGenCollection(db, collection)
 }
 
+createGenCollection <- function(db, collection, 
+	classification=GenClass16S_Greengenes(),
+	type="sequence") {
+
+    ## we use a c_ prefix so SQL is happy
+	#first table stores the Classification with org_name as PK
+    cl <- paste(paste("'",names(classification),"'", sep=''), "TEXT", collapse=', ')
+    cl <- paste(cl, "PRIMARY KEY") ## the lowest rank is the primary key
+    
+    ## FIXME: NSVs?
+    #dat <- "sequence BLOB"
+
+    try(
+	    dbSendQuery(db, 
+		    statement = paste("CREATE TABLE ", collection, '(',
+			    cl, ')', sep=''))
+	    )
+	#second table stores the sequences as BLOB with org_name as PK
+	seq <- "sequence BLOB, org_name TEXT PRIMARY KEY"
+	try(
+	    dbSendQuery(db, 
+		    statement = paste("CREATE TABLE ", paste(collection,"Seq",sep=""), '(',
+			    seq,  ')', sep=''))
+	    )
+
+	#third table stores the NSV as BLOB with org_name as PK
+	NSV <- "NSV BLOB, org_name TEXT PRIMARY KEY"
+	try(
+	    dbSendQuery(db, 
+		    statement = paste("CREATE TABLE ", paste(collection,"NSV",sep=""), '(',
+			    NSV,  ')', sep=''))
+	    )
+
+    openGenCollection(db, collection)
+}
+
+
 openGenCollection <- function(db, collection) {
     col <- list(db=db, collection=collection)   
     class(col) <- "GenCollection"
@@ -36,7 +73,7 @@ openGenCollection <- function(db, collection) {
 
 removeGenCollection <- function(db, name) {
 	    dbSendQuery(db, 
-		    statement = paste("DROP TABLE ", name, sep=''))
+		    statement = paste("DROP TABLE ", name, sep='')
 	    )
 }
 
@@ -62,7 +99,7 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    " FROM", collection$collection, 
 	    .getWhere(collection, whereRank, whereName)))
 }
-
+#FIXME: Need to rewrite query to get sequences
 getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
     dbGetQuery(collection$db, 
 	    statement = paste("SELECT * FROM ", collection$collection, " ", 

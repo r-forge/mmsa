@@ -94,15 +94,26 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 
 		cl <- paste("'",sequence$classification,"'", sep='', 
 			collapse=', ')
+		org_name <-paste("'",sequence$classification[length(sequence$classification)],"'",sep='')
 
 		## FIXME: NSVs?
 		dat <- sequence$sequence
 
 		## Insert into DB
+		#tr <- try(dbSendQuery(collection$db,          
+		#		statement = paste("INSERT INTO ",
+		#			collection$collection, " VALUES(", 
+		#			cl, ", '", dat, "')", sep='')), silent=FALSE)
+		
 		tr <- try(dbSendQuery(collection$db,          
 				statement = paste("INSERT INTO ",
 					collection$collection, " VALUES(", 
-					cl, ", '", dat, "')", sep='')), silent=TRUE)
+					cl,  ")", sep='')), silent=FALSE)
+		
+		tr <- try(dbSendQuery(collection$db,          
+				statement = paste("INSERT INTO ",
+					paste(collection$collection,"Seq",sep=""), " VALUES(", 
+					org_name, ",'", dat,  "')", sep='')), silent=FALSE)
 
 		if(!is(tr, "try-error")) ok <- ok+1
 		else fail <- fail+1
