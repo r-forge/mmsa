@@ -8,27 +8,8 @@ print.GenCollection <- function(object) {
 }
 
 
-createGenCollection1 <- function(db, collection, 
-	classification=GenClass16S_Greengenes(),
-	type="sequence") {
 
-    ## we use a c_ prefix so SQL is happy
-    cl <- paste(paste("'",names(classification),"'", sep=''), "TEXT", collapse=', ')
-    cl <- paste(cl, "PRIMARY KEY") ## the lowest rank is the primary key
-    
-    ## FIXME: NSVs?
-    dat <- "sequence BLOB"
-
-    try(
-	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE ", collection, '(',
-			    cl, ', ', dat, ')', sep=''))
-	    )
-
-    openGenCollection(db, collection)
-}
-
-createGenCollection <- function(db, collection, 
+createGenDB <- function(db, collection, 
 	classification=GenClass16S_Greengenes(),
 	type="sequence") {
 
@@ -39,28 +20,27 @@ createGenCollection <- function(db, collection,
     
     ## FIXME: NSVs?
     #dat <- "sequence BLOB"
+	#first table is called classification and stores the class hierarchy
+	st<- paste("CREATE TABLE classification ( " , cl, ")", sep='')	    
+	print(st)
 
     try(
-	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE ", collection, '(',
-			    cl, ')', sep=''))
+		dbSendQuery(db, 
+		    statement = paste("CREATE TABLE classification ( " ,
+			    cl, ")", sep=''))
 	    )
 	#second table stores the sequences as BLOB with org_name as PK
-	seq <- "sequence BLOB, org_name TEXT PRIMARY KEY"
+	seq <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), sequence BLOB "
+	st<- paste("CREATE TABLE sequences ( " , seq, ")", sep='')
+	print(st)
 	try(
-	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE ", paste(collection,"Seq",sep=""), '(',
-			    seq,  ')', sep=''))
+		    dbSendQuery(db, 
+		    	statement = paste("CREATE TABLE sequences (",
+			    	seq,  ")", sep=''))
 	    )
 
 	#third table stores the NSV as BLOB with org_name as PK
-	NSV <- "NSV BLOB, org_name TEXT PRIMARY KEY"
-	try(
-	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE ", paste(collection,"NSV",sep=""), '(',
-			    NSV,  ')', sep=''))
-	    )
-
+	
     openGenCollection(db, collection)
 }
 
@@ -78,14 +58,14 @@ removeGenCollection <- function(db, name) {
 }
 
 getClassification <- function(col) {
-    cl <- dbListFields(col$db, col$collection)
+    cl <- dbListFields(col$db, "classification")
     cl <- head(cl, length(cl)-1L)   ### remove data
     cl
 }
 
 nSequences <- function(collection, rank=NULL, name=NULL) {
     dbGetQuery(collection$db, 
-	    statement = paste("SELECT COUNT(*) FROM", collection$collection, 
+	    statement = paste("SELECT COUNT(*) FROM classification", 
 	    .getWhere(collection, rank, name)))[1,1]
    
 }
@@ -96,21 +76,22 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    numeric=TRUE)],"]", sep='')
     dbGetQuery(collection$db, 
 	    statement = paste("SELECT DISTINCT ",cols,
-		    " FROM", collection$collection, 
+		    " FROM classification ", 
 	    .getWhere(collection, whereRank, whereName)))
 }
 #FIXME: Need to rewrite query to get sequences
 getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
     dbGetQuery(collection$db, 
-	    statement = paste("SELECT * FROM ", collection$collection, " ", 
+	    statement = paste("SELECT * FROM sequences INNER JOIN classification ON classification.org_name = sequences.org_name ", 
 		    .getWhere(collection, rank, name))
 	    )
+	
 }
 
 
 
 .pmatchRank <- function(col, rank, numeric=FALSE) {
-    fields <- dbListFields(col$db, col$collection)
+    fields <- dbListFields(col$db, "classification")
     if(is.null(rank)) m <- 1
     else {
 	m <- pmatch(tolower(rank), tolower(fields))
@@ -128,14 +109,22 @@ getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
     where
 }
 
-toNSV <- function(from, to, window=100,
+
+
+toNSV <- function(collection, tableName, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 
     ### this might need to much memory. Use SQL LIMIT
-    d <- dbGetQuery(from$db, 
-	    statement = paste("SELECT * FROM ", from$collection))
-    
+	NSV <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), NSV BLOB"
+	try(
+	    dbSendQuery(db, 
+		    statement = paste("CREATE TABLE ", tableName , "(",  NSV,  ")", sep='')
+	    )
+	)
+    d <- dbGetQuery(collection$db, 
+	    statement = paste("SELECT * FROM sequences"))    
     for(i in 1:nrow(d)) {
+	org_name <- d$org_name
 	nsv <- counter(d$sequence[i], window, overlap, word, last_window)
 	d$sequence[i] <- base64encode(serialize(nsv, NULL))
 	#enc <- base64encode(serialize(list(1:10, "A"), NULL, ascii=FALSE))
@@ -143,14 +132,13 @@ toNSV <- function(from, to, window=100,
 
 	dat <- paste("'",d[i,],"'", sep='', collapse=', ')
 	try(
-		dbSendQuery(to$db,          
-			statement = paste("INSERT INTO ",
-				to$collection, " VALUES(", 
-				dat, ")", sep=''))
+			
+		dbSendQuery(collection$db,          
+			statement = paste("INSERT INTO ", tableName ," VALUES (", dat, ")", sep=''))
 		)
     }    
 }
-    
+
 decodeSequence <- function(sequence) {
     if(length(sequence)==1) unserialize(base64decode(sequence, what="raw"))
     else lapply(sequence, FUN=function(x) unserialize(base64decode(x, what="raw")))

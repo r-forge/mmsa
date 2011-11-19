@@ -57,7 +57,8 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 	cat("\n",file="summary.txt",append=T)
 	org_name<-strsplit(annot,split=" k__")[[1]][1]
 	org_name<-sub(";","",org_name)
-	org_name <- sub(" ","",org_name)
+	org_name <- sub(" ","",org_name)	
+	org_name <- gsub("'","",org_name)
 	kingdom = classification[[3]][1]
 	phylum = classification[[3]][2]
 	class = classification[[3]][3]
@@ -91,11 +92,13 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 	    for(i in 1:length(sequences)){
 
 		sequence <-.readSequence(sequences[i])
-
+		for(i in 1:length(sequence$classification))
+			sequence$classification[i]<-sub("'","",sequence$classification[i])		
+		#sequence$classification <- sub("\'","",sequence$classification)
 		cl <- paste("'",sequence$classification,"'", sep='', 
 			collapse=', ')
 		org_name <-paste("'",sequence$classification[length(sequence$classification)],"'",sep='')
-
+		
 		## FIXME: NSVs?
 		dat <- sequence$sequence
 
@@ -106,18 +109,22 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 		#			cl, ", '", dat, "')", sep='')), silent=FALSE)
 		
 		tr <- try(dbSendQuery(collection$db,          
-				statement = paste("INSERT INTO ",
-					collection$collection, " VALUES(", 
+				statement = paste("INSERT INTO classification VALUES(", 
 					cl,  ")", sep='')), silent=FALSE)
 		
 		tr <- try(dbSendQuery(collection$db,          
-				statement = paste("INSERT INTO ",
-					paste(collection$collection,"Seq",sep=""), " VALUES(", 
+				statement = paste("INSERT INTO sequences VALUES(", 
 					org_name, ",'", dat,  "')", sep='')), silent=FALSE)
 
 		if(!is(tr, "try-error")) ok <- ok+1
-		else fail <- fail+1
-
+		else 
+			{
+				fail <- fail+1
+				print("=== FOLLOWING STATEMENT FAILED ===")
+				statement = paste("INSERT INTO classification VALUES(", 
+					cl,  ")", sep='')				
+				print(statement)						
+			}
 
 		}
 	}
