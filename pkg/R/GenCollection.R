@@ -80,14 +80,18 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
 	    .getWhere(collection, whereRank, whereName)))
 }
 #FIXME: Need to rewrite query to get sequences
-getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
+getSequences <- function(collection,  rank=NULL, name=NULL, table="sequences",n=-1) {
+	table<-sub(" ","",table)
+	statement<-paste("SELECT * FROM ", table ," INNER JOIN classification ON classification.org_name = sequences.org_name ", 
+		    .getWhere(collection, rank, name))
+	print(statement)
+	cat("table :",table,"\n")
     dbGetQuery(collection$db, 
-	    statement = paste("SELECT * FROM sequences INNER JOIN classification ON classification.org_name = sequences.org_name ", 
+	    statement = paste("SELECT * FROM ", table ," INNER JOIN classification ON classification.org_name = ", table, ".org_name ", 
 		    .getWhere(collection, rank, name))
 	    )
 	
 }
-
 
 
 .pmatchRank <- function(col, rank, numeric=FALSE) {
@@ -104,7 +108,7 @@ getSequences <- function(collection, rank=NULL, name=NULL, n=-1) {
 
 .getWhere <- function(col, rank, name) {
     if(is.null(rank) && is.null(name)) where <- ""
-    else where <- paste("WHERE ", .pmatchRank(col, rank), 
+    else where <- paste("WHERE classification.", .pmatchRank(col, rank), 
 		" LIKE '", name,"%'", sep='')
     where
 }

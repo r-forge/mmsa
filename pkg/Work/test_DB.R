@@ -26,12 +26,18 @@ dim(d)
 
 head(d$sequence)
 
-nsv <- createGenCollection(db, "nsv")
+#nsv <- createGenCollection(db, "nsv")
 
-toNSV(sequ, nsv)
+toNSV(sequ, "NSV")
+d<-getSequences(sequ, "Gen", "Bac","NSV")
+decodeSequence(d$NSV[1])
+length(d$NSV)
 
-d<-getSequences(nsv, "Gen", "Bac")
-decodeSequence(d$sequence[1])
+emm<-genModel(sequ,"Gen","Bac","NSV")
+
+plot.GenModel(emm)
+
+
 
 
 closeGenDB(db)
