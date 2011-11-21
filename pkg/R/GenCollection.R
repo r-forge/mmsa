@@ -39,7 +39,21 @@ createGenDB <- function(db, collection,
 			    	seq,  ")", sep=''))
 	    )
 
-	#third table stores the NSV as BLOB with org_name as PK
+		
+	#third table stores the meta data
+	meta<-"name TEXT, type TEXT, annotation TEXT"
+	try(
+		    dbSendQuery(db, 
+		    	statement = paste("CREATE TABLE metaData (",
+			    	meta,  ")", sep=''))
+	    )
+
+	#insert data into meta
+	try(
+			
+		dbSendQuery(db,          
+			statement = "INSERT INTO metaData  VALUES ('sequences','sequence','2010 core set')")
+		)
 	
     openGenCollection(db, collection)
 }
@@ -82,11 +96,7 @@ getRank <- function(collection, rank=NULL, whereRank=NULL, whereName=NULL) {
 #FIXME: Need to rewrite query to get sequences
 getSequences <- function(collection,  rank=NULL, name=NULL, table="sequences",n=-1) {
 	table<-sub(" ","",table)
-	statement<-paste("SELECT * FROM ", table ," INNER JOIN classification ON classification.org_name = sequences.org_name ", 
-		    .getWhere(collection, rank, name))
-	print(statement)
-	cat("table :",table,"\n")
-    dbGetQuery(collection$db, 
+	dbGetQuery(collection$db, 
 	    statement = paste("SELECT * FROM ", table ," INNER JOIN classification ON classification.org_name = ", table, ".org_name ", 
 		    .getWhere(collection, rank, name))
 	    )
@@ -140,7 +150,19 @@ toNSV <- function(collection, tableName, window=100,
 		dbSendQuery(collection$db,          
 			statement = paste("INSERT INTO ", tableName ," VALUES (", dat, ")", sep=''))
 		)
-    }    
+	    
+	}
+	#insert into meta
+	metaAnnotation<- paste("window=",window,"overlap=",overlap,"word=",word,"last_window=",last_window,sep=" ")
+	meta<-paste("'",tableName, "','NSV','",metaAnnotation,"'",sep="")
+	statement = paste("INSERT INTO metaData VALUES (", meta,")", sep='')
+	print(statement)
+	try(
+			
+		dbSendQuery(collection$db,          
+			statement = paste("INSERT INTO metaData VALUES (", meta,")", sep=''))
+		)
+    
 }
 
 decodeSequence <- function(sequence) {
