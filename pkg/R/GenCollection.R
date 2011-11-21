@@ -21,8 +21,6 @@ createGenDB <- function(db, collection,
     ## FIXME: NSVs?
     #dat <- "sequence BLOB"
 	#first table is called classification and stores the class hierarchy
-	st<- paste("CREATE TABLE classification ( " , cl, ")", sep='')	    
-	print(st)
 
     try(
 		dbSendQuery(db, 
@@ -31,8 +29,6 @@ createGenDB <- function(db, collection,
 	    )
 	#second table stores the sequences as BLOB with org_name as PK
 	seq <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), sequence BLOB "
-	st<- paste("CREATE TABLE sequences ( " , seq, ")", sep='')
-	print(st)
 	try(
 		    dbSendQuery(db, 
 		    	statement = paste("CREATE TABLE sequences (",
@@ -155,13 +151,12 @@ toNSV <- function(collection, tableName, window=100,
 	#insert into meta
 	metaAnnotation<- paste("window=",window,"overlap=",overlap,"word=",word,"last_window=",last_window,sep=" ")
 	meta<-paste("'",tableName, "','NSV','",metaAnnotation,"'",sep="")
-	statement = paste("INSERT INTO metaData VALUES (", meta,")", sep='')
-	print(statement)
 	try(
 			
 		dbSendQuery(collection$db,          
 			statement = paste("INSERT INTO metaData VALUES (", meta,")", sep=''))
 		)
+	cat("Inserted new table ",tableName," \n")
     
 }
 
