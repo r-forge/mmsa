@@ -1,11 +1,12 @@
 
-genModel <- function(collection,rank=NULL,name=NULL, table, n=-1, measure="Kullback", 
-	threshold=0.10, plus_one=TRUE) {
-	#if (collection$collection ! ="nsv")
-	#	stop("Not in NSV format")
+genModel <- function(db, rank=NULL, name=NULL, table, limit=-1, 
+	measure="Kullback", threshold=0.10, plus_one=TRUE) {
+	
+	### FIXME: check in metadata if it is NSV
+
 	emm <- EMM(measure=measure,threshold=threshold)	
-	d<-getSequences(sequ, rank, name, table)
-	#d<-getSequences(nsv, rank, name)
+	d<-getSequences(db, rank, name, table, limit=limit)
+	
 	for(i in 1:length(d$NSV))
 	{
 		sequence<-decodeSequence(d$NSV[i])
@@ -15,7 +16,7 @@ genModel <- function(collection,rank=NULL,name=NULL, table, n=-1, measure="Kullb
 	}	
 
 	# add name attribute
-	rank <- .pmatchRank(collection, rank)
+	rank <- .pmatchRank(db, rank)
 	name <- d[[rank]][1]
 	op <- paste(rank,": ", name, " - ", nrow(d), " sequences" , sep = '')
 	attr(emm, "name") <- op	

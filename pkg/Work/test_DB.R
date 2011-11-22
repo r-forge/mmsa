@@ -1,39 +1,38 @@
 library(MMSA)
 
-drv<-dbDriver("SQLite");
-
-
-## create/open DB
+## create/open GenDB
+db <- createGenDB("16S.db")
 db <- openGenDB("16S.db")
 
-## create/open collection
-sequ <- createGenCollection(db, "sequences")
+db
 
-#sequ <- openGenCollection(db, "sequences") 
+getClassification(db)
+nSequences(db)
 
-addSequencesGreengenes(sequ, "greengenes/phylums/Firmicutes100.fasta")
-addSequencesGreengenes(sequ, "greengenes/phylums/Bacteroidetes100.fasta")
 
-nSequences(sequ)
+addSequencesGreengenes(db, "greengenes/phylums/Firmicutes100.fasta")
+addSequencesGreengenes(db, "greengenes/phylums/Bacteroidetes100.fasta")
 
-getRank(sequ)
-getRank(sequ, "gen")
-getRank(sequ, "gen", whereRank="phy", whereName="Bacter")
 
-nSequences(sequ, "Gen", "Bac")
-d<-getSequences(sequ, "Gen", "Bac")
+getRank(db)
+getRank(db, "gen")
+getRank(db, "gen", whereRank="phy", whereName="Bacter")
+
+nSequences(db, "Gen", "Bac")
+d<-getSequences(db, "Gen", "Bac")
 dim(d)
 
 head(d$sequence)
 
-#nsv <- createGenCollection(db, "nsv")
+createNSVTable(db, "NSV")
+createNSVTable(db, "NSV2", window=50)
+d<-getSequences(db, "Gen", "Bac","NSV")
 
-toNSV(sequ, "NSV")
-d<-getSequences(sequ, "Gen", "Bac","NSV")
+## FIXME: getSequence should decode automatically
 decodeSequence(d$NSV[1])
-length(d$NSV)
 
-emm<-genModel(sequ,"Gen","Bac","NSV")
+emm<-genModel(db,"Gen","Bac","NSV")
+emm
 
 plot.GenModel(emm)
 

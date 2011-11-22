@@ -9,7 +9,7 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 }
 
 
-addSequencesGreengenes <- function(collection, file, verb=FALSE) {
+addSequencesGreengenes <- function(db, file, verb=FALSE) {
 
     #helper function
     .readSequence <- function(currSequence)
@@ -85,7 +85,7 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
     if(file.info(file)[1,"isdir"]) files <- dir(file, full.names=TRUE)
     else files <- file
 
-    dbBeginTransaction(collection$db)
+    dbBeginTransaction(db$db)
     for(f in files){
 	if(verb) cat("Processing:", f, "\n")
 	if(!is(try(sequences <- read.fasta(f)), "try-error")){
@@ -103,16 +103,16 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 		dat <- sequence$sequence
 
 		## Insert into DB
-		#tr <- try(dbSendQuery(collection$db,          
+		#tr <- try(dbSendQuery(db$db,          
 		#		statement = paste("INSERT INTO ",
-		#			collection$collection, " VALUES(", 
+		#			db$collection, " VALUES(", 
 		#			cl, ", '", dat, "')", sep='')), silent=FALSE)
 		
-		tr <- try(dbSendQuery(collection$db,          
+		tr <- try(dbSendQuery(db$db,          
 				statement = paste("INSERT INTO classification VALUES(", 
 					cl,  ")", sep='')), silent=FALSE)
 		
-		tr <- try(dbSendQuery(collection$db,          
+		tr <- try(dbSendQuery(db$db,          
 				statement = paste("INSERT INTO sequences VALUES(", 
 					org_name, ",'", dat,  "')", sep='')), silent=FALSE)
 
@@ -129,17 +129,16 @@ addSequencesGreengenes <- function(collection, file, verb=FALSE) {
 		}
 	}
     }
-    dbCommit(collection$db)
+    dbCommit(db$db)
 
-    cat("Read", ok+fail, "entries. Added", ok , "entries to", 
-	    collection$collection,".\n")
+    cat("Read", ok+fail, "entries. Added", ok , "entries.\n")
 
 }
 
 
 
 
-addSequencesGreengenes_large <- function(collection, file) {
+addSequencesGreengenes_large <- function(db, file) {
 
     #helper function
     .parseAnnotation <- function(annot)
@@ -168,7 +167,7 @@ addSequencesGreengenes_large <- function(collection, file) {
     fail <- 0
     total <- 0
 
-    dbBeginTransaction(collection$db)
+    dbBeginTransaction(db$db)
     f <- file(file)
     open(f)
 
@@ -187,10 +186,21 @@ addSequencesGreengenes_large <- function(collection, file) {
 
 
 	## Insert into DB
-	tr <- try(dbSendQuery(collection$db,          
-			statement = paste("INSERT INTO ",
-				collection$collection, " VALUES(", 
-				cl, ", '", dat, "')", sep='')), silent=TRUE)
+	#tr <- try(dbSendQuery(db$db,          
+	#		statement = paste("INSERT INTO ",
+	#			db$collection, " VALUES(", 
+	#			cl, ", '", dat, "')", sep='')), silent=TRUE)
+	
+
+	tr <- try(dbSendQuery(db$db,          
+			statement = paste("INSERT INTO classification VALUES(", 
+				cl,  ")", sep='')), silent=FALSE)
+
+	tr <- try(dbSendQuery(db$db,          
+			statement = paste("INSERT INTO sequences VALUES(", 
+				tail(cl, 1), ",'", dat,  "')", sep='')), 
+		silent=FALSE)
+
 
 	if(!is(tr, "try-error")) ok <- ok+1
 	else fail <- fail+1
@@ -200,12 +210,11 @@ addSequencesGreengenes_large <- function(collection, file) {
 		"/ fail:", fail,")\n")
 
     }
-    dbCommit(collection$db)
+    dbCommit(db$db)
 
     close(f)
     
-    cat("Read", ok+fail, "entries. Added", ok , "entries to", 
-	    collection$collection,"\n")
+    cat("Read", ok+fail, "entries. Added", ok , "entries.\n")
 
 }
 
