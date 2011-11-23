@@ -151,7 +151,7 @@ addSequencesGreengenes_large <- function(db, file) {
 	annot <- sub(">", "", annot)
 	# split at "k__" 
 	tmp <- strsplit(annot, " *k__")[[1]]
-	org_name <- tmp[1]
+	org_name <- gsub("'","",tmp[1])	
 	tmp <- strsplit(paste('k__',tmp[2], sep=''), '; *')[[1]]
 	cl <- sapply(fields, FUN=function(f) {
 		    val <- grep(f, tmp, value=TRUE)
@@ -183,7 +183,8 @@ addSequencesGreengenes_large <- function(db, file) {
 	if(length(annot) ==0) break
 	cl <- .parseAnnotation(annot)
 	org_name<-cl[length(cl)]
-	
+	#org_name <-sub("'","",org_name)
+	#cl[length(cl)]<-sub("'","",cl[length(cl)])
 	cl <- paste("'",cl,"'", sep='', collapse=', ') 
 	
 	
@@ -197,6 +198,8 @@ addSequencesGreengenes_large <- function(db, file) {
 	tr <- try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO classification VALUES(", 
 				cl,  ")", sep='')), silent=FALSE)
+
+	
 	
 	tr <- try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO sequences VALUES('", 
