@@ -182,9 +182,11 @@ addSequencesGreengenes_large <- function(db, file) {
 	
 	if(length(annot) ==0) break
 	cl <- .parseAnnotation(annot)
+	org_name<-cl[length(cl)]
+	
 	cl <- paste("'",cl,"'", sep='', collapse=', ') 
-
-
+	
+	
 	## Insert into DB
 	#tr <- try(dbSendQuery(db$db,          
 	#		statement = paste("INSERT INTO ",
@@ -195,10 +197,10 @@ addSequencesGreengenes_large <- function(db, file) {
 	tr <- try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO classification VALUES(", 
 				cl,  ")", sep='')), silent=FALSE)
-
+	
 	tr <- try(dbSendQuery(db$db,          
-			statement = paste("INSERT INTO sequences VALUES(", 
-				tail(cl, 1), ",'", dat,  "')", sep='')), 
+			statement = paste("INSERT INTO sequences VALUES('", 
+				org_name, "','", dat,  "')", sep='')), 
 		silent=FALSE)
 
 
