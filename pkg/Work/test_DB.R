@@ -26,6 +26,8 @@ head(d$sequence)
 
 createNSVTable(db, "NSV")
 createNSVTable(db, "NSV2", window=50)
+createNSVTable_large(db,"NSV2","phylum","Cyanobacteria") #convert only those sequences to NSV which have phylum=Cyanobacteria
+
 d<-getSequences(db, "Gen", "Bac","NSV")
 
 ## FIXME: getSequence should decode automatically
