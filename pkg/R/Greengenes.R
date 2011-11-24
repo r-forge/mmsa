@@ -183,8 +183,7 @@ addSequencesGreengenes_large <- function(db, file) {
 	if(length(annot) ==0) break
 	cl <- .parseAnnotation(annot)
 	org_name<-cl[length(cl)]
-	#org_name <-sub("'","",org_name)
-	#cl[length(cl)]<-sub("'","",cl[length(cl)])
+	
 	cl <- paste("'",cl,"'", sep='', collapse=', ') 
 	
 	

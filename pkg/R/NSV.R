@@ -52,6 +52,66 @@ createNSVTable <- function(db, tableName, window=100,
 
 }
 
+createNSVTable_large <- function(db, tableName, window=100,
+	overlap=0, word=3, last_window=FALSE) {
+
+    if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
+
+    ### this might need to much memory. Use SQL LIMIT
+    NSV <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), NSV BLOB"
+    try(
+	    dbSendQuery(db$db, 
+		    statement = paste("CREATE TABLE ", tableName ,
+			    "(",  NSV,  ")", sep='')
+		    )
+	    )
+    ok <- 0
+    fail <- 0
+    total <- 0
+
+	d <- dbGetQuery(db$db, statement = paste("SELECT * FROM sequences"))    
+
+    dbBeginTransaction(db$db)
+   
+	
+	for(i in 1:nrow(d))  {
+	
+	#make NSV
+	
+	nsv <- counter(d$sequence[i], window, overlap, word, last_window)
+	d$sequence[i] <- base64encode(serialize(nsv, NULL))
+	#end make NSV
+	org_name<-d$org_name
+	
+	## Insert into DB
+	
+	dat <- paste("'",d[i,],"'", sep='', collapse=', ')
+	
+	tr<- try(
+		dbSendQuery(db$db,          
+			statement = paste("INSERT INTO ", tableName,
+				" VALUES (", dat, ")", sep=''))
+		)
+
+    if(!is(tr, "try-error")) ok <- ok+1
+	else fail <- fail+1
+	total <- total+1
+
+	if(total%%100 == 0) cat("Read", total, "entries (ok:", ok, 
+		"/ fail:", fail,")\n")
+
+    } #for(i in 1:nrow(d))
+    dbCommit(db$db)
+
+    
+    
+    cat("Read", ok+fail, "entries. Added", ok , "entries.\n")
+
+}
+
+#end
+
+
 dropNSVTable <-  function(db, name) {
     dbSendQuery(db$db,
 	    statement = paste("DROP TABLE ", name, sep='')
