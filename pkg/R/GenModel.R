@@ -9,8 +9,9 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	
 	for(i in 1:length(d$NSV))
 	{
-		sequence<-decodeSequence(d$NSV[i])
-		if(plus_one) sequence <- sequence +1
+		#sequence<-decodeSequence(d$NSV[i])
+		sequence<- d$NSV[i]		
+		if(plus_one) sequence <- sequence +data.frame(1)
 		build(emm,sequence)
 		reset(emm)
 	}	
