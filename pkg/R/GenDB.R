@@ -114,7 +114,7 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
 getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1) {
 
     if(limit<0) limit <- "" 
-    else limit <- paste(" LIMIT=",limit)
+    else limit <- paste(" LIMIT",limit)
 	if (table =="sequences")
 	{
 		dbGetQuery(db$db, 
