@@ -12,7 +12,7 @@ openGenDB <- function(dbName, drv=NULL) {
 }
 
 createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
-	type="sequence", annotation="", drv=NULL) {
+	type="sequence", drv=NULL) {
 
     if(file.exists(dbName)) 
 	stop("GenDB already exist. Use openGenDB.\n")
@@ -35,7 +35,7 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 	    )
 
     #second table stores the sequences as BLOB with org_name as PK
-    seq <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), sequence BLOB "
+    seq <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), data BLOB "
     try(
 	    dbSendQuery(db, 
 		    statement = paste("CREATE TABLE sequences (",
@@ -55,7 +55,7 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
     try(
 
 	    dbSendQuery(db,          
-		    statement = paste("INSERT INTO metaData  VALUES ('sequences', 'sequence', '", annotation, "')", sep="")
+		    statement = paste("INSERT INTO metaData  VALUES ('sequences', 'sequence', '')", sep="")
 		    )
 	    )
 
@@ -70,19 +70,19 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 #dbUnloadDriver(drv)
 
 closeGenDB <- function(db) {
-    dbDisconnect(db)
+    dbDisconnect(db$db)
 }
 
 listGenDB <- function(db) {
-    dbListTables(db)
+    dbListTables(db$db)
 }
 
-print.GenDB <- function(object) {
+print.GenDB <- function(x, ...) {
     cat("Object of class GenDB")
-    cat(" with", nSequences(object), "sequences.\n")
-    cat("DB File:", object$dbName, "\n")
+    cat(" with", nSequences(x), "sequences.\n")
+    cat("DB File:", x$dbName, "\n")
     cat("Tables: ")
-    print(dbListTables(object$db))
+    print(dbListTables(x$db))
 }
 
 
@@ -114,11 +114,11 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
 getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1) {
 
     if(limit<0) limit <- "" 
-    else limit <- paste(" LIMIT",limit)
+    else limit <- paste(" LIMIT=",limit)
 	if (table =="sequences")
 	{
 		dbGetQuery(db$db, 
-			statement = paste("SELECT sequence FROM ", table ,
+			statement = paste("SELECT data FROM ", table ,
 				" INNER JOIN classification ON classification.org_name = ",
 				table, ".org_name ", 
 				.getWhere(db, rank, name), limit)
@@ -127,7 +127,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 	else
 	{
 		NSV<-dbGetQuery(db$db, 
-			statement = paste("SELECT NSV FROM ", table ,
+			statement = paste("SELECT data FROM ", table ,
 				" INNER JOIN classification ON classification.org_name = ",
 				table, ".org_name ", 
 				.getWhere(db, rank, name), limit)
