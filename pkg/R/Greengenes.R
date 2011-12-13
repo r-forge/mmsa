@@ -36,7 +36,7 @@ addSequencesGreengenes <- function(db, file) {
 
 	c(cl, org_name)
     }
-
+	#end helper function
     ok <- 0
     fail <- 0
     total <- 0
@@ -60,13 +60,7 @@ addSequencesGreengenes <- function(db, file) {
 	
 	cl <- paste("'",cl,"'", sep='', collapse=', ') 
 	
-	
-	## Insert into DB
-	#tr <- try(dbSendQuery(db$db,          
-	#		statement = paste("INSERT INTO ",
-	#			db$collection, " VALUES(", 
-	#			cl, ", '", dat, "')", sep='')), silent=TRUE)
-	
+
 
 	tr <- try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO classification VALUES(", 

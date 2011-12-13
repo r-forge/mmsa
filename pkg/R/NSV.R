@@ -6,7 +6,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
 
     ### this might need to much memory. Use SQL LIMIT
-    NSV <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), NSV BLOB"
+    NSV <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), data BLOB"
     try(
 	    dbSendQuery(db$db, 
 		    statement = paste("CREATE TABLE ", tableName ,
@@ -25,7 +25,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 		if (is.null(whereRank) && is.null(whereName))
 			d <- dbGetQuery(db$db, statement = paste("SELECT * FROM sequences LIMIT ",start,",",num_records,sep=""))    
 		else
-			d <- dbGetQuery(db$db, statement = paste("SELECT sequences.org_name, sequences.sequence FROM sequences INNER JOIN classification ON sequences.org_name=classification.org_name WHERE classification.",
+			d <- dbGetQuery(db$db, statement = paste("SELECT sequences.org_name, sequences.data FROM sequences INNER JOIN classification ON sequences.org_name=classification.org_name WHERE classification.",
 					.pmatchRank(db,whereRank)," LIKE '", whereName,"%' LIMIT ",start,",",num_records,sep="" ))    
 		
 		if (nrow(d)==0) break;
@@ -35,8 +35,8 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 	
 		#make NSV
 	
-		nsv <- counter(d$sequence[i], window, overlap, word, last_window)
-		d$sequence[i] <- base64encode(serialize(nsv, NULL))
+		nsv <- .counter(d$data[i], window, overlap, word, last_window)
+		d$data[i] <- base64encode(serialize(nsv, NULL))
 		#end make NSV
 		org_name<-d$org_name_
 	
@@ -78,9 +78,9 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 #end
 
 
-dropNSVTable <-  function(db, name) {
+dropNSVTable <-  function(db, tableName) {
     dbSendQuery(db$db,
-	    statement = paste("DROP TABLE ", name, sep='')
+	    statement = paste("DROP TABLE ", tanleName, sep='')
 	    )
     invisible()
 }

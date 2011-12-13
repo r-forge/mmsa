@@ -7,10 +7,10 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	emm <- EMM(measure=measure,threshold=threshold)	
 	d<-getSequences(db, rank, name, table, limit=limit)
 	
-	for(i in 1:length(d$NSV))
+	for(i in 1:length(d$data))
 	{
 		#sequence<-decodeSequence(d$NSV[i])
-		sequence<- d$NSV[i]		
+		sequence<- d$data[i]		
 		if(plus_one) sequence <- sequence +data.frame(1)
 		build(emm,sequence)
 		reset(emm)
@@ -25,9 +25,9 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	
 }
 
-plot.GenModel<-function(emm,...)
+plot.GenModel<-function(x, ...)
 {
-	plot(emm, main=attr(emm, "name"),...)
+	plot(x, main=attr(emm, "name"),...)
 	
 }
 

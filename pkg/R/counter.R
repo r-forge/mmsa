@@ -1,7 +1,6 @@
-#library("seqinr")
 
 #word => size of mer
-counter <- function(x, window=100, overlap=0, word=3, 
+.counter <- function(x, window=100, overlap=0, word=3, 
 	last_window=FALSE) {
   #returns the sequence as a vector  
   x <- getSequence(x)    
@@ -22,7 +21,7 @@ counter <- function(x, window=100, overlap=0, word=3,
 }
 
 # count individual sequences
-count_sequences <- function(x, window=100, overlap=0, 
+.count_sequences <- function(x, window=100, overlap=0, 
 	word=3, last_window=FALSE) 
 lapply(x, counter, window=window, overlap=overlap, word=word, 
     last_window=last_window)
@@ -30,7 +29,7 @@ lapply(x, counter, window=window, overlap=overlap, word=word,
 
 ## take several sequences and append them with the start state
 ## symbol
-make_stream <- function(cnt, use_ss=TRUE, ss_val = NA) {
+.make_stream <- function(cnt, use_ss=TRUE, ss_val = NA) {
     ## start state
     ss <- NULL
 	if(use_ss) ss <- rep(ss_val, ncol(cnt[[1]]))
