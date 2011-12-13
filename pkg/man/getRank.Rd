@@ -29,13 +29,12 @@ getRank(db,rank,whereRank,whereName)
 
 }
 \examples{
-SQLite()
-drv<-dbDriver("SQLite");
 
-## create/open GenDB
-db <- createGenDB("16S.db")
-addSequencesGreengenes(db, "Firmicutes100.fasta")
-getRank(db,"phyl")
 
+\dontrun{
+	db <- createGenDB("16S.db")
+	addSequencesGreengenes(db, "Firmicutes100.fasta")
+	getRank(db,"phyl")
+	}
 }
 \keyword{manip}

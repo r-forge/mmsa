@@ -23,13 +23,11 @@ getClassification(db)
 
 }
 \examples{
-SQLite()
-drv<-dbDriver("SQLite");
 
-## create/open GenDB
-db <- createGenDB("16S.db")
-addSequencesGreengenes(db, "Firmicutes100.fasta")
-getClassification(db)
-
+\dontrun{
+	db <- createGenDB("16S.db")
+	addSequencesGreengenes(db, "Firmicutes100.fasta")
+	getClassification(db)
 }
-\keyword{manip}
+}
+
