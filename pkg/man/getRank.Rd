@@ -22,8 +22,10 @@ getRank(db,rank,whereRank,whereName)
 	If a wrong handle is provided, an error will be thrown.
 }
 \seealso{
+\code{\link{addSequencesGreengenes}},
 \code{\link{getSequences}},
-\code{\link{nSequences}}
+\code{\link{nSequences}},
+\code{\link{getClassification}}
 }
 \references{
 
