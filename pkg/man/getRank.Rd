@@ -27,16 +27,9 @@ getRank(db,rank,whereRank,whereName)
 \code{\link{nSequences}},
 \code{\link{getClassification}}
 }
-\references{
-
-}
 \examples{
 
-
-\dontrun{
-	db <- createGenDB("16S.db")
-	addSequencesGreengenes(db, "Firmicutes100.fasta")
-	getRank(db,"phyl")
+	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
+	getRank(db,"genus")
 	}
-}
 \keyword{manip}

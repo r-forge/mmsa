@@ -19,15 +19,8 @@ getClassification(db)
 \code{\link{createGenDB}},
 \code{\link{addSequencesGreengenes}}
 }
-\references{
-
-}
 \examples{
-
-\dontrun{
-	db <- createGenDB("16S.db")
-	addSequencesGreengenes(db, "Firmicutes100.fasta")
+	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 	getClassification(db)
-}
 }
 

@@ -80,7 +80,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 
 dropNSVTable <-  function(db, tableName) {
     dbSendQuery(db$db,
-	    statement = paste("DROP TABLE ", tanleName, sep='')
+	    statement = paste("DROP TABLE ", tableName, sep='')
 	    )
     invisible()
 }
