@@ -33,7 +33,8 @@
 }
 \examples{
 
-	GenClass16S_Greengenes(kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", order="Clostridiales", family="Peptococcaceae", genus="Desulfotomaculum", species="Unclassified", otu="2143", org_name="Desulfotomaculum thermocisternum str. ST90" )
+	GenClass16S_Greengenes(kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", order="Clostridiales", family="Peptococcaceae"
+	,genus="Desulfotomaculum", species="Unclassified", otu="2143", org_name="Desulfotomaculum thermocisternum str. ST90" )
 
 }
 \keyword{datasets}
