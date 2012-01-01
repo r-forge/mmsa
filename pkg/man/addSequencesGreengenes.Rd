@@ -5,11 +5,12 @@
 	This function reads a fasta file from greengenes into the gene sequence database.
   }
 \usage{
-	addSequencesGreengenes(db, file)
+	addSequencesGreengenes(db, file, verbose)
 }
 \arguments{
   \item{db}{Name of an exisiting database where the classification and sequence information is to be stored} 
   \item{file}{Complete path of existing greengenes format fasta file containing classification and sequence information} 
+  \item{verbose}{If true, the function will print out a statement after reading every 100 sequences. Default value is False.} 	
 }
 \details{
 	This function is used to read and parse an existing greengenes format fasta file and store it in a previously created database.

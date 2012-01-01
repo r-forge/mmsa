@@ -12,7 +12,7 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 
 
 
-addSequencesGreengenes <- function(db, file) {
+addSequencesGreengenes <- function(db, file,verbose=FALSE) {
 
     #helper function
     .parseAnnotation <- function(annot)
@@ -77,10 +77,11 @@ addSequencesGreengenes <- function(db, file) {
 	if(!is(tr, "try-error")) ok <- ok+1
 	else fail <- fail+1
 	total <- total+1
-
-	if(total%%100 == 0) cat("Read", total, "entries (ok:", ok, 
-		"/ fail:", fail,")\n")
-
+	if(verbose)
+		{	
+			if(total%%100 == 0) cat("Read", total, "entries (ok:", ok, 
+				"/ fail:", fail,")\n")
+		}
     }
     dbCommit(db$db)
 
