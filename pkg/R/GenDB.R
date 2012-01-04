@@ -115,28 +115,19 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 
     if(limit<0) limit <- "" 
     else limit <- paste(" LIMIT ",limit)
-	if (table =="sequences")
-	{
-		ret <- dbGetQuery(db$db, 
-			statement = paste("SELECT data FROM ", table ,
-				" INNER JOIN classification ON classification.org_name = ",
-				table, ".org_name ", 
-				.getWhere(db, rank, name), limit)
-			)
-	}
-	else
-	{
-		ret <-dbGetQuery(db$db, 
-			statement = paste("SELECT data FROM ", table ,
-				" INNER JOIN classification ON classification.org_name = ",
-				table, ".org_name ", 
-				.getWhere(db, rank, name), limit)
-			)
-		ret <- lapply(ret,decodeSequence)		
-	}
+    
+    ret <- dbGetQuery(db$db, 
+	statement = paste("SELECT data FROM ", table ,
+		" INNER JOIN classification ON classification.org_name = ",
+		table, ".org_name ", 
+		.getWhere(db, rank, name), limit)
+	    )
+	
+    if (table !="sequences") ret <- lapply(ret,decodeSequence)		
+    
     ### FIXME: check in metadata table if we have to decode (e.g., if it is NSV)
 
-	ret$data
+    ret$data
 }
 
 

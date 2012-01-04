@@ -10,24 +10,53 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	for(i in 1:length(d))
 	{
 		#sequence<-decodeSequence(d$NSV[i])
-		sequence<- d[i]		
-		if(plus_one) sequence <- sequence +data.frame(1)
+		sequence<- d[[i]]		
+		if(plus_one) sequence <- sequence + 1
 		build(emm,sequence)
 		reset(emm)
 	}	
 
-	# add name attribute
+	# FIXME: add name attribute. getSequences should pass on attributes
+	## for name and rank...
 	rank <- .pmatchRank(db, rank)
 	name <- d[[rank]][1]
-	op <- paste(rank,": ", name, " - ", nrow(d), " sequences" , sep = '')
-	attr(emm, "name") <- op	
-	emm    
+	op <- paste(rank,": ", name, " - ", length(d), " sequences" , sep = '')
+	
+	genModel <- list(name=op, model=emm)
+	class(genModel) <- "genModel"
+	
+	genModel	
 	
 }
 
 plot.genModel<-function(x, ...)
 {
-	plot(x, main=attr(emm, "name"),...)
+	plot(x$model, main=x$name,...)
 	
 }
 
+
+
+processSequencesGreengenes <- function(dir, db) {
+	for(f in dir(dir, full.names=T))
+	{
+	    addSequencesGreengenes(db, f)
+	}
+	    
+	createNSVTable(db, "NSV")
+}
+
+createModels <- function(models, rank = "phylum", db)
+{
+	rankNames <- getRank(db, rank)[,1]
+	for(n in rankNames) {
+	    emm <- genModel(db, table="NSV", rank="phylum", name=n)
+	    cat("Creating model for ", rank, ":", n, "\n")
+	    
+	    saveRDS(emm, file=paste(models, "/", n, ".rds", sep=''))
+	}
+}
+
+classify<-function(sequence, models)
+{
+}
