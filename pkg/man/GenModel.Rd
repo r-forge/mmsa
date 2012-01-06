@@ -37,7 +37,7 @@ Functions to generate, plot, and classify gene sequence models
 \examples{
 	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 	createNSVTable(db, "NSV","kingdom","bacteria")
-	emm<-genModel(db,rank="Gen",name="Thermo",table="NSV", measure="Kullback", threshold=0.10, plus_one=TRUE)
+	emm<-genModel(db,rank="Gen",name="Syntro",table="NSV", measure="Kullback", threshold=0.10, plus_one=TRUE)
 	plot.genModel(emm)
 	dropNSVTable(db,"NSV")
 	closeGenDB(db)

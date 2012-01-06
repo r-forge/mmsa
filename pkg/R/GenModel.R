@@ -9,7 +9,6 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	
 	for(i in 1:length(d))
 	{
-		#sequence<-decodeSequence(d$NSV[i])
 		sequence<- d[[i]]		
 		if(plus_one) sequence <- sequence + 1
 		build(emm,sequence)
@@ -19,9 +18,10 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	# FIXME: add name attribute. getSequences should pass on attributes
 	## for name and rank...
 	rank <- .pmatchRank(db, rank)
-	name <- d[[rank]][1]
-	op <- paste(rank,": ", name, " - ", length(d), " sequences" , sep = '')
-	
+	name<- unlist(attr(d,"name"))
+	#op <- paste(rank,": ", name, " - ", length(d), " sequences" , sep = '')
+	op <- paste(rank,": ", name)	
+	op<- c(op, length(d), " sequences" )
 	genModel <- list(name=op, model=emm)
 	class(genModel) <- "genModel"
 	

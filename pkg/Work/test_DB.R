@@ -2,7 +2,7 @@ library(MMSA)
 
 ## create/open GenDB
 db <- createGenDB("16S.sqlite")
-db <- openGenDB("16S.sqlite")
+db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 
 db
 
@@ -10,9 +10,10 @@ getClassification(db)
 nSequences(db)
 
 
-addSequencesGreengenes(db, system.file("data/Firmicutes100.fasta",package="MMSA"))
 #new scheme
 addSequencesGreengenes(db, system.file("examples/Firmicutes100.fasta",package="MMSA"))
+
+addSequencesGreengenes(db, system.file("examples/Proteobacteria100.fasta",package="MMSA"))
 
 getRank(db)
 getRank(db, "gen")

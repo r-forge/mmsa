@@ -9,7 +9,8 @@
 	These functions create objects of class GenClass16S which contain classification hierarchy.
 }
 \usage{
-	GenClass16S_Greengenes(kingdom, phylum, class, order, family, genus, species, otu, org_name) 
+	GenClass16S_Greengenes(kingdom, phylum, class, order, family, 
+		genus, species, otu, org_name) 
 }
 \arguments{
 	\item{kingdom}{Name of the kingdom to which the organism belongs. OPTIONAL} 
@@ -33,8 +34,10 @@
 }
 \examples{
 
-	GenClass16S_Greengenes(kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", order="Clostridiales", family="Peptococcaceae"
-	,genus="Desulfotomaculum", species="Unclassified", otu="2143", org_name="Desulfotomaculum thermocisternum str. ST90" )
+	GenClass16S_Greengenes(kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", 
+		order="Clostridiales", family="Peptococcaceae",
+		genus="Desulfotomaculum", species="Unclassified", otu="2143", 
+		org_name="Desulfotomaculum thermocisternum str. ST90" )
 
 }
 \keyword{datasets}

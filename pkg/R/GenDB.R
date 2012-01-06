@@ -122,10 +122,16 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 		table, ".org_name ", 
 		.getWhere(db, rank, name), limit)
 	    )
+	fullRank<-.pmatchRank(db,rank)
+	fullNames <- dbGetQuery(db$db, 
+		statement = paste("SELECT DISTINCT", fullRank ," FROM classification ",
+			.getWhere(db, rank, name))
+	    	)
 	
     if (table !="sequences") ret <- lapply(ret,decodeSequence)		
+    attr(ret$data,"rank")<-fullRank
+	attr(ret$data,"name")<-fullNames
     
-    ### FIXME: check in metadata table if we have to decode (e.g., if it is NSV)
 
     ret$data
 }
