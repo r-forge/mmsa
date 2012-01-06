@@ -40,6 +40,7 @@ plot.genModel<-function(x, ...)
 processSequencesGreengenes <- function(dir, db) {
 	for(f in dir(dir, full.names=T))
 	{
+	    cat("Processing f ",f,"\n")
 	    addSequencesGreengenes(db, f)
 	}
 	    
