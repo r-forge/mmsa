@@ -1,7 +1,6 @@
 \name{GenModel}
 \alias{GenModel}
 \alias{genModel}
-\alias{plot.genModel}
 \alias{plot}
 \alias{classify}
 \docType{data}
@@ -13,7 +12,6 @@ Functions to generate, plot, and classify gene sequence models
 }
 \usage{
 	genModel(db, rank, name, table, limit, measure, threshold, plus_one)
-	plot.genModel(x, \dots)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
@@ -24,11 +22,11 @@ Functions to generate, plot, and classify gene sequence models
 	\item{measure}{Character name of the dissimilarity measure used. See 'dist' in 'proxy' for available measures. Default is "Kullback"} 
 	\item{threshold}{Numeric dissimilarity threshold used by the clustering algorithm for assigning a new observation to existing clusters. Default value is 0.10.} 
 	\item{plus_one}{Boolean used to increase all the values in the NSV vectors by one. By default is TRUE.} 
-	\item{x}{EMM model used in generic function for plotting.} 
-	\item{...}{Further arguments passed on to 'plot.default'} 
 
 }
-
+\value{
+	\item{emm}{genModel function returns a list which has two parts - model and name. The model contains the actuall EMM model and the name contains annotations about the objects contained in the EMM.}
+}
 \details{
 	These group of functions are used after a gene sequence has been converted to NSV format. The first step is to create a gene sequence Model (genModel) using
 	the genModel function, which returns the created emm. After that, this model can be used for plotting and classification purposes. 
@@ -38,7 +36,7 @@ Functions to generate, plot, and classify gene sequence models
 	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 	createNSVTable(db, "NSV","kingdom","bacteria")
 	emm<-genModel(db,rank="Gen",name="Syntro",table="NSV", measure="Kullback", threshold=0.10, plus_one=TRUE)
-	plot.genModel(emm)
+	plot(emm$model, main=emm$name)
 	dropNSVTable(db,"NSV")
 	closeGenDB(db)
 	rm(db)	

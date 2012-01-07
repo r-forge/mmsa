@@ -1,9 +1,9 @@
 
 db <- createGenDB("phylums.sqlite")
 #adds all sequences from a directory to a db
-processSequencesGreengenes("scoreData/phylums", db)
+processSequencesGreengenes("pkg/Work/scoreData/phylums", db)
 #creates models at a specified level
-createModels("scoreData/models/phylum", rank="phylum", db)
+createModels("pkg/Work/scoreData/models/phylum", rank="phylum", db)
 createModels("scoreData/models/class", rank="class", db)
 
 

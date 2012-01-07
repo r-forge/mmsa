@@ -21,7 +21,8 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	name<- unlist(attr(d,"name"))
 	#op <- paste(rank,": ", name, " - ", length(d), " sequences" , sep = '')
 	op <- paste(rank,": ", name)	
-	op<- c(op, length(d), " sequences" )
+	seq <- paste(length(d)," sequences")
+	op<- c(op, seq )
 	genModel <- list(name=op, model=emm)
 	class(genModel) <- "genModel"
 	
@@ -29,11 +30,11 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	
 }
 
-plot.genModel<-function(x, ...)
-{
-	plot(x$model, main=x$name,...)
-	
-}
+#plot<-function(emm)
+#{
+#	plot(emm$model, main=emm$name)
+#	
+#}
 
 
 
