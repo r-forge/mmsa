@@ -52,7 +52,7 @@ createModels <- function(modelDir, rank = "phylum", db)
 {
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
-	    emm <- genModel(db, table="NSV", rank="phylum", name=n)
+	    emm <- genModel(db, table="NSV", rank, name=n)
 	    cat("Creating model for ", rank, ":", n, "\n")
 	    
 	    saveRDS(emm, file=paste(modelDir, "/", n, ".rds", sep=''))
