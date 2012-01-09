@@ -32,9 +32,9 @@ classify(modelDir, seqFile)
 \examples{
 #create a db for demonstration purpose
 db<-createGenDB("classificationExample.sqlite")
-processSequencesGreengenes(system.file("inst/phylums",package="MMSA"),db)
-createModels(system.file("inst/models",package="MMSA"),rank="phylum",db)
-classify(system.file("inst/models",package="MMSA"),system.file("inst/testData.fasta",package="MMSA"))
+processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
+createModels(system.file("examples/models",package="MMSA"),rank="phylum",db)
+classify(system.file("examples/models",package="MMSA"),system.file("examples/testData.fasta",package="MMSA"))
 #delete db to perform cleanup
 unlink("classificationExample.sqlite")
 }
