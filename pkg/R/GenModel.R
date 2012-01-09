@@ -48,17 +48,53 @@ processSequencesGreengenes <- function(dir, db) {
 	createNSVTable(db, "NSV")
 }
 
-createModels <- function(models, rank = "phylum", db)
+createModels <- function(modelDir, rank = "phylum", db)
 {
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
 	    emm <- genModel(db, table="NSV", rank="phylum", name=n)
 	    cat("Creating model for ", rank, ":", n, "\n")
 	    
-	    saveRDS(emm, file=paste(models, "/", n, ".rds", sep=''))
+	    saveRDS(emm, file=paste(modelDir, "/", n, ".rds", sep=''))
 	}
 }
 
-classify<-function(sequence, models)
+classify<-function(modelDir, seqFile)
 {
+	outfile<-"ClassifyResults.txt"
+	if (file.exists(outfile))
+		unlink(outfile)
+	#header for the result file
+	cat("Sequence\t",file=outfile,append=TRUE)
+	for(f in dir(modelDir, full.names=F))
+	{
+	  sub(".rds","",f)
+	  cat(f,"\t",file=outfile,append=TRUE)
+	}
+	cat("\n",file=outfile,append=TRUE)
+	#delete db file if already exists
+	if (file.exists(".classify.sqlite"))
+		unlink(".classify.sqlite")
+	#create new temp db for storing seqFile
+	.dbc<-createGenDB(".classify.sqlite")
+	#read file
+	addSequencesGreengenes(.dbc,seqFile)
+	#convert sequences to NSV
+	createNSVTable(.dbc,"NSV")
+	#get all sequences as a list
+	sequences<-getSequences(.dbc,table="NSV")
+	#loop through all the sequences
+	for(i  in 1:length(sequences))
+	{
+	 #loop through each model in the modelDir and find similarity	 
+		cat(i,"\t",file=outfile,append=TRUE)
+		for(f in dir(modelDir, full.names=T))
+		{
+		  .model<-readRDS(f)
+		  score<-score(.model$model,sequences[[i]]+1,plus_one=TRUE)
+		  cat(score,"\t",file=outfile,append=TRUE)
+		}
+		cat("\n",file=outfile,append=TRUE)
+	}
+	cat("Done. Results are in file ",outfile," \n")
 }

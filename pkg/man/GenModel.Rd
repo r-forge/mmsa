@@ -2,7 +2,6 @@
 \alias{GenModel}
 \alias{genModel}
 \alias{plot}
-\alias{classify}
 \docType{data}
 \title{
 Manage Gene Sequence Models
