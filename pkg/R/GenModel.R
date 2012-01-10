@@ -59,18 +59,22 @@ createModels <- function(modelDir, rank = "phylum", db)
 	}
 }
 
-classify<-function(modelDir, seqFile)
+classify<-function(modelDir, seqFile, rank)
 {
+	#outfile is where the results are saved - can make this a parameter
 	outfile<-"ClassifyResults.txt"
 	if (file.exists(outfile))
 		unlink(outfile)
+	modelNames<-vector()
 	#header for the result file
 	cat("Sequence\t",file=outfile,append=TRUE)
 	for(f in dir(modelDir, full.names=F))
 	{
-	  sub(".rds","",f)
+	  f<-sub(".rds","",f)
+	  modelNames<-c(modelNames,f)
 	  cat(f,"\t",file=outfile,append=TRUE)
 	}
+	cat("Actual\tPredicted",file=outfile,append=TRUE)
 	cat("\n",file=outfile,append=TRUE)
 	#delete db file if already exists
 	if (file.exists(".classify.sqlite"))
@@ -83,18 +87,34 @@ classify<-function(modelDir, seqFile)
 	createNSVTable(.dbc,"NSV")
 	#get all sequences as a list
 	sequences<-getSequences(.dbc,table="NSV")
+	#get all the values in the rank
+	rankValues<-getHierarchy(.dbc,rank)[,1]
 	#loop through all the sequences
 	for(i  in 1:length(sequences))
 	{
 	 #loop through each model in the modelDir and find similarity	 
 		cat(i,"\t",file=outfile,append=TRUE)
+		maxPosition<-0
+		maxValue <- 0
+		j<-1
 		for(f in dir(modelDir, full.names=T))
 		{
 		  .model<-readRDS(f)
 		  score<-score(.model$model,sequences[[i]]+1,plus_one=TRUE)
+		  if (score > maxValue) {
+			maxPosition<-j
+			maxValue<-score
+		  }
+		  j<- j+1
 		  cat(score,"\t",file=outfile,append=TRUE)
 		}
+		#output the actual rank
+		cat(rankValues[i],"\t",file=outfile,append=TRUE)
+		#output predicted rank
+		cat(modelNames[maxPosition],"\t",file=outfile,append=TRUE)
 		cat("\n",file=outfile,append=TRUE)
 	}
+	unlink(".classify.sqlite")
 	cat("Done. Results are in file ",outfile," \n")
+	
 }

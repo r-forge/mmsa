@@ -65,9 +65,6 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 }
 
 
-# CLOSE THE CONNECTION
-#dbDisconnect(con)
-#dbUnloadDriver(drv)
 
 closeGenDB <- function(db) {
     dbDisconnect(db$db)
@@ -107,6 +104,16 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    numeric=TRUE)],"]", sep='')
     dbGetQuery(db$db, 
 	    statement = paste("SELECT DISTINCT ",cols,
+		    " FROM classification ", 
+		    .getWhere(db, whereRank, whereName)))
+}
+
+getHierarchy <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
+    fields <- getClassification(db)
+    cols <- paste("[", fields[.pmatchRank(db, rank, 
+		    numeric=TRUE)],"]", sep='')
+    dbGetQuery(db$db, 
+	    statement = paste("SELECT  ",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName)))
 }

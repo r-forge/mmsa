@@ -13,7 +13,7 @@ Function to generate and save EMM models from a given database and use them for 
 \usage{
 processSequencesGreengenes(dir, db)
 createModels(modelDir, rank, db)
-classify(modelDir, seqFile)
+classify(modelDir, seqFile, rank)
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -34,7 +34,7 @@ classify(modelDir, seqFile)
 db<-createGenDB("classificationExample.sqlite")
 processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
 createModels(system.file("examples/models",package="MMSA"),rank="phylum",db)
-classify(system.file("examples/models",package="MMSA"),system.file("examples/testData.fasta",package="MMSA"))
+classify(system.file("examples/models",package="MMSA"),system.file("examples/testData.fasta",package="MMSA"), rank="phylum")
 #delete db to perform cleanup
 unlink("classificationExample.sqlite")
 }
