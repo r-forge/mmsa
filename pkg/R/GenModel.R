@@ -15,27 +15,18 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 		reset(emm)
 	}	
 
-	# FIXME: add name attribute. getSequences should pass on attributes
-	## for name and rank...
 	rank <- .pmatchRank(db, rank)
 	name<- unlist(attr(d,"name"))
-	#op <- paste(rank,": ", name, " - ", length(d), " sequences" , sep = '')
 	op <- paste(rank,": ", name)	
 	seq <- paste(length(d)," sequences")
 	op<- c(op, seq )
-	genModel <- list(name=op, model=emm)
+	
+	genModel <- list(name=name, rank=rank, model=emm)
 	class(genModel) <- "genModel"
 	
 	genModel	
 	
 }
-
-#plot<-function(emm)
-#{
-#	plot(emm$model, main=emm$name)
-#	
-#}
-
 
 
 processSequencesGreengenes <- function(dir, db) {
@@ -48,8 +39,24 @@ processSequencesGreengenes <- function(dir, db) {
 	createNSVTable(db, "NSV")
 }
 
-createModels <- function(modelDir, rank = "phylum", db)
+
+### validateModels...
+    # create a selection information
+    # call createModels
+    # classify (with data from db selection information)
+    
+
+## sel <- sample(c(0,1), 1000, prob=c(.9,.1), replace=TRUE)
+## sel <- sample(c(rep(1, times=100), rep(0, times=900)))
+
+
+
+## FIXME: Test/Training selection
+createModels <- function(modelDir, rank = "phylum", db) # selection argument
 {
+    ### check if modelDir exists
+    ### create rank subdir
+    
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
 	    emm <- genModel(db, table="NSV", rank, name=n)
@@ -59,12 +66,37 @@ createModels <- function(modelDir, rank = "phylum", db)
 	}
 }
 
+
+
+## pass a list of NSVs instead of file.
+## need a processSequenceFile (not database)
+
 classify<-function(modelDir, seqFile, rank)
 {
+
+     ### takes models from rank subdir
+
+	### read and NSVs for test Seq
+
+	modelFiles <- dir(modelDir, full.names=TRUE)    
+	    
+	### for each model
+	##	    score
+	###	    cbind to bind to resulting data.frame
+
+
+	### for each row in data.frame find max.
+    ### output: return data.frame
+    
+	
+	
+	
 	#outfile is where the results are saved - can make this a parameter
 	outfile<-"ClassifyResults.txt"
 	if (file.exists(outfile))
 		unlink(outfile)
+	
+
 	modelNames<-vector()
 	#header for the result file
 	cat("Sequence\t",file=outfile,append=TRUE)
