@@ -131,14 +131,17 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 	    )
 	fullRank<-.pmatchRank(db,rank)
 	fullNames <- dbGetQuery(db$db, 
+		statement = paste("SELECT ", fullRank ," FROM classification ",
+			.getWhere(db, rank, name))
+	    	)
+	uniqueNames <- dbGetQuery(db$db, 
 		statement = paste("SELECT DISTINCT", fullRank ," FROM classification ",
 			.getWhere(db, rank, name))
 	    	)
-	
     if (table !="sequences") ret <- lapply(ret,decodeSequence)		
     attr(ret$data,"rank")<-fullRank
 	attr(ret$data,"name")<-fullNames
-    
+	attr(ret$data,"uniqueName")<-uniqueNames
 
     ret$data
 }

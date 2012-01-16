@@ -1,11 +1,15 @@
 
 genModel <- function(db, rank=NULL, name=NULL, table, limit=-1, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE) {
+	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL) {
 	
 	### FIXME: check in metadata if it is NSV
 
 	emm <- EMM(measure=measure,threshold=threshold)	
 	d<-getSequences(db, rank, name, table, limit=limit)
+	if (!is.null(selection))
+		d<-d[selection]
+	else if (length(d)==0)
+		stop("GenModel called with 0 sequences")
 	
 	for(i in 1:length(d))
 	{
@@ -28,7 +32,8 @@ genModel <- function(db, rank=NULL, name=NULL, table, limit=-1,
 	
 }
 
-
+# reads all fasta files in a directory into a db and 
+# creates NSV table with all sequences
 processSequencesGreengenes <- function(dir, db) {
 	for(f in dir(dir, full.names=T))
 	{
@@ -45,108 +50,160 @@ processSequencesGreengenes <- function(dir, db) {
     # call createModels
     # classify (with data from db selection information)
     
+validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1, db)
+{
+	#dir => directory containing FASTA files which are to be used for model
+	#modelDir => directory where models are to be stored
+	#pctTrain => percentage of each rank to be used for creating the training model
+	#pctTest => percentage of each rank to be used for testing the model
+	
+	
+	rankDir<-file.path(modelDir,rank)
+    if (file.exists(modelDir))
+		{
+			if(!file.exists(rankDir)) dir.create(rankDir)
+		}
+	else
+		{
+			dir.create(modelDir)
+			dir.create(rankDir)
+		}
+	#read sequences and convert to NSV
+	processSequencesGreengenes(dir, db)
+	#create a list with a vector of selection for EACH rank
+	trainingList<-list()
+	testList<-list()
+	testNames<-list()
+	#get all the  rankNames for the given rank
+	rankNames <- getRank(db, rank)
 
+	for (i in 1:length(rankNames[,1]))
+	{
+		#get number of sequences in the rank
+		n<- nSequences(db,rank, rankNames[,1][i])
+		#create selection vector for this rank
+		#train
+		train<-as.integer(pctTrain*n)
+		test<-as.integer(pctTest*n)
+		#create a list with selected=0 for all initially
+		selList<- list(val=as.vector(1:n),training=as.vector(rep(0,n)))
+		#samp contains all the sequences which have been selected for training
+		samp<- sample(selList$val,size=train,replace=FALSE)
+		#mark training as true for all the samp
+		selList$training[samp]<-1
+		#get indices which have been selected for training
+		sel<-selList$val[selList$training==1]
+		#get the remaining indices which are for testing
+		notsel<-selList$val[selList$training==0]
+		#append selection vector to main list
+		trainingList<-c(trainingList, sel)
+		#create model using the training set
+		emm<-genModel(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
+	    #save the model to file
+		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		#########
+		# can also do this with the createModels function as:
+		# createModels(modelDir, rank, db, sel) => but need to find way to add rankName
+		##########
+		#get all sequences and filter it to just test sequences
+		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
+		#filter sequences and add to test list
+		testList<-c(testList,d[notsel])
+		#Names are lost after filtering, so need to keep a list of ranknames
+		testNames<-c(testNames,attr(d,"name")[[1]][notsel])
+	}
+	#add attributes to test
+	attr(testList,"rank")<-rank
+	attr(testList,"name")<-testNames
+	classify(modelDir,testList)
+}
 ## sel <- sample(c(0,1), 1000, prob=c(.9,.1), replace=TRUE)
 ## sel <- sample(c(rep(1, times=100), rep(0, times=900)))
 
-
-
-## FIXME: Test/Training selection
-createModels <- function(modelDir, rank = "phylum", db) # selection argument
+# Creates models in modelDir directory for all names in rank.
+# If selection is specified, then it uses only those sequences for creating the model
+createModels <- function(modelDir, rank = "phylum", db, selection=NULL) 
 {
     ### check if modelDir exists
     ### create rank subdir
-    
+	rankDir<-file.path(modelDir,rank)
+    if (file.exists(modelDir))
+		{
+			if(!file.exists(rankDir)) dir.create(rankDir)
+		}
+	else
+		{
+			dir.create(modelDir)
+			dir.create(rankDir)
+		}
+	#get All ranks
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
-	    emm <- genModel(db, table="NSV", rank, name=n)
-	    cat("Creating model for ", rank, ":", n, "\n")
-	    
-	    saveRDS(emm, file=paste(modelDir, "/", n, ".rds", sep=''))
+	    emm <- genModel(db, table="NSV", rank, name=n,selection=selection)
+	    cat("Creating model for ", rank, ":", n, "\n")	    
+	    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
 	}
 }
 
 
 
-## pass a list of NSVs instead of file.
-## need a processSequenceFile (not database)
-
-classify<-function(modelDir, seqFile, rank)
+# modelDir is a directory with subfolders for various ranks
+# NSVList is a list containing NSV with a rank attribute and a "name" attribute which is a list of rankNames
+# output is a data.frame containing the similarity scores, predicted value and the actual value
+classify<-function(modelDir, NSVList)
 {
 
      ### takes models from rank subdir
-
+	rank<-attr(NSVList,"rank")
+	if (is.null(rank))
+		stop("NSVList does not have a rank attribute")
+    rankDir<-file.path(modelDir,rank)
 	### read and NSVs for test Seq
-
-	modelFiles <- dir(modelDir, full.names=TRUE)    
-	    
-	### for each model
-	##	    score
-	###	    cbind to bind to resulting data.frame
-
-
-	### for each row in data.frame find max.
-    ### output: return data.frame
-    
-	
-	
-	
-	#outfile is where the results are saved - can make this a parameter
-	outfile<-"ClassifyResults.txt"
-	if (file.exists(outfile))
-		unlink(outfile)
-	
-
-	modelNames<-vector()
-	#header for the result file
-	cat("Sequence\t",file=outfile,append=TRUE)
-	for(f in dir(modelDir, full.names=F))
+	if (!file.exists(rankDir))
+		stop("Directory ",rankDir," not found")
+	modelFiles <- dir(rankDir, full.names=TRUE)    
+	classificationScores<-data.frame()
+	for (modelFile in modelFiles)
 	{
-	  f<-sub(".rds","",f)
-	  modelNames<-c(modelNames,f)
-	  cat(f,"\t",file=outfile,append=TRUE)
-	}
-	cat("Actual\tPredicted",file=outfile,append=TRUE)
-	cat("\n",file=outfile,append=TRUE)
-	#delete db file if already exists
-	if (file.exists(".classify.sqlite"))
-		unlink(".classify.sqlite")
-	#create new temp db for storing seqFile
-	.dbc<-createGenDB(".classify.sqlite")
-	#read file
-	addSequencesGreengenes(.dbc,seqFile)
-	#convert sequences to NSV
-	createNSVTable(.dbc,"NSV")
-	#get all sequences as a list
-	sequences<-getSequences(.dbc,table="NSV")
-	#get all the values in the rank
-	rankValues<-getHierarchy(.dbc,rank)[,1]
-	#loop through all the sequences
-	for(i  in 1:length(sequences))
-	{
-	 #loop through each model in the modelDir and find similarity	 
-		cat(i,"\t",file=outfile,append=TRUE)
-		maxPosition<-0
-		maxValue <- 0
-		j<-1
-		for(f in dir(modelDir, full.names=T))
+		modelName<-basename(modelFile)
+		modelName<- sub(".rds","",modelName)
+		model<-readRDS(modelFile)
+		modelSim<-data.frame()
+		for (NSV in NSVList)
 		{
-		  .model<-readRDS(f)
-		  score<-score(.model$model,sequences[[i]]+1,plus_one=TRUE)
-		  if (score > maxValue) {
-			maxPosition<-j
-			maxValue<-score
-		  }
-		  j<- j+1
-		  cat(score,"\t",file=outfile,append=TRUE)
+			sc<-score(model$model,NSV+1,plus_one=TRUE)
+			if(length(modelSim)==0)
+				modelSim<-rbind(sc,deparse.level=3) #deparse.level=3=>no rownames
+			else
+				modelSim<-rbind(modelSim,sc,deparse.level=3) #deparse.level=3=> no rownames
 		}
-		#output the actual rank
-		cat(rankValues[i],"\t",file=outfile,append=TRUE)
-		#output predicted rank
-		cat(modelNames[maxPosition],"\t",file=outfile,append=TRUE)
-		cat("\n",file=outfile,append=TRUE)
+		colnames(modelSim)<-modelName
+		if (length(classificationScores)!=0)
+			classificationScores<-cbind(classificationScores,modelSim)
+		else if (length(classificationScores)==0)
+			classificationScores <- modelSim
+	}    
+	#find predicted value
+	predValues<-data.frame()
+	actualValues<-data.frame()
+	for (i in 1:length(classificationScores[,1]))
+	{
+		#find the max row
+		maxRow=which.max(classificationScores[i,])
+		predicted=colnames(classificationScores)[maxRow]
+		if(length(predValues)==0)
+			predValues<-rbind(predicted, deparse.level=3)
+		else
+			predValues<-rbind(predValues,predicted, deparse.level=3)
+		if(length(actualValues)==0)
+			actualValues<-rbind(attr(NSVList,"name")[[i]], deparse.level=3)
+		else 
+			actualValues<-rbind(actualValues,attr(NSVList,"name")[[i]], deparse.level=3)
 	}
-	unlink(".classify.sqlite")
-	cat("Done. Results are in file ",outfile," \n")
+	colnames(predValues)<-"predicted"
+	colnames(actualValues)<-"actual"
+	classificationScores<-cbind(classificationScores,actualValues)
+	classificationScores<-cbind(classificationScores,predValues)
+	return(classificationScores)
 	
 }
