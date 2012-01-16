@@ -50,13 +50,13 @@ processSequencesGreengenes <- function(dir, db) {
     # call createModels
     # classify (with data from db selection information)
     
-validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1, db)
+validateModels<-function(dir, modelDir, rank="phylum", db, pctTrain=0.9, pctTest=0.1)
 {
 	#dir => directory containing FASTA files which are to be used for model
 	#modelDir => directory where models are to be stored
 	#pctTrain => percentage of each rank to be used for creating the training model
 	#pctTest => percentage of each rank to be used for testing the model
-	
+    #db=> database where sequences are to be stored	
 	
 	rankDir<-file.path(modelDir,rank)
     if (file.exists(modelDir))
@@ -80,7 +80,7 @@ validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1
 	for (i in 1:length(rankNames[,1]))
 	{
 		#get number of sequences in the rank
-		n<- nSequences(db,rank, rankNames[,1][i])
+		n <- nSequences(db,rank, rankNames[,1][i])
 		#create selection vector for this rank
 		#train
 		train<-as.integer(pctTrain*n)
@@ -110,11 +110,16 @@ validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1
 		#filter sequences and add to test list
 		testList<-c(testList,d[notsel])
 		#Names are lost after filtering, so need to keep a list of ranknames
+		#testNames[i,1]<-attr(d,"name")[[1]][notsel]
 		testNames<-c(testNames,attr(d,"name")[[1]][notsel])
 	}
 	#add attributes to test
+	testNamesdf<-data.frame()
+	for(j in 1:length(testNames))
+		testNamesdf[j,1]<-testNames[[j]]
 	attr(testList,"rank")<-rank
-	attr(testList,"name")<-testNames
+	attr(testList,"name")<-testNamesdf
+	print("calling classify")
 	classify(modelDir,testList)
 }
 ## sel <- sample(c(0,1), 1000, prob=c(.9,.1), replace=TRUE)
@@ -196,8 +201,10 @@ classify<-function(modelDir, NSVList)
 		else
 			predValues<-rbind(predValues,predicted, deparse.level=3)
 		if(length(actualValues)==0)
+			#actualValues<-rbind(attr(NSVList,"name")[i,1], deparse.level=3)
 			actualValues<-rbind(attr(NSVList,"name")[[i]], deparse.level=3)
 		else 
+			#actualValues<-rbind(actualValues,attr(NSVList,"name")[i,1], deparse.level=3)
 			actualValues<-rbind(actualValues,attr(NSVList,"name")[[i]], deparse.level=3)
 	}
 	colnames(predValues)<-"predicted"
