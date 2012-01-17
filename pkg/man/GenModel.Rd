@@ -10,7 +10,7 @@ Manage Gene Sequence Models
 Functions to generate, plot, and classify gene sequence models
 }
 \usage{
-	genModel(db, rank, name, table, limit, measure, threshold, plus_one)
+	genModel(db, rank, name, table, limit, measure, threshold, plus_one, selection)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
@@ -21,6 +21,7 @@ Functions to generate, plot, and classify gene sequence models
 	\item{measure}{Character name of the dissimilarity measure used. See 'dist' in 'proxy' for available measures. Default is "Kullback"} 
 	\item{threshold}{Numeric dissimilarity threshold used by the clustering algorithm for assigning a new observation to existing clusters. Default value is 0.10.} 
 	\item{plus_one}{Boolean used to increase all the values in the NSV vectors by one. By default is TRUE.} 
+	\item{selection}{Numeric vector indicating which sequences to take while creating the model. By default, all sequences are taken when constructing the model.} 
 
 }
 \value{

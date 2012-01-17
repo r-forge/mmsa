@@ -50,7 +50,7 @@ processSequencesGreengenes <- function(dir, db) {
     # call createModels
     # classify (with data from db selection information)
     
-validateModels<-function(dir, modelDir, rank="phylum", db, pctTrain=0.9, pctTest=0.1)
+validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1)
 {
 	#dir => directory containing FASTA files which are to be used for model
 	#modelDir => directory where models are to be stored
@@ -68,12 +68,13 @@ validateModels<-function(dir, modelDir, rank="phylum", db, pctTrain=0.9, pctTest
 			dir.create(modelDir)
 			dir.create(rankDir)
 		}
+	db<-createGenDB(".validateModels.sqlite")
 	#read sequences and convert to NSV
 	processSequencesGreengenes(dir, db)
 	#create a list with a vector of selection for EACH rank
 	trainingList<-list()
 	testList<-list()
-	testNames<-list()
+	testNames<-vector()
 	#get all the  rankNames for the given rank
 	rankNames <- getRank(db, rank)
 
@@ -111,16 +112,17 @@ validateModels<-function(dir, modelDir, rank="phylum", db, pctTrain=0.9, pctTest
 		testList<-c(testList,d[notsel])
 		#Names are lost after filtering, so need to keep a list of ranknames
 		#testNames[i,1]<-attr(d,"name")[[1]][notsel]
-		testNames<-c(testNames,attr(d,"name")[[1]][notsel])
+		testNames<-c(testNames,attr(d,"name")[notsel])
 	}
 	#add attributes to test
-	testNamesdf<-data.frame()
-	for(j in 1:length(testNames))
-		testNamesdf[j,1]<-testNames[[j]]
+	unlink(".validateModels.sqlite")
+	rm(db)
+	#testNamesdf<-data.frame()
+	#for(j in 1:length(testNames))
+	#	testNamesdf[j,1]<-testNames[j]
 	attr(testList,"rank")<-rank
-	attr(testList,"name")<-testNamesdf
-	print("calling classify")
-	classify(modelDir,testList)
+	attr(testList,"name")<-testNames
+	return(classify(modelDir,testList))
 }
 ## sel <- sample(c(0,1), 1000, prob=c(.9,.1), replace=TRUE)
 ## sel <- sample(c(rep(1, times=100), rep(0, times=900)))
