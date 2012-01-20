@@ -10,18 +10,18 @@ Manage Gene Sequence Models
 Functions to generate, plot, and classify gene sequence models
 }
 \usage{
-	genModel(db, rank, name, table, limit, measure, threshold, plus_one, selection)
+	genModel(db, rank, name, table, measure, threshold, plus_one, selection, limit)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
 	\item{rank}{Name of Rank to be filtered by. For example: kingdom, phylum, etc. OPTIONAL}
 	\item{name}{Name of Rank to be filtered by. For example: if rank=kingdom, name can be Bacteria. OPTIONAL}
 	\item{table}{Name of the table containing NSV format sequences.} 
-	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
 	\item{measure}{Character name of the dissimilarity measure used. See 'dist' in 'proxy' for available measures. Default is "Kullback"} 
 	\item{threshold}{Numeric dissimilarity threshold used by the clustering algorithm for assigning a new observation to existing clusters. Default value is 0.10.} 
 	\item{plus_one}{Boolean used to increase all the values in the NSV vectors by one. By default is TRUE.} 
 	\item{selection}{Numeric vector indicating which sequences to take while creating the model. By default, all sequences are taken when constructing the model.} 
+	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
 
 }
 \value{

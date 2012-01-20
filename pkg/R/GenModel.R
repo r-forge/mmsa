@@ -1,10 +1,10 @@
 
-genModel <- function(db, rank=NULL, name=NULL, table, limit=-1, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL) {
+genModel <- function(db, rank=NULL, name=NULL, table, 
+	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1) {
 	
 	### FIXME: check in metadata if it is NSV
 
-	emm <- EMM(measure=measure,threshold=threshold)	
+	emm <- EMM(measure=measure,threshold=threshold)
 	d<-getSequences(db, rank, name, table, limit=limit)
 	if (!is.null(selection))
 		d<-d[selection]
@@ -45,12 +45,10 @@ processSequencesGreengenes <- function(dir, db) {
 }
 
 
-### validateModels...
-    # create a selection information
-    # call createModels
-    # classify (with data from db selection information)
-    
-validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1)
+# Takes the sequences from a directory and splits them up into training and test sets.
+# Uses the training sequences to create models and stores them in the modelDir directory.
+# The pctTest is the fraction of sequences used for testing.
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 {
 	#dir => directory containing FASTA files which are to be used for model
 	#modelDir => directory where models are to be stored
@@ -68,9 +66,10 @@ validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1
 			dir.create(modelDir)
 			dir.create(rankDir)
 		}
-	db<-createGenDB(".validateModels.sqlite")
+	#db<-createGenDB(".validateModels.sqlite")
 	#read sequences and convert to NSV
-	processSequencesGreengenes(dir, db)
+	#processSequencesGreengenes(dir, db)
+	pctTrain = 1 - pctTest
 	#create a list with a vector of selection for EACH rank
 	trainingList<-list()
 	testList<-list()
@@ -86,26 +85,13 @@ validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1
 		#train
 		train<-as.integer(pctTrain*n)
 		test<-as.integer(pctTest*n)
-		#create a list with selected=0 for all initially
-		selList<- list(val=as.vector(1:n),training=as.vector(rep(0,n)))
-		#samp contains all the sequences which have been selected for training
-		samp<- sample(selList$val,size=train,replace=FALSE)
-		#mark training as true for all the samp
-		selList$training[samp]<-1
-		#get indices which have been selected for training
-		sel<-selList$val[selList$training==1]
-		#get the remaining indices which are for testing
-		notsel<-selList$val[selList$training==0]
-		#append selection vector to main list
-		trainingList<-c(trainingList, sel)
+		selList<-sample(c(rep(1,train),rep(0,test)))
+		sel<-which(selList==1)
+		notsel<-which(selList==0)
 		#create model using the training set
 		emm<-genModel(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
 	    #save the model to file
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
-		#########
-		# can also do this with the createModels function as:
-		# createModels(modelDir, rank, db, sel) => but need to find way to add rankName
-		##########
 		#get all sequences and filter it to just test sequences
 		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list
@@ -129,7 +115,7 @@ validateModels<-function(dir, modelDir, rank="phylum", pctTrain=0.9, pctTest=0.1
 
 # Creates models in modelDir directory for all names in rank.
 # If selection is specified, then it uses only those sequences for creating the model
-createModels <- function(modelDir, rank = "phylum", db, selection=NULL) 
+createModels <- function(modelDir, rank = "phylum", db, selection=NULL, limit=-1) 
 {
     ### check if modelDir exists
     ### create rank subdir
@@ -146,7 +132,7 @@ createModels <- function(modelDir, rank = "phylum", db, selection=NULL)
 	#get All ranks
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
-	    emm <- genModel(db, table="NSV", rank, name=n,selection=selection)
+	    emm <- genModel(db, table="NSV", rank, name=n,selection=selection,limit=limit)
 	    cat("Creating model for ", rank, ":", n, "\n")	    
 	    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
 	}
