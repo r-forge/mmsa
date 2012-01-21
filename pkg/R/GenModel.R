@@ -35,7 +35,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
 processSequencesGreengenes <- function(dir, db) {
-	for(f in dir(dir, full.names=T))
+	for(f in dir(dir, full.names=TRUE))
 	{
 	    cat("Processing file: ",f,"\n")
 	    addSequencesGreengenes(db, f)
@@ -44,6 +44,34 @@ processSequencesGreengenes <- function(dir, db) {
 	createNSVTable(db, "NSV")
 }
 
+sequencesToModels <- function(dir, modelDir, rank) {
+	rankDir<-file.path(modelDir,rank)
+    if (file.exists(modelDir))
+		{
+			if(!file.exists(rankDir)) dir.create(rankDir)
+		}
+	else
+		{
+			dir.create(modelDir)
+			dir.create(rankDir)
+		}
+	for(f in dir(dir, full.names=TRUE))
+	{
+	    cat("Processing file: ",f,"\n")
+		fileName <-basename(f)
+		modelName<-sub(".fasta",".rds",fileName)
+		dbName<-sub(".fasta",".sqlite",fileName)
+		db<-createGenDB(dbName)
+	    addSequencesGreengenes(db, f)
+		createNSVTable(db, "NSV")
+	    emm <- genModel(db, table="NSV")
+	    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
+		unlink(dbName)
+		rm(db)
+		rm(emm)
+	}
+	    
+}
 
 # Takes the sequences from a directory and splits them up into training and test sets.
 # Uses the training sequences to create models and stores them in the modelDir directory.
