@@ -61,14 +61,17 @@ sequencesToModels <- function(dir, modelDir, rank) {
 		fileName <-basename(f)
 		modelName<-sub(".fasta",".rds",fileName)
 		dbName<-sub(".fasta",".sqlite",fileName)
-		db<-createGenDB(dbName)
-	    addSequencesGreengenes(db, f)
-		createNSVTable(db, "NSV")
-	    emm <- genModel(db, table="NSV")
-	    saveRDS(emm, file=file.path(rankDir,modelName))
-		unlink(dbName)
-		rm(db)
-		rm(emm)
+		if (!file.exists(file.path(rankDir,modelName)))
+		{	
+			db<-createGenDB(dbName)
+	    	addSequencesGreengenes(db, f)
+			createNSVTable(db, "NSV")
+	    	emm <- genModel(db, table="NSV")
+	    	saveRDS(emm, file=file.path(rankDir,modelName))
+			unlink(dbName)
+			rm(db)
+			rm(emm)
+		}
 	}
 	    
 }
