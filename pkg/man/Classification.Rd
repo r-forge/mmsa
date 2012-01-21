@@ -3,6 +3,7 @@
 \alias{createModels}
 \alias{processSequencesGreengenes}
 \alias{validateModels}
+\alias{sequencesToModels}
 \alias{classify}
 \docType{data}
 \title{
@@ -16,7 +17,7 @@ processSequencesGreengenes(dir, db)
 createModels(modelDir, rank, db, selection, limit)
 classify(modelDir, NSVList)
 validateModels(db, modelDir, rank, table, pctTest)
-
+sequencesToModels(dir, modelDir, rank)	
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -41,6 +42,7 @@ validateModels(db, modelDir, rank, table, pctTest)
 	The function createModels creates EMM models at a given rank (eg: phylum) and stores the models in a serialized format in the directory specified by the first parameter. 
 	The function classify finds similarity between a sequence (whose classification hierarchy may be unknown) and the EMM models saved in a directory. The function goes through all the sequences in the seqFile (which should be in fasta format) and finds their similarity with all the models in the modelDir directory. The result is outputted in a tab separated file called ClassifyResults.txt.
 	The function validateModels reads in all the fasta files in the dir and uses a fraction of those for generating models for each rank and stores the models in the modelDir. It uses the remaining sequences for testing and tries to classify the test sequences by comparing their similarity with the generated models. It outputs a dataframe with the similarity score matrix, the actual rank and the predicted rank.
+	The function sequencesToModels converts all the sequences in a directory to models one by one. This is basically if you would like to convert the entire dataset into models and it is not possible to load the whole dataset into memory. 
 }
 \examples{
 #create a db for demonstration purpose
@@ -52,6 +54,7 @@ d<-getSequences(db,rank,table="NSV")
 classify(".",d)
 #delete db to perform cleanup
 validateModels(db,".",rank,table="NSV",pctTest=0.1)
+sequencesToModels(system.file("examples/phylums",package="MMSA"),".","phylum")
 #delete the database file to cleanup
 unlink("classificationExample.sqlite")
 unlink(rank)
