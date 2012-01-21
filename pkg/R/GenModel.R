@@ -65,7 +65,7 @@ sequencesToModels <- function(dir, modelDir, rank) {
 	    addSequencesGreengenes(db, f)
 		createNSVTable(db, "NSV")
 	    emm <- genModel(db, table="NSV")
-	    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
+	    saveRDS(emm, file=modelName)
 		unlink(dbName)
 		rm(db)
 		rm(emm)
