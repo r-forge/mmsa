@@ -10,7 +10,7 @@
 }
 \usage{
 	GenClass16S_Greengenes(kingdom, phylum, class, order, family, 
-		genus, species, otu, org_name) 
+		genus, species, otu, org_name, id) 
 }
 \arguments{
 	\item{kingdom}{Name of the kingdom to which the organism belongs. OPTIONAL} 
@@ -22,6 +22,7 @@
 	\item{species}{Name of the species to which the organism belongs. OPTIONAL} 
 	\item{otu}{Name of the otu to which the organism belongs. OPTIONAL} 
 	\item{org_name}{Name of the organism. OPTIONAL} 
+	\item{id}{ID of the sequence from Greengenes. OPTIONAL} 
 }
 \details{
 	The function GenClass16S_Greengenes creates a classification object for the gene sequence. 
@@ -37,7 +38,7 @@
 	GenClass16S_Greengenes(kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", 
 		order="Clostridiales", family="Peptococcaceae",
 		genus="Desulfotomaculum", species="Unclassified", otu="2143", 
-		org_name="Desulfotomaculum thermocisternum str. ST90" )
+		org_name="Desulfotomaculum thermocisternum str. ST90", id="13651")
 
 }
 \keyword{datasets}
