@@ -35,7 +35,7 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 	    )
 
     #second table stores the sequences as BLOB with org_name as PK
-    seq <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), data BLOB "
+    seq <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB "
     try(
 	    dbSendQuery(db, 
 		    statement = paste("CREATE TABLE sequences (",
@@ -122,20 +122,16 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 
     if(limit<0) limit <- "" 
     else limit <- paste(" LIMIT ",limit)
-    
-	fullRank<-.pmatchRank(db,rank)
+	if (!is.null(rank))    
+		fullRank<-.pmatchRank(db,rank)
+	else
+		fullRank <-NULL
 	ret <- dbGetQuery(db$db, 
 		statement = paste("SELECT data, ", fullRank ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.org_name = ",
 		table, ".org_name ", 
 		.getWhere(db, rank, name)," ORDER BY RANDOM() ", limit)
 	    )
-	#fullRank<-.pmatchRank(db,rank)
-	#cat("fullRank :",fullRank,"\n")
-	#fullNames <- dbGetQuery(db$db, 
-	#	statement = paste("SELECT ", fullRank ," AS fullName FROM classification ",
-	#		.getWhere(db, rank, name))
-	#    	)
 	uniqueNames <- dbGetQuery(db$db, 
 		statement = paste("SELECT DISTINCT", fullRank ," FROM classification ",
 			.getWhere(db, rank, name))

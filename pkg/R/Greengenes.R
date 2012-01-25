@@ -1,11 +1,11 @@
 
 ## classification hierarchy for 16S
 GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA, 
-	family=NA, genus=NA, species=NA, otu=NA,org_name=NA) {
+	family=NA, genus=NA, species=NA, otu=NA,org_name=NA,id=NA) {
 
     c(kingdom=kingdom, phylum=phylum, class=class,
 	    order=order, family=family, genus=genus, species=species,
-	    otu=otu,org_name=org_name)
+	    otu=otu,org_name=org_name,id=id)
 }
 
 
@@ -25,7 +25,9 @@ addSequencesGreengenes <- function(db, file,verbose=FALSE) {
 	annot <- sub(">", "", annot)
 	# split at "k__" 
 	tmp <- strsplit(annot, " *k__")[[1]]
-	org_name <- gsub("'","",tmp[1])	
+	org_name <- gsub("'","",tmp[1])
+	id<-strsplit(org_name," ")[[1]][1]
+	org_name<- trimSpace(sub(id,"",org_name))
 	tmp <- strsplit(paste('k__',tmp[2], sep=''), '; *')[[1]]
 	cl <- sapply(fields, FUN=function(f) {
 		    val <- grep(f, tmp, value=TRUE)
@@ -34,7 +36,7 @@ addSequencesGreengenes <- function(db, file,verbose=FALSE) {
 		    val
 		})
 
-	c(cl, org_name)
+	c(cl, org_name,id)
     }
 	#end helper function
     ok <- 0

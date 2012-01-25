@@ -6,7 +6,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
 
     ### this might need to much memory. Use SQL LIMIT
-    NSV <- "org_name TEXT PRIMARY KEY REFERENCES classification(org_name), data BLOB"
+    NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
 	    dbSendQuery(db$db, 
 		    statement = paste("CREATE TABLE ", tableName ,
@@ -25,7 +25,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 		if (is.null(whereRank) && is.null(whereName))
 			d <- dbGetQuery(db$db, statement = paste("SELECT * FROM sequences LIMIT ",start,",",num_records,sep=""))    
 		else
-			d <- dbGetQuery(db$db, statement = paste("SELECT sequences.org_name, sequences.data FROM sequences INNER JOIN classification ON sequences.org_name=classification.org_name WHERE classification.",
+			d <- dbGetQuery(db$db, statement = paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
 					.pmatchRank(db,whereRank)," LIKE '", whereName,"%' LIMIT ",start,",",num_records,sep="" ))    
 		
 		if (nrow(d)==0) break;
@@ -38,7 +38,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 		nsv <- .counter(d$data[i], window, overlap, word, last_window)
 		d$data[i] <- base64encode(serialize(nsv, NULL))
 		#end make NSV
-		org_name<-d$org_name_
+		#org_name<-d$org_name_
 	
 		## Insert into DB
 	
