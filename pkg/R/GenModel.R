@@ -1,8 +1,53 @@
-
+# creates an EMM model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
 	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1) {
+	#check if table exists in db
+	if (length(which(table==listGenDB(db))) == 0)
+		stop("Could not find table in database")
+	#check if table is of type NSV	
+	meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
+	index<-which(meta$name==table)  #find index of table
+	if (meta$type[index]!="NSV")
+		stop("Not an NSV table")
+	emm <- EMM(measure=measure,threshold=threshold)
+	d<-getSequences(db, rank, name, table, limit=limit)
+	if (!is.null(selection))
+		d<-d[selection]
+	else if (length(d)==0)
+		stop("GenModel called with 0 sequences")
+    cat("Obtained sequences \n")	
+	for(i in 1:length(d))
+	{
+		if (i%%100==0) cat("genModel : Read ",i," sequences for creating model for rank: ",rank," name: ",name,"\n")
+		sequence<- d[[i]]		
+		if(plus_one) sequence <- sequence + 1
+		build(emm,sequence)
+		reset(emm)
+	}	
+
+	rank <- .pmatchRank(db, rank)
+	name<- unlist(attr(d,"name"))
+	op <- paste(rank,": ", name)	
+	seq <- paste(length(d)," sequences")
+	op<- c(op, seq )
 	
-	### FIXME: check in metadata if it is NSV
+	genModel <- list(name=name, rank=rank, model=emm)
+	class(genModel) <- "genModel"	
+	genModel		
+}
+
+# creates an EMM model from sequences in the db for large number of sequences
+.genModel_large <- function(db, rank=NULL, name=NULL, table, 
+	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1) {
+	
+	#check if table exists in db
+	if (length(which(table==listGenDB(db))) == 0)
+		stop("Could not find table in database")
+	#check if table is of type NSV	
+	meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
+	index<-which(meta$name==table)  #find index of table
+	if (meta$type[index]!="NSV")
+		stop("Not an NSV table")
 
 	emm <- EMM(measure=measure,threshold=threshold)
 	d<-getSequences(db, rank, name, table, limit=limit)
@@ -10,7 +55,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		d<-d[selection]
 	else if (length(d)==0)
 		stop("GenModel called with 0 sequences")
-	
+    cat("Obtained sequences \n")	
 	for(i in 1:length(d))
 	{
 		sequence<- d[[i]]		
@@ -27,6 +72,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	
 	genModel <- list(name=name, rank=rank, model=emm)
 	class(genModel) <- "genModel"
+		attr(ret$data,"uniqueName")<-uniqueNames
 	
 	genModel	
 	
@@ -66,7 +112,7 @@ sequencesToModels <- function(dir, modelDir, rank) {
 			db<-createGenDB(dbName)
 	    	addSequencesGreengenes(db, f)
 			createNSVTable(db, "NSV")
-	    	emm <- genModel(db, table="NSV")
+	    	emm <- genModel(db, table="NSV",rank=rank)
 	    	saveRDS(emm, file=file.path(rankDir,modelName))
 			unlink(dbName)
 			rm(db)
@@ -141,8 +187,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 	attr(testList,"name")<-testNames
 	return(classify(modelDir,testList))
 }
-## sel <- sample(c(0,1), 1000, prob=c(.9,.1), replace=TRUE)
-## sel <- sample(c(rep(1, times=100), rep(0, times=900)))
 
 # Creates models in modelDir directory for all names in rank.
 # If selection is specified, then it uses only those sequences for creating the model

@@ -125,23 +125,21 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 	if (!is.null(rank))    
 		fullRank<-.pmatchRank(db,rank)
 	else
-		fullRank <-NULL
+		fullRank <-"-1"
 	ret <- dbGetQuery(db$db, 
-		statement = paste("SELECT data, ", fullRank ," AS fullRank  FROM ", table ,
-		" INNER JOIN classification ON classification.org_name = ",
-		table, ".org_name ", 
+		statement = paste("SELECT data, classification.id AS id, ", fullRank ," AS fullRank  FROM ", table ,
+		" INNER JOIN classification ON classification.id = ",
+		table, ".id ", 
 		.getWhere(db, rank, name)," ORDER BY RANDOM() ", limit)
 	    )
-	uniqueNames <- dbGetQuery(db$db, 
-		statement = paste("SELECT DISTINCT", fullRank ," FROM classification ",
-			.getWhere(db, rank, name))
-	    	)
+	
     if (table !="sequences") ret$data <- lapply(ret$data,decodeSequence)		
-    attr(ret$data,"rank")<-fullRank
-	attr(ret$data,"name")<-ret$fullRank
-	#attr(ret$data,"name")<-fullNames$fullName
-	attr(ret$data,"uniqueName")<-uniqueNames
-
+    if(!is.null(rank))
+	{
+		attr(ret$data,"rank")<-fullRank
+		attr(ret$data,"name")<-ret$fullRank
+	}
+	attr(ret$data,"id")<-ret$id
     ret$data
 }
 

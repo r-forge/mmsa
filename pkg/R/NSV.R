@@ -5,7 +5,6 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
 
-    ### this might need to much memory. Use SQL LIMIT
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
 	    dbSendQuery(db$db, 
@@ -13,6 +12,14 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 			    "(",  NSV,  ")", sep='')
 		    )
 	    )
+	# insert into metadata
+	meta<-paste("'", tableName , "','NSV','whereRank=" , whereRank , ";whereName=" ,whereName , ";window=", window ,
+		";overlap=", overlap ,";word=" , word , ";last_window=" , last_window , ";'",sep='')
+	try(
+	    dbSendQuery(db$db, 
+		    statement = paste("INSERT INTO metaData VALUES ( ",  meta,  ")", sep='')
+		    )
+	    )	
     ok <- 0
     fail <- 0
     total <- 0
@@ -38,10 +45,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 		nsv <- .counter(d$data[i], window, overlap, word, last_window)
 		d$data[i] <- base64encode(serialize(nsv, NULL))
 		#end make NSV
-		#org_name<-d$org_name_
-	
 		## Insert into DB
-	
 		dat <- paste("'",d[i,],"'", sep='', collapse=', ')
 	
 		tr<- try(
@@ -59,7 +63,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 			}
 		total <- total+1
 
-		if(total%%num_records == 0) cat("Read", total, "entries (ok:", ok, 
+		if(total%%num_records == 0) cat("CreateNSVTable: Read", total, "entries (ok:", ok, 
 			"/ fail:", fail,")\n")
 
 		} #for(i in 1:nrow(d))
