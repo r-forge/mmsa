@@ -15,16 +15,16 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		d<-d[selection]
 	else if (length(d)==0)
 		stop("GenModel called with 0 sequences")
-    cat("Obtained sequences \n")	
+    cat("Creating model for rank:",rank,",name:",name,"\n")
 	for(i in 1:length(d))
 	{
-		if (i%%100==0) cat("genModel : Read ",i," sequences for creating model for rank: ",rank," name: ",name,"\n")
+		if (i%%100==0) cat("\tgenModel: Read ",i," sequences \n")
 		sequence<- d[[i]]		
 		if(plus_one) sequence <- sequence + 1
 		build(emm,sequence)
 		reset(emm)
 	}	
-
+	cat("genModel: Read ",length(d)," sequences \n")
 	rank <- .pmatchRank(db, rank)
 	name<- unlist(attr(d,"name"))
 	op <- paste(rank,": ", name)	
@@ -36,47 +36,6 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	genModel		
 }
 
-# creates an EMM model from sequences in the db for large number of sequences
-.genModel_large <- function(db, rank=NULL, name=NULL, table, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1) {
-	
-	#check if table exists in db
-	if (length(which(table==listGenDB(db))) == 0)
-		stop("Could not find table in database")
-	#check if table is of type NSV	
-	meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
-	index<-which(meta$name==table)  #find index of table
-	if (meta$type[index]!="NSV")
-		stop("Not an NSV table")
-
-	emm <- EMM(measure=measure,threshold=threshold)
-	d<-getSequences(db, rank, name, table, limit=limit)
-	if (!is.null(selection))
-		d<-d[selection]
-	else if (length(d)==0)
-		stop("GenModel called with 0 sequences")
-    cat("Obtained sequences \n")	
-	for(i in 1:length(d))
-	{
-		sequence<- d[[i]]		
-		if(plus_one) sequence <- sequence + 1
-		build(emm,sequence)
-		reset(emm)
-	}	
-
-	rank <- .pmatchRank(db, rank)
-	name<- unlist(attr(d,"name"))
-	op <- paste(rank,": ", name)	
-	seq <- paste(length(d)," sequences")
-	op<- c(op, seq )
-	
-	genModel <- list(name=name, rank=rank, model=emm)
-	class(genModel) <- "genModel"
-		attr(ret$data,"uniqueName")<-uniqueNames
-	
-	genModel	
-	
-}
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
@@ -234,6 +193,7 @@ classify<-function(modelDir, NSVList)
 	for (modelFile in modelFiles)
 	{
 		modelName<-basename(modelFile)
+		cat("clasify: Creating score matrix for: ",modelName,"\n")
 		modelName<- sub(".rds","",modelName)
 		model<-readRDS(modelFile)
 		modelSim<-data.frame()
@@ -254,6 +214,7 @@ classify<-function(modelDir, NSVList)
 	#find predicted value
 	predValues<-data.frame()
 	actualValues<-data.frame()
+	prediction<-data.frame() #final prediction
 	for (i in 1:length(classificationScores[,1]))
 	{
 		#find the max row
@@ -272,8 +233,9 @@ classify<-function(modelDir, NSVList)
 	}
 	colnames(predValues)<-"predicted"
 	colnames(actualValues)<-"actual"
-	classificationScores<-cbind(classificationScores,actualValues)
-	classificationScores<-cbind(classificationScores,predValues)
-	return(classificationScores)
+	prediction<-cbind(actualValues)
+	prediction<-cbind(prediction,predValues)
+	classification<-list(scores=classificationScores,prediction=prediction)
+	return(classification)
 	
 }

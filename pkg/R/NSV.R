@@ -4,6 +4,8 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 	overlap=0, word=3, last_window=FALSE) {
 
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
+	if (length(which(tableName==listGenDB(db))) > 0)
+		stop("A table with this name already exists in the db")
 
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
@@ -58,8 +60,8 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 		else 
 			{
 				fail <- fail+1
-				statement = paste("INSERT INTO ", tableName," VALUES (", dat, ")", sep='')
-				#print(statement)
+				stop("Error ", tr, " occured. It is likely you are trying to insert duplicate values in the NSV")
+				
 			}
 		total <- total+1
 
@@ -75,7 +77,7 @@ createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=
 	#end loop
     
     
-    cat("Read", ok+fail, "entries. Added", ok , "entries.\n")
+    cat("CreateNSVTable: Read", ok+fail, "entries. Added", ok , "entries.\n")
 
 }
 
