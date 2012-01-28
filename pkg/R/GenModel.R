@@ -15,7 +15,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		d<-d[selection]
 	else if (length(d)==0)
 		stop("GenModel called with 0 sequences")
-    cat("Creating model for rank:",rank,",name:",name,"\n")
+    cat("genModel: Creating model for rank:",rank,",name:",name,"\n")
 	for(i in 1:length(d))
 	{
 		if (i%%100==0) cat("\tgenModel: Read ",i," sequences \n")
@@ -26,12 +26,12 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	}	
 	cat("genModel: Read ",length(d)," sequences \n")
 	rank <- .pmatchRank(db, rank)
-	name<- unlist(attr(d,"name"))
-	op <- paste(rank,": ", name)	
+	rankName<- unique(unlist(attr(d,"name")))
+	op <- paste(rank,": ", rankName)	
 	seq <- paste(length(d)," sequences")
 	op<- c(op, seq )
 	
-	genModel <- list(name=name, rank=rank, model=emm)
+	genModel <- list(name=op, rank=rank, model=emm)
 	class(genModel) <- "genModel"	
 	genModel		
 }

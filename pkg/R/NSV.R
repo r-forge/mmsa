@@ -88,6 +88,7 @@ dropNSVTable <-  function(db, tableName) {
     dbSendQuery(db$db,
 	    statement = paste("DROP TABLE ", tableName, sep='')
 	    )
+	dbCommit(db$db)
     invisible()
 }
 
