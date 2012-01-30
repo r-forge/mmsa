@@ -34,9 +34,13 @@
 \code{\link{getRank}}
 }
 \examples{
-	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
+	db<-createGenDB("MMSAExample.sqlite")
+	addSequencesGreengenes(db,system.file("examples/phylums/Proteobacteria100.fasta",package="MMSA"))
+	addSequencesGreengenes(db,system.file("examples/phylums/Planctomycetes100.fasta",package="MMSA"))
 	createNSVTable(db, "NSV","kingdom","bacteria")
 	dropNSVTable(db,"NSV")
+	closeGenDB(db)
+	unlink("MMSAExample.sqlite")
 	rm(db)
 		
 }

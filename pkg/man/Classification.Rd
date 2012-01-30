@@ -46,7 +46,7 @@ sequencesToModels(dir, modelDir, rank)
 }
 \examples{
 #create a db for demonstration purpose
-db<-createGenDB("classificationExample.sqlite")
+db<-createGenDB("MMSAExample.sqlite")
 processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
 rank<-"phylum"
 createModels(".",rank,db) #this will create a "phylum" folder within the present directory and store models there
@@ -56,7 +56,7 @@ classify(".",d)
 validateModels(db,".",rank,table="NSV",pctTest=0.1)
 sequencesToModels(system.file("examples/phylums",package="MMSA"),".","phylum")
 #delete the database file to cleanup
-unlink("classificationExample.sqlite")
+unlink("MMSAExample.sqlite")
 unlink(rank)
 }
 \keyword{datasets}
