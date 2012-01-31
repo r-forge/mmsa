@@ -66,21 +66,21 @@ sequencesToModels <- function(dir, modelDir, rank) {
 		fileName <-basename(f)
 		modelName<-sub(".fasta",".rds",fileName)
 		dbName<-sub(".fasta",".sqlite",fileName)
-		dbName<-as.character(file.path(rankDir,dbName))
 		rankName<-sub(".fasta","",fileName)
-		if (file.exists(file.path(rankDir,modelName)))
-			unlink(file.path(rankDir,modelName))
-		if (file.exists(dbName))
-			unlink(dbName)	
-
-		db<-createGenDB(dbName)
-    	addSequencesGreengenes(db, f)
-		createNSVTable(db, "NSV")
-    	emm <- genModel(db, table="NSV",rank=rank,name=rankName)
-    	saveRDS(emm, file=file.path(rankDir,modelName))
-		unlink(dbName)
-		rm(db)
-		rm(emm)
+		#donot overwrite existing model files
+		if (!file.exists(file.path(rankDir,modelName)))
+		{
+			if (file.exists(dbName))
+				unlink(dbName)	
+			db<-createGenDB(dbName)
+    		addSequencesGreengenes(db, f)
+			createNSVTable(db, "NSV")
+    		emm <- genModel(db, table="NSV",rank=rank,name=rankName)
+    		saveRDS(emm, file=file.path(rankDir,modelName))
+			unlink(dbName)
+			rm(db)
+			rm(emm)
+		}
 	}
 	    
 }
@@ -141,7 +141,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 		testNames<-c(testNames,attr(d,"name")[notsel])
 	}
 	#add attributes to test
-	unlink(".validateModels.sqlite")
+	#unlink(".validateModels.sqlite")
 	rm(db)
 	#testNamesdf<-data.frame()
 	#for(j in 1:length(testNames))
@@ -171,7 +171,6 @@ createModels <- function(modelDir, rank = "phylum", db, selection=NULL, limit=-1
 	rankNames <- getRank(db, rank)[,1]
 	for(n in rankNames) {
 	    emm <- genModel(db, table="NSV", rank, name=n,selection=selection,limit=limit)
-	    cat("Creating model for ", rank, ":", n, "\n")	    
 	    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
 	}
 }
