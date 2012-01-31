@@ -18,7 +18,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
     cat("genModel: Creating model for rank:",rank,",name:",name,"\n")
 	for(i in 1:length(d))
 	{
-		if (i%%100==0) cat("\tgenModel: Read ",i," sequences \n")
+		if (i%%100==0) cat("genModel: Read ",i," sequences \n")
 		sequence<- d[[i]]		
 		if(plus_one) sequence <- sequence + 1
 		build(emm,sequence)
@@ -66,17 +66,21 @@ sequencesToModels <- function(dir, modelDir, rank) {
 		fileName <-basename(f)
 		modelName<-sub(".fasta",".rds",fileName)
 		dbName<-sub(".fasta",".sqlite",fileName)
-		if (!file.exists(file.path(rankDir,modelName)))
-		{	
-			db<-createGenDB(dbName)
-	    	addSequencesGreengenes(db, f)
-			createNSVTable(db, "NSV")
-	    	emm <- genModel(db, table="NSV",rank=rank)
-	    	saveRDS(emm, file=file.path(rankDir,modelName))
-			unlink(dbName)
-			rm(db)
-			rm(emm)
-		}
+		dbName<-as.character(file.path(rankDir,dbName))
+		rankName<-sub(".fasta","",fileName)
+		if (file.exists(file.path(rankDir,modelName)))
+			unlink(file.path(rankDir,modelName))
+		if (file.exists(dbName))
+			unlink(dbName)	
+
+		db<-createGenDB(dbName)
+    	addSequencesGreengenes(db, f)
+		createNSVTable(db, "NSV")
+    	emm <- genModel(db, table="NSV",rank=rank,name=rankName)
+    	saveRDS(emm, file=file.path(rankDir,modelName))
+		unlink(dbName)
+		rm(db)
+		rm(emm)
 	}
 	    
 }

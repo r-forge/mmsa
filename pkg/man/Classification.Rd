@@ -51,12 +51,13 @@ processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
 rank<-"phylum"
 createModels(".",rank,db) #this will create a "phylum" folder within the present directory and store models there
 d<-getSequences(db,rank,table="NSV")
-classify(".",d)
-#delete db to perform cleanup
-validateModels(db,".",rank,table="NSV",pctTest=0.1)
+classification<-classify(".",d)
+#run validation on the db
+validation<-validateModels(db,".",rank,table="NSV",pctTest=0.1)
 sequencesToModels(system.file("examples/phylums",package="MMSA"),".","phylum")
 #delete the database file to cleanup
 unlink("MMSAExample.sqlite")
-unlink(rank)
+rm(rank)
+rm(db)
 }
 \keyword{datasets}
