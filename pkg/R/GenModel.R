@@ -11,34 +11,43 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		stop("Not an NSV table")
 	emm <- EMM(measure=measure,threshold=threshold)
 	nSequences<-nSequences(db,rank,name)
-	nSequences<-max(nSequences,limit)
 	#d<-getSequences(db, rank, name, table, limit=limit)
 	#if (!is.null(selection))
 	#	d<-d[selection]
 	#else if (length(d)==0)
 	#	stop("GenModel called with 0 sequences")
     cat("genModel: Creating model for rank:",rank,",name:",name,"\n")
-	i<-0
-	total<-0
-	while(i<nSequences)
+	if (is.null(selection))
 	{
-		d<-getSequences(db,rank,name,table,limit=c(i,100))
-		i<-min(i+100,nSequences)
-		cat("genModel: Read ",i,"sequences \n")
-		sequences<-.make_stream(d)
-		if(plus_one) sequences<-sequences + 1
-		build(emm,.make_stream(d)+1)
-		reset(emm)
+		i<-0
+		total<-0
+		while(i<nSequences)
+		{
+			d<-getSequences(db,rank,name,table,limit=c(i,100))
+			i<-min(i+100,nSequences)
+			cat("genModel: Read ",i,"sequences \n")
+			sequences<-.make_stream(d)
+			if(plus_one) sequences<-sequences + 1
+			build(emm,.make_stream(d)+1)
+			reset(emm)
+		}
 	}
-	#for(i in 1:length(d))
-	#{
-	#	if (i%%100==0) cat("genModel: Read ",i," sequences \n")
-	#	sequence<- d[[i]]		
-	#	if(plus_one) sequence <- sequence + 1
-	#	build(emm,sequence)
-	#	reset(emm)
-	#}	
-	#cat("genModel: Read ",length(d)," sequences \n")
+	else if (!is.null(selection))
+	{
+		d<-getSequences(db, rank, name, table, limit=limit)
+		d<-d[selection]
+	 	if (length(d)==0)
+			stop("GenModel called with 0 sequences")
+        for(i in 1:length(d))
+		{
+			if (i%%100==0) cat("genModel: Read ",i," sequences \n")
+			sequence<- d[[i]]		
+			if(plus_one) sequence <- sequence + 1
+			build(emm,sequence)
+			reset(emm)
+		}	
+		cat("genModel: Read ",length(d)," sequences \n")
+	}
 	rank <- .pmatchRank(db, rank)
 	rankName<- unique(unlist(attr(d,"name")))
 	nSequences<-length(d)	
@@ -117,9 +126,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 			dir.create(modelDir)
 			dir.create(rankDir)
 		}
-	#db<-createGenDB(".validateModels.sqlite")
-	#read sequences and convert to NSV
-	#processSequencesGreengenes(dir, db)
 	pctTrain = 1 - pctTest
 	#create a list with a vector of selection for EACH rank
 	trainingList<-list()
@@ -137,7 +143,9 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 		train<-as.integer(pctTrain*n)
 		test<-as.integer(pctTest*n)
 		selList<-sample(c(rep(1,train),rep(0,test)))
+		#sel contains the sequences which have been selected for training
 		sel<-which(selList==1)
+		#notsel contains the test sequences
 		notsel<-which(selList==0)
 		#create model using the training set
 		emm<-genModel(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
@@ -147,16 +155,12 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list
 		testList<-c(testList,d[notsel])
-		#Names are lost after filtering, so need to keep a list of ranknames
-		#testNames[i,1]<-attr(d,"name")[[1]][notsel]
 		testNames<-c(testNames,attr(d,"name")[notsel])
 	}
+	if(length(testList)==0)
+		stop("Insufficient sequences have been selected for testing")
 	#add attributes to test
-	#unlink(".validateModels.sqlite")
 	rm(db)
-	#testNamesdf<-data.frame()
-	#for(j in 1:length(testNames))
-	#	testNamesdf[j,1]<-testNames[j]
 	attr(testList,"rank")<-rank
 	attr(testList,"name")<-testNames
 	return(classify(modelDir,testList))
