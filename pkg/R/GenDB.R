@@ -118,10 +118,14 @@ getHierarchy <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    .getWhere(db, whereRank, whereName)))
 }
 
-getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1) {
+getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=-1) {
 
-    if(limit<0) limit <- "" 
-    else limit <- paste(" LIMIT ",limit)
+    if(limit[1]<0) limit <- "" 
+    else limit <- paste(" LIMIT ",paste(limit,collapse=","))
+    
+	if(random>0)  
+    	limit <- paste(" ORDER BY RANDOM() ",limit)
+
 	if (!is.null(rank))    
 		fullRank<-.pmatchRank(db,rank)
 	else
@@ -130,7 +134,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1)
 		statement = paste("SELECT data, classification.id AS id, ", fullRank ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.id = ",
 		table, ".id ", 
-		.getWhere(db, rank, name)," ORDER BY RANDOM() ", limit)
+		.getWhere(db, rank, name), limit)
 	    )
 	
     if (table !="sequences") ret$data <- lapply(ret$data,decodeSequence)		

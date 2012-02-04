@@ -10,28 +10,39 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	if (meta$type[index]!="NSV")
 		stop("Not an NSV table")
 	emm <- EMM(measure=measure,threshold=threshold)
-	d<-getSequences(db, rank, name, table, limit=limit)
-	if (!is.null(selection))
-		d<-d[selection]
-	else if (length(d)==0)
-		stop("GenModel called with 0 sequences")
+	nSequences<-nSequences(db,rank,name)
+	nSequences<-max(nSequences,limit)
+	#d<-getSequences(db, rank, name, table, limit=limit)
+	#if (!is.null(selection))
+	#	d<-d[selection]
+	#else if (length(d)==0)
+	#	stop("GenModel called with 0 sequences")
     cat("genModel: Creating model for rank:",rank,",name:",name,"\n")
-	for(i in 1:length(d))
+	i<-0
+	total<-0
+	while(i<nSequences)
 	{
-		if (i%%100==0) cat("genModel: Read ",i," sequences \n")
-		sequence<- d[[i]]		
-		if(plus_one) sequence <- sequence + 1
-		build(emm,sequence)
+		d<-getSequences(db,rank,name,table,limit=c(i,100))
+		i<-min(i+100,nSequences)
+		cat("genModel: Read ",i,"sequences \n")
+		sequences<-.make_stream(d)
+		if(plus_one) sequences<-sequences + 1
+		build(emm,.make_stream(d)+1)
 		reset(emm)
-	}	
-	cat("genModel: Read ",length(d)," sequences \n")
+	}
+	#for(i in 1:length(d))
+	#{
+	#	if (i%%100==0) cat("genModel: Read ",i," sequences \n")
+	#	sequence<- d[[i]]		
+	#	if(plus_one) sequence <- sequence + 1
+	#	build(emm,sequence)
+	#	reset(emm)
+	#}	
+	#cat("genModel: Read ",length(d)," sequences \n")
 	rank <- .pmatchRank(db, rank)
 	rankName<- unique(unlist(attr(d,"name")))
-	op <- paste(rank,": ", rankName)	
-	seq <- paste(length(d)," sequences")
-	op<- c(op, seq )
-	
-	genModel <- list(name=op, rank=rank, model=emm)
+	nSequences<-length(d)	
+	genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm)
 	class(genModel) <- "genModel"	
 	genModel		
 }

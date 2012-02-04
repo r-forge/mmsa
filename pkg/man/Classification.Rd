@@ -49,14 +49,17 @@ sequencesToModels(dir, modelDir, rank)
 db<-createGenDB("MMSAExample.sqlite")
 processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
 rank<-"phylum"
-createModels(".",rank,db) #this will create a "phylum" folder within the present directory and store models there
+if (!file.exists("MMSAExample"))
+	dir.create("MMSAExample")
+createModels("MMSAExample",rank,db) #this will create a "phylum" folder within the MMSAExample directory and store models there
 d<-getSequences(db,rank,table="NSV")
-classification<-classify(".",d)
+classification<-classify("MMSAExample",d)
 #run validation on the db
-validation<-validateModels(db,".",rank,table="NSV",pctTest=0.1)
+validation<-validateModels(db,"MMSAExample",rank,table="NSV",pctTest=0.1)
 sequencesToModels(system.file("examples/phylums",package="MMSA"),".","phylum")
 #delete the database file to cleanup
 unlink("MMSAExample.sqlite")
+unlink("MMSAExample/",recursive=TRUE)
 rm(rank)
 rm(db)
 }
