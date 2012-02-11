@@ -11,6 +11,8 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		stop("Not an NSV table")
 	emm <- EMM(measure=measure,threshold=threshold)
 	nSequences<-nSequences(db,rank,name)
+	if (limit != -1)
+		nSequences <- min(nSequences,limit)
 	#d<-getSequences(db, rank, name, table, limit=limit)
 	#if (!is.null(selection))
 	#	d<-d[selection]
