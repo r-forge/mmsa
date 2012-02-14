@@ -1,0 +1,117 @@
+%\documentclass[fleqn, letter, 10pt]{article}
+%\documentclass[article]{jss}
+\documentclass[nojss]{jss}
+%\usepackage[round,longnamesfirst]{natbib}
+%\usepackage[left=1.5in,top=1.5in,right=1.5in,bottom=1.5in,nohead]{geometry} 
+%\usepackage{graphicx,keyval,thumbpdf,url}
+%\usepackage{hyperref}
+%\usepackage{Sweave}
+%\SweaveOpts{strip.white=TRUE, eps=FALSE}
+%\AtBeginDocument{\setkeys{Gin}{width=0.6\textwidth}}
+
+
+\usepackage[utf8]{inputenc}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+
+%\newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\class}[1]{\mbox{\textsf{#1}}}
+\newcommand{\func}[1]{\mbox{\texttt{#1()}}}
+%\newcommand{\code}[1]{\mbox{\texttt{#1}}}
+%\newcommand{\pkg}[1]{\strong{#1}}
+%\newcommand{\samp}[1]{`\mbox{\texttt{#1}}'}
+%\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\set}[1]{\mathcal{#1}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+%\newcommand{\sQuote}[1]{`{#1}'}
+%\newcommand{\dQuote}[1]{``{#1}''}
+\newcommand\R{{\mathbb{R}}}
+
+%\DeclareMathOperator*{\argmin}{argmin}
+%\DeclareMathOperator*{\argmax}{argmax}
+
+%\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm plus2mm minus2mm}
+
+%% \VignetteIndexEntry{MMSA: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
+
+
+\author{Anurag Nagar\\Southern Methodist University \And
+    Michael Hahsler\\Southern Methodist University}
+\title{\pkg{MMSA}: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Anurag Nagar, Michael Hahsler} %% comma-separated
+\Plaintitle{MMSA: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation} %% without formatting
+\Shorttitle{Position Sensitive P-Mer Frequency Clustering} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{
+Recent advances in Metagenomics and the Human Microbiome provide a complex landscape for dealing with a multitude of genomes all at once. One of the many challenges in this field is classification of the genomes present in the sample. Effective metagenomic classification and diversity analysis require complex representations of taxa. The significance of our research is that we develop a suite of tools, based on novel lossy alignment techniques that will be applied to environmental metagenomics samples as well as human microbiome samples. Providing such methods to rapidly classify organisms using our new approach on a laptop computer instead of several multi-processor servers will facilitate the development of fast and inexpensive devices for microbiome-based health screening in the near future.
+}
+\Keywords{data mining, clustering, Markov chain}
+\Plainkeywords{data mining, clustering, Markov chain} %% without formatting
+
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+    Michael Hahsler\\
+        Computer Science and Engineering\\
+        Lyle School of Engineering\\
+        Southern Methodist University\\
+        P.O. Box 750122 \\
+        Dallas, TX 75275-0122\\
+        E-mail: \email{mhahsler@lyle.smu.edu}\\
+        URL: \url{http://lyle.smu.edu/~mhahsler}
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/1/31336-5053
+%% Fax: +43/1/31336-734
+
+%% for those who use Sweave please include the following line (with % symbols):
+    %% need no \usepackage{Sweave.sty}
+
+    %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+%\title{rEMM: Extensible Markov Model for Data Stream Clustering in R}
+%\author{Michael Hahsler and Margaret H. Dunham}
+%\date{}
+
+%\maketitle
+\sloppy
+
+%\abstract{}
+
+<<echo=FALSE>>=
+options(width = 70, prompt="R> ", digits=4)
+### for sampling
+set.seed(1234)
+@
+
+\section{Introduction}
+
+\section*{Acknowledgments}
+This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).
+
+%\bibliographystyle{abbrvnat}
+%\bibliography{rEMM}
+\end{document}
