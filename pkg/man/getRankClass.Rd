@@ -9,15 +9,15 @@
 	If no rank is provided, it defaults to the top-most level i.e. kingdom.
   }
 \usage{
-getRank(db,rank,whereRank,whereName)
-getHierarchy(db,rank,whereRank,whereName)
+getRank(db,rank,whereRank=NULL,whereName=NULL)
+getHierarchy(db,rank,whereRank=NULL,whereName=NULL)
 getClassification(db)
 }
 \arguments{
 	\item{db}{Handle of the database} 
 	\item{rank}{Name of the rank where the list of values is desired. Fuzzy matching is performed if an incomplete name is specified.}
-	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. OPTIONAL}
-	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. OPTIONAL}
+	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
+	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
 }
 \details{
 	The getRank function lists the distinct number of values at a given rank. For example, you might want to see how many distinct phylums are
@@ -38,8 +38,10 @@ getClassification(db)
 \examples{
 
 	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
+	
 	#lists the distinct genuses
 	getRank(db,"genus")
+	
 	#lists all  the genuses
 	getHierarchy(db,"genus")
 	getClassification(db)

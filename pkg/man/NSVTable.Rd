@@ -6,18 +6,18 @@
 	Create and Drop tables containing sequences in NSV format
   }
 \usage{
-	createNSVTable(db, tableName, whereRank, whereName, window=100, overlap=0, word=3, last_window=FALSE)
+	createNSVTable(db, tableName, whereRank=NULL, whereName=NULL, window=100, overlap=0, word=3, last_window=FALSE)
 	dropNSVTable(db, tableName)
 }
 \arguments{
 	\item{db}{Handle of the database} 
 	\item{tableName}{Name of the new NSV table which will store the NSV format sequences.}
-	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. OPTIONAL}
-	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. OPTIONAL}
-	\item{window}{Value of window parameter, default value is 100. OPTIONAL}
-	\item{overlap}{Value of overlap parameter, default value is 0. OPTIONAL}
-	\item{word}{Value of word parameter, default value is 3. OPTIONAL}
-	\item{last_window}{Value of boolean last_window parameter, default value is FALSE. OPTIONAL}
+	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
+	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
+	\item{window}{Value of window size.}
+	\item{overlap}{Value of overlap parameter.}
+	\item{word}{Value of word parameter.}
+	\item{last_window}{Value of boolean last_window parameter.}
 }
 \details{
 	createNSVTable function converts character sequences into NSV format using the parameters specified or the default parameters.
@@ -37,11 +37,12 @@
 	db<-createGenDB("MMSAExample.sqlite")
 	addSequencesGreengenes(db,system.file("examples/phylums/Proteobacteria100.fasta",package="MMSA"))
 	addSequencesGreengenes(db,system.file("examples/phylums/Planctomycetes100.fasta",package="MMSA"))
+	
 	createNSVTable(db, "NSV","kingdom","bacteria")
+	
 	dropNSVTable(db,"NSV")
 	closeGenDB(db)
 	unlink("MMSAExample.sqlite")
-	rm(db)
 		
 }
 

@@ -107,11 +107,202 @@ options(width = 70, prompt="R> ", digits=4)
 set.seed(1234)
 @
 
-\section{Introduction}
+\section{Introduction}Recent advances in Metagenomics and the Human Microbiome provide a complex
+landscape for dealing with a multitude of genomes all at once. One of the many
+challenges in this field is classification of the genomes present in the
+sample. Effective metagenomic classification and diversity analysis require
+complex representations of taxa. The significance of our research is that we
+develop a suite of tools, based on novel lossy alignment techniques that will
+be applied to environmental metagenomics samples as well as human microbiome
+samples. Providing such methods to rapidly classify organisms using our new
+approach on a laptop computer instead of several multi-processor servers will
+facilitate the rapid development of microbiome-based health screening in the
+near future. This project studies the application of Markov Models in Sequence Analysis.
+
+\section{Extensible Markov Model (EMM)}
+The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
+several benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
+The  R package rEMM ~\citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
+
+\section{MMSA Project}
+Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
+based on their genetic sequences. More specifically, we use sequences for 16S rRNA gene, which is known to be conserved across species and is widely used
+for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project ~\citep{MMSA:2012:Greengenes}.
+
+\section{Using MMSA}
+In order to start using MMSA, the following packages must be installed: seqinr, rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI, RSQLite.
+MMSA builds on the above packages to develop efficient storage, querying, analysis, and plotting capabilities..
+\subsection{Genetic Databases}
+At the heart of the MMSA package are Genetic Databases (genDB) which are used for efficient storage and retrieval. The examples below use SQLite database, but any other
+compatible database such as mySQL, or mSQL can also be used. We use the sequences from Greengenes and the associated sequence ID as the primary key in the tables. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=4in]{ERDiag.jpg}
+\caption{Entity Relationship diagram of genetic database}
+\label{fig:ER_Diag}
+\end{figure}
+
+
+
+First, we load the library into the R environment.
+<<>>=
+library(MMSA)
+@
+
+If all the pre-required packages are installed, the above command will also load them into the current session.
+The first step is to create an empty genDB into which sequences can be loaded.
+<<>>=
+db<-createGenDB("example.sqlite")
+@
+
+The above command creates an empty database with table structure similar to Figure \ref{fig:ER_Diag}.
+The next step is to load data into the database by reading Greengenes or NCBI formatted fasta files.
+The command addSequencesGreengenes will automatically read and parse Greengenes fasta files and
+extract the classification and sequence information. The classification hierarchy (eg: kingdom, phylum,
+class, etc) will be loaded into the classification table and the sequence data will be loaded into the
+"sequences" table. 
+
+<<>>=
+addSequencesGreengenes(db,
+system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
+@
+
+After loading the sequences, various querying and limiting functions can be used to check the data and obtain 
+a subset of the sequences.
+The name of the genDB outputs the names of all the tables contained.
+<<>>=
+db
+@
+To get a count of the number of sequences in the database, the function \func{nSequences} can be used:
+<<>>=
+nSequences(db)
+@
+
+Similarly, the function \func{getSequences} returns the DNA sequences as a vector.
+<<>>=
+d<-getSequences(db,table="sequences")
+@
+The sequences can also be filtered at various ranks. For example, to get the sequences that have the genus name "Desulfosporomusa", the following
+command is issued:
+<<>>=
+d<-getSequences(db,rank="genus",name="Desulfosporomusa",table="sequences")
+@
+It's very easy to obtain the various unique rankNames stored in the database for any rank. For example, to find out the rankNames for the rank "order",
+we use the \func{getRank}.
+<<>>=
+getRank(db,"order")
+@
+If you would like to query more specific hierarchies, that's easily done as well. For example, if you want to find out the genuses within the phylum Firmicutes,
+you can use the function \func{getRank} with filters as:
+<<>>=
+getRank(db, "genus", whereRank="phylum", whereName="Firmicutes")
+@
+
+\subsection{Converting Sequences to NSV}
+After loading the DNA sequences, the next task is to convert the character sequences into Numerical Summarization Vectors (NSV). The MMSA package can easily convert
+large number of sequences to NSV format and store them in the same database as character sequences. 
+The following command will convert all the sequences to NSV format  and store them in a table called "NSV".
+<<>>=
+createNSVTable(db,tableName="NSV")
+@
+In the above function, we have accepted the default values of all the parameters such as word, overlap, and last\_window.
+More parameters and filter criteria can also be easily specified as:
+<<>>=
+createNSVTable(db, tableName="NSV1", whereRank="kingdom",whereName="bacteria", 
+window=100, overlap=0, word=3,last_window=FALSE)
+@
+The NSV format tables can be queried and filtered just as character format tables. For example, we can get the NSV sequences using the function
+\func{getSequences} as before:
+<<>>=
+dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV1")
+@
+
+Most of the times, we would like sequences to be in NSV format in the database as the NSVs form the basis of most operations such as model generation,
+and classification. The function \func{processSequencesGreengenes} loads all the FASTA sequences from a direct into the database and also converts them 
+into NSVs. This function saves the extra step of loading sequences and then creating NSVs explicitly. 
+<<>>=
+db1<-createGenDB("example1.sqlite")
+processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db1)
+@
+
+
+\subsection{Creating Models}
+The NSVs created in the previous section can be used in Markov Model creation. The EMMs can be created at any level and for any set of subsequences or
+the even the entire dataset of sequences. 
+<<>>=
+emm<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV1", limit=100, 
+measure="Kullback", threshold=0.1,plus_one=TRUE)
+@
+The above command creates a model using a subset of the sequences in the NSV table. The "limit" parameter limits the maximum number of sequences to
+be used in model creation. The returned emm model can now to saved to file or plotted using the \func{plot} function.
+Often it is needed to create models at a particular rank level. For example, you may want to create individual models for all the ranks stored in the database.
+For example, you might want to create models for each phylum present in the database. This can be easily accomplished using the \func{createModels}, which creates models
+and stores them in a directory  with the rank's name (such as "phylum").
+
+The above command creates models for all phylums stored in the database and stores them in a directory called "phylum"
+<<>>=
+createModels(modelDir=".",rank="phylum",db1)
+@
+
+\subsection{Classification}
+Once the models have been constructed, they can be used to score and classify new sequences. We can compare the new sequence against just one model
+or all the models stored in a directory. The classification score is based on the \func{score} from the rEMM package \citep{MMSA:rEMM:2012}.
+
+A score of how likely it is that a sequence was generated by a given EMM model can be calculated by the length-normalized 
+product or sum of probabilities on the path along the new sequence.
+The scores for a new sequence of length $l$ are defined as:
+\begin{align}
+P_\mathrm{prod} &= \sqrt[l-1]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
+P_\mathrm{sum} &= \frac{1}{l-1} \sum_{i=1}^{l-1}{a_{s(i)s(i+1)}}
+\end{align}
+
+where $s(i)$ is the state of the $i^\textrm{th}$ data point in the new sequence it is assigned to. 
+Points are assigned to the closest cluster only if the distance to the center is smaller
+than the threshold. Data points which are not within the threshold of any cluster stay unassigned.
+Note that for a sequence of length $l$ we have $l-1$ transitions. If we want to take the initial
+transition probability also into account we extend the above equations by the additional initial probability $a_{\epsilon,s(1)}$:
+\begin{align}
+P_\mathrm{prod} &= \sqrt[l]{a_{\epsilon,s(1)}\,\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
+P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s(i+1)}} \right)
+\end{align}
+
+The function \func{classify} can be used to classify NSV sequences against all the models stored in a directory. It will output a data frame containing the
+score matrix and the actual and predicted ranks. The following example shows how the \func{classify} works:
+<<>>=
+d<-getSequences(db1,rank="phylum",table="NSV",limit=10,random=TRUE)
+classification<-classify(modelDir=".",d)
+@
+
+Often, we would like to use a subset of the entire sequences for training and the rest for test purposes. Such a functionality is also available in the 
+MMSA package. The function \func{validateModels} splits up the sequences into \textit{training} and \textit{test} datasets and used the training sequences
+for generating the models. The parameter \textit{pctTest} is used to specify the fraction of sequences to be used for test dataset.
+The output is a data frame containing the classification results as before.
+<<>>=
+validation<-validateModels(db1,modelDir=".",rank="phylum",table="NSV",pctTest=0.1)
+@
+
+
+\subsection{Visualization}
+The EMM model emm created in the previous section can be easily visualized using the MMSA package. The following command plots the EMM model "emm":
+<<EMM_1, fig=TRUE, include=FALSE>>=
+plot(emm$model,main=paste("Rank=",emm$rank,"Name=",emm$name))
+@
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=.5\linewidth]{MMSA-EMM_1}
+\caption{Plot of EMM}
+\label{fig:EMM_Plot}
+\end{figure}
 
 \section*{Acknowledgments}
 This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).
 
 %\bibliographystyle{abbrvnat}
-%\bibliography{rEMM}
+%\bibliography{MMSA}
+
+\bibliography{MMSA}
+
+
 \end{document}

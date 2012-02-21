@@ -13,19 +13,19 @@
 }
 \usage{
 	nSequences(db,rank,name)
-	getSequences(db,rank,name,table,limit,random)
+	getSequences(db,rank,name,table="sequences",limit=-1,random=-1)
 }
 \arguments{
 	\item{db}{Handle of the database} 
-	\item{rank}{Name of Rank to be filtered by. For example: kingdom, phylum, etc. OPTIONAL}
-	\item{name}{Name of Rank to be filtered by. For example: if rank=kingdom, name can be Bacteria. OPTIONAL}
-	\item{table}{Value of the NSV table which stores sequences in NSV format. If no value is provided, the "sequences" table is used as default.}
+	\item{rank}{Name of Rank to be filtered by. For example: "kingdom", "phylum", etc.}
+	\item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
+	\item{table}{Value of the NSV table which stores sequences in NSV format.}
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
 	\item{random}{Used to randomize the sequences before selection. Default value of -1 does not randomize sequences, a positive value will randomize sequences} 
 	
 }
 \value{
-	\item{d}{getSequences returns a list of sequences}
+	{getSequences returns a list of sequences}
 }
 \details{
 	The function getSequences returns a list of sequences satisfying a search criteria specified by the optional rank and name parameters.
@@ -40,5 +40,6 @@
 	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 	nSequences(db,"class","Clostridia")
 	getSequences(db,"class","Clostridia",table="sequences")
+	closeGenDB(db)
 }
 \keyword{datasets}

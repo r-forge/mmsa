@@ -12,7 +12,7 @@ openGenDB <- function(dbName, drv=NULL) {
 }
 
 createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
-	type="sequence", drv=NULL) {
+	 drv=NULL) {
 
     if(file.exists(dbName)) 
 	stop("GenDB already exist. Use openGenDB.\n")

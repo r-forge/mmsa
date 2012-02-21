@@ -9,20 +9,20 @@
 	These functions create objects of class GenClass16S which contain classification hierarchy.
 }
 \usage{
-	GenClass16S_Greengenes(kingdom, phylum, class, order, family, 
-		genus, species, otu, org_name, id) 
+	GenClass16S_Greengenes(kingdom=NA, phylum=NA, class=NA, order=NA, family=NA, 
+		genus=NA, species=NA, otu=NA, org_name=NA, id=NA) 
 }
 \arguments{
-	\item{kingdom}{Name of the kingdom to which the organism belongs. OPTIONAL} 
-	\item{phylum}{Name of the phylum to which the organism belongs. OPTIONAL} 
-	\item{class}{Name of the class to which the organism belongs. OPTIONAL} 
-	\item{order}{Name of the order to which the organism belongs. OPTIONAL} 
-	\item{family}{Name of the family to which the organism belongs. OPTIONAL} 
-	\item{genus}{Name of the genus to which the organism belongs. OPTIONAL} 
-	\item{species}{Name of the species to which the organism belongs. OPTIONAL} 
-	\item{otu}{Name of the otu to which the organism belongs. OPTIONAL} 
-	\item{org_name}{Name of the organism. OPTIONAL} 
-	\item{id}{ID of the sequence from Greengenes. OPTIONAL} 
+	\item{kingdom}{Name of the kingdom to which the organism belongs. } 
+	\item{phylum}{Name of the phylum to which the organism belongs. } 
+	\item{class}{Name of the class to which the organism belongs. } 
+	\item{order}{Name of the order to which the organism belongs. } 
+	\item{family}{Name of the family to which the organism belongs. } 
+	\item{genus}{Name of the genus to which the organism belongs. } 
+	\item{species}{Name of the species to which the organism belongs. } 
+	\item{otu}{Name of the otu to which the organism belongs. } 
+	\item{org_name}{Name of the organism. } 
+	\item{id}{ID of the sequence from Greengenes. } 
 }
 \details{
 	The function GenClass16S_Greengenes creates a classification object for the gene sequence. 

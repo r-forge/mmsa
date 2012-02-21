@@ -13,21 +13,20 @@
 	Functions to create, open, close, and list tables from a  gene sequence database on a local server. 
 }
 \usage{
-	createGenDB(dbName, classification, type, drv)
-	openGenDB(dbName, drv)
+	createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL)
+	openGenDB(dbName, drv=NULL)
 	closeGenDB(db)
 	listGenDB(db) 
 }
 \arguments{
 	\item{dbName}{Name of the database where the classification and sequence information is to be stored} 
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
-	\item{drv}{Database driver, if none is provided then by default SQLite driver is used. OPTIONAL.} 
-	\item{classification}{Classification type object. By default, a Greengenes 16S type classification is used. OPTIONAL} 
-	\item{type}{Type of annotation to be stored. By default, sequence annotations are stored. OPTIONAL} 
+	\item{drv}{Database driver, if none is provided then by default SQLite driver is used.} 
+	\item{classification}{Classification type object. By default, a Greengenes 16S type classification is used. } 
 
 }
 \value{
-	\item{db}{createGenDB returns a handle to the database created}
+	{createGenDB returns a handle to the database created}
 }
 \details{
 	These group of functions are used to manage gene sequence database in a local database server. The function createGenDB
@@ -45,11 +44,11 @@
 \code{\link{getClassification}}
 }
 \examples{
-	db <- createGenDB("GenDB.sqlite", drv=NULL, classification = GenClass16S_Greengenes(), type="sequence")
-	openGenDB("GenDB.sqlite", drv=NULL)
+	db <- createGenDB("GenDB.sqlite", classification = GenClass16S_Greengenes())
+	
 	listGenDB(db)
 	closeGenDB(db)
-	rm(db)
+	
 	unlink("GenDB.sqlite")
 	
 }
