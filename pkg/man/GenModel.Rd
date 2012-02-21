@@ -1,7 +1,8 @@
 \name{GenModel}
 \alias{GenModel}
 \alias{genModel}
-\alias{plot}
+\alias{plot.GenModel}
+\alias{print.GenModel}
 \docType{data}
 \title{
 Manage Gene Sequence Models
@@ -25,7 +26,7 @@ Functions to generate, plot, and classify gene sequence models
 
 }
 \value{
-	{genModel function returns a list  containing the model, rank, rankName, and number of sequences used in creating the model.}
+	{genModel function returns an object of class genModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
 }
 \details{
 	These group of functions are used after a gene sequence has been converted to NSV format. The first step is to create a gene sequence Model (genModel) using
@@ -34,9 +35,12 @@ Functions to generate, plot, and classify gene sequence models
 
 \examples{
 	db<-createGenDB("MMSAExample.sqlite")
-	processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db)
+	processSequences(system.file("examples/phylums", package="MMSA"), db)
     
-	genModel(db,rank="Gen",name="Syntro",table="NSV", measure="Kullback", threshold=0.10, plus_one=TRUE)
+	model <- genModel(db, rank="Gen", name="Syntro", table="NSV") 
+	model
+	plot(model)
+
 	closeGenDB(db)
 	unlink("MMSAExample.sqlite")
 }

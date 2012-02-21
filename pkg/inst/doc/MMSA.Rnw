@@ -158,13 +158,13 @@ db<-createGenDB("example.sqlite")
 
 The above command creates an empty database with table structure similar to Figure \ref{fig:ER_Diag}.
 The next step is to load data into the database by reading Greengenes or NCBI formatted fasta files.
-The command addSequencesGreengenes will automatically read and parse Greengenes fasta files and
+The command \func{addSequences} will automatically read and parse Greengenes fasta files and
 extract the classification and sequence information. The classification hierarchy (eg: kingdom, phylum,
 class, etc) will be loaded into the classification table and the sequence data will be loaded into the
 "sequences" table. 
 
 <<>>=
-addSequencesGreengenes(db,
+addSequences(db,
 system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
 @
 
@@ -219,11 +219,11 @@ dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV1")
 @
 
 Most of the times, we would like sequences to be in NSV format in the database as the NSVs form the basis of most operations such as model generation,
-and classification. The function \func{processSequencesGreengenes} loads all the FASTA sequences from a direct into the database and also converts them 
+and classification. The function \func{processSequences} loads all the FASTA sequences from a direct into the database and also converts them 
 into NSVs. This function saves the extra step of loading sequences and then creating NSVs explicitly. 
 <<>>=
 db1<-createGenDB("example1.sqlite")
-processSequencesGreengenes(system.file("examples/phylums",package="MMSA"),db1)
+processSequences(system.file("examples/phylums",package="MMSA"),db1)
 @
 
 

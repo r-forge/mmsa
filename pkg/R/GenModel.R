@@ -1,6 +1,8 @@
-# creates an EMM model from sequences in the db 
+# creates an model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1) {
+	measure="Kullback", threshold=0.10, plus_one=TRUE, 
+	selection=NULL, limit=-1) {
+	
 	#check if table exists in db
 	if (length(which(table==listGenDB(db))) == 0)
 		stop("Could not find table in database")
@@ -54,18 +56,41 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	rankName<- unique(unlist(attr(d,"name")))
 	nSequences<-length(d)	
 	genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm)
-	class(genModel) <- "genModel"	
+	class(genModel) <- "GenModel"	
 	genModel		
 }
 
+### print basic info about a model
+print.GenModel <- function(x, ...) {
+    cat("Object of class GenModel")
+    cat(" of", x$nSequences, "sequences.\n")
+    cat("Rank/Name:", x$rank,"-", x$name, "\n")
+    
+    cat("\nModel:\n")
+    print(x$model)
+}
+
+### plot a model
+plot.GenModel <- function(x, ...) {
+    plot(x$model,main=paste(x$rank,"-", x$name), ...)
+}
+
+### score a new sequence of NSVs against a model
+score.GenModel <- function(x, newdata, method = "prod", 
+	match_cluster = "nn", plus_one=TRUE, 
+	initial_transition = FALSE) {
+    score(x$model, newdata=newdata, method=method, 
+	    match_cluster=match_cluster, plus_one=plus_one, 
+	    initial_transition=initial_transition)
+}
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
-processSequencesGreengenes <- function(dir, db) {
+processSequences <- function(dir, db, reader = addSequencesGreengenes) {
 	for(f in dir(dir, full.names=TRUE))
 	{
 	    cat("Processing file: ",f,"\n")
-	    addSequencesGreengenes(db, f)
+	    reader(db, f)
 	}
 	    
 	createNSVTable(db, "NSV")
