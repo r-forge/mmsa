@@ -3,6 +3,7 @@
 \alias{genModel}
 \alias{plot.GenModel}
 \alias{print.GenModel}
+\alias{score.GenModel}
 \docType{data}
 \title{
 Manage Gene Sequence Models

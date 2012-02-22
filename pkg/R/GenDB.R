@@ -67,7 +67,8 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 
 
 closeGenDB <- function(db) {
-    dbDisconnect(db$db)
+    dbCommit(db$db)
+	dbDisconnect(db$db)
 }
 
 listGenDB <- function(db) {

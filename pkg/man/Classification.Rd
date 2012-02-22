@@ -39,7 +39,7 @@ sequencesToModels(dir, modelDir, rank)
 }
 \details{
 	These group of functions are used to convert sequences into models and then use these models for classification of new sequences.
-	The function processSequencesGreengenes converts all the sequence files in a directory to NSV format in a database specified by the db parameter.
+	The function processSequences converts all the sequence files in a directory to NSV format in a database specified by the db parameter.
 	The function createModels creates models at a given rank (for example, phylum) and stores the models in a serialized format in the directory specified by the first parameter. 
 	The function classify finds similarity between a sequence (whose classification hierarchy may be unknown) and the models saved in a directory. The function goes through all the sequences in the seqFile (which should be in FASTA format) and finds their similarity with all the models in the modelDir directory. The output is a dataframe with the similarity score matrix, and also the actual and predicted ranks.
 	The function validateModels reads in all the FASTA files in the dir and uses a fraction of those for generating models for each rank and stores the models in the modelDir. It uses the remaining sequences for testing and tries to classify the test sequences by comparing their similarity with the generated models. It outputs a dataframe with the similarity score matrix, and also the actual and predicted ranks.

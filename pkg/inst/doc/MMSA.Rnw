@@ -107,29 +107,26 @@ options(width = 70, prompt="R> ", digits=4)
 set.seed(1234)
 @
 
-\section{Introduction}Recent advances in Metagenomics and the Human Microbiome provide a complex
+\section{Introduction}
+Recent advances in Metagenomics and the Human Microbiome provide a complex
 landscape for dealing with a multitude of genomes all at once. One of the many
 challenges in this field is classification of the genomes present in the
 sample. Effective metagenomic classification and diversity analysis require
-complex representations of taxa. The significance of our research is that we
+complex representations of taxa. In this package, we
 develop a suite of tools, based on novel lossy alignment techniques that will
 be applied to environmental metagenomics samples as well as human microbiome
-samples. Providing such methods to rapidly classify organisms using our new
-approach on a laptop computer instead of several multi-processor servers will
-facilitate the rapid development of microbiome-based health screening in the
-near future. This project studies the application of Markov Models in Sequence Analysis.
+samples. 
 
-\section{Extensible Markov Model (EMM)}
-The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
-several benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
-The  R package rEMM ~\citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
-
-\section{MMSA Project}
 Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
 based on their genetic sequences. More specifically, we use sequences for 16S rRNA gene, which is known to be conserved across species and is widely used
 for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project ~\citep{MMSA:2012:Greengenes}.
 
-\section{Using MMSA}
+\section{Using TRACDS for Genomic Applications}
+The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
+several benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
+The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
+
+\section{MMSA Package}
 In order to start using MMSA, the following packages must be installed: seqinr, rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI, RSQLite.
 MMSA builds on the above packages to develop efficient storage, querying, analysis, and plotting capabilities..
 \subsection{Genetic Databases}
@@ -138,33 +135,38 @@ compatible database such as mySQL, or mSQL can also be used. We use the sequence
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=4in]{ERDiag.jpg}
+\includegraphics[width=4in]{er-diagram}
 \caption{Entity Relationship diagram of genetic database}
 \label{fig:ER_Diag}
 \end{figure}
 
-
+\section{Examples}
 
 First, we load the library into the R environment.
 <<>>=
 library(MMSA)
 @
 
-If all the pre-required packages are installed, the above command will also load them into the current session.
 The first step is to create an empty genDB into which sequences can be loaded.
 <<>>=
 db<-createGenDB("example.sqlite")
 @
+The above command creates an empty database with table structure similar to Figure \ref{fig:ER_Diag}
+and stores it in the file "example.sqlite".
+If a genDB already exists, then it can be opened and loaded using the \func{openGenDB} command
 
-The above command creates an empty database with table structure similar to Figure \ref{fig:ER_Diag}.
-The next step is to load data into the database by reading Greengenes or NCBI formatted fasta files.
-The command \func{addSequences} will automatically read and parse Greengenes fasta files and
-extract the classification and sequence information. The classification hierarchy (eg: kingdom, phylum,
-class, etc) will be loaded into the classification table and the sequence data will be loaded into the
-"sequences" table. 
+The next step is to load data into the database by reading FASTA files.
+Since the meta info in FASTA files is not standardized, we provide several reader functions. For example,
+for FASTA files for GreenGenes, we provide the function \func{addSequencesGreengenes}, which will
+automatically read and parse GreenGenes FASTA files and extract the classification and sequence information. 
+For each sequence, the header information will be parsed and stored in the appropriate column of the ``Classification'' table. 
+For example, the kingdom value will go into the kingdom field of the table and so on. Each sequence also has a unique ID. This will
+be parsed and used as the \textit{Primary Key} in the ``Classification'' and ``Sequences'' tables. Similarly, the DNA sequence will be
+stored in the ``Sequences'' table as a Binary Large Object (BLOB).
 
-<<>>=
-addSequences(db,
+The command below uses a FASTA file provided by the package, hence we use system.file instead of just a string with the file name.
+<<>>= 
+addSequencesGreengenes(db,
 system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
 @
 
@@ -179,29 +181,33 @@ To get a count of the number of sequences in the database, the function \func{nS
 nSequences(db)
 @
 
-Similarly, the function \func{getSequences} returns the DNA sequences as a vector.
+Similarly, the function \func{getSequences} returns the DNA sequences as a vector. The first 50 bases of the first sequence are shown as an example.
 <<>>=
-d<-getSequences(db,table="sequences")
+d<-getSequences(db)
+substr(d[1],1,50)
 @
-The sequences can also be filtered at various ranks. For example, to get the sequences that have the genus name "Desulfosporomusa", the following
+The sequences can also be filtered at various ranks. For example, to get the sequences that have the genus name ``Desulfosporomusa'', the following
 command is issued:
 <<>>=
-d<-getSequences(db,rank="genus",name="Desulfosporomusa",table="sequences")
+d<-getSequences(db,rank="genus",name="Desulfosporomusa")
 @
-It's very easy to obtain the various unique rankNames stored in the database for any rank. For example, to find out the rankNames for the rank "order",
+It's very easy to obtain the various unique names stored in the database for any rank. For example, to find all names for the rank ``order'',
 we use the \func{getRank}.
 <<>>=
-getRank(db,"order")
+getRank(db,rank="order")
 @
-If you would like to query more specific hierarchies, that's easily done as well. For example, if you want to find out the genuses within the phylum Firmicutes,
+In the above case, the 100 sequences only contain organisms from \textit{two} different orders. 
+
+If you would like to query more specific hierarchies, that's easily done as well. For example, if you want to find out the genuses within the phylum ``Firmicutes'',
 you can use the function \func{getRank} with filters as:
 <<>>=
-getRank(db, "genus", whereRank="phylum", whereName="Firmicutes")
+getRank(db, rank="genus", whereRank="phylum", whereName="Firmicutes")
 @
+The above output shows all the genuses within the phylum ``Firmicutes''.
 
 \subsection{Converting Sequences to NSV}
-After loading the DNA sequences, the next task is to convert the character sequences into Numerical Summarization Vectors (NSV). The MMSA package can easily convert
-large number of sequences to NSV format and store them in the same database as character sequences. 
+In order to create position sensitive p-mer clustering algorithms and models, we need to first create Numerical Summarization Vectors (NSVs).
+The MMSA package can easily convert large number of sequences to NSV format and store them in the same database as character sequences. 
 The following command will convert all the sequences to NSV format  and store them in a table called "NSV".
 <<>>=
 createNSVTable(db,tableName="NSV")
@@ -209,29 +215,37 @@ createNSVTable(db,tableName="NSV")
 In the above function, we have accepted the default values of all the parameters such as word, overlap, and last\_window.
 More parameters and filter criteria can also be easily specified as:
 <<>>=
-createNSVTable(db, tableName="NSV1", whereRank="kingdom",whereName="bacteria", 
+createNSVTable(db, tableName="NSV1", whereRank="genus",whereName="Thermosinus", 
 window=100, overlap=0, word=3,last_window=FALSE)
 @
-The NSV format tables can be queried and filtered just as character format tables. For example, we can get the NSV sequences using the function
+The above command converts only those sequences that belong to the genus ``Thermosinus'' and stores them in a table called ``NSV1''.
+
+The NSV format tables can be queried and filtered just as easily. For example, we can get the NSV sequences using the function
 \func{getSequences} as before:
 <<>>=
-dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV1")
+dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV")
 @
 
 Most of the times, we would like sequences to be in NSV format in the database as the NSVs form the basis of most operations such as model generation,
 and classification. The function \func{processSequences} loads all the FASTA sequences from a direct into the database and also converts them 
 into NSVs. This function saves the extra step of loading sequences and then creating NSVs explicitly. 
 <<>>=
-db1<-createGenDB("example1.sqlite")
-processSequences(system.file("examples/phylums",package="MMSA"),db1)
+closeGenDB(db)
+unlink("example.sqlite")
+db<-createGenDB("example.sqlite")
+processSequences(system.file("examples/phylums",package="MMSA"),db)
 @
 
+In the above code, we have first closed and deleted the existing database. This is done using the function \func{closeGenDB}. Note that the ``sequences''
+table does not allow duplicate sequence IDs to be stored. The above code shows how to add \textbf{all} the FASTA files from the system directory ``phylums'' that
+is a part of the MMSA package by using the \func{processSequences}. The function also automatically converts the sequences to NSV format and stores them
+in a table called ``NSV''.
 
 \subsection{Creating Models}
 The NSVs created in the previous section can be used in Markov Model creation. The EMMs can be created at any level and for any set of subsequences or
 the even the entire dataset of sequences. 
 <<>>=
-emm<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV1", limit=100, 
+emm<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV", limit=100, 
 measure="Kullback", threshold=0.1,plus_one=TRUE)
 @
 The above command creates a model using a subset of the sequences in the NSV table. The "limit" parameter limits the maximum number of sequences to
@@ -242,7 +256,7 @@ and stores them in a directory  with the rank's name (such as "phylum").
 
 The above command creates models for all phylums stored in the database and stores them in a directory called "phylum"
 <<>>=
-createModels(modelDir=".",rank="phylum",db1)
+createModels(modelDir=".",rank="phylum",db)
 @
 
 \subsection{Classification}
@@ -270,7 +284,7 @@ P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s
 The function \func{classify} can be used to classify NSV sequences against all the models stored in a directory. It will output a data frame containing the
 score matrix and the actual and predicted ranks. The following example shows how the \func{classify} works:
 <<>>=
-d<-getSequences(db1,rank="phylum",table="NSV",limit=10,random=TRUE)
+d<-getSequences(db,rank="phylum",table="NSV",limit=10,random=TRUE)
 classification<-classify(modelDir=".",d)
 @
 
@@ -279,7 +293,7 @@ MMSA package. The function \func{validateModels} splits up the sequences into \t
 for generating the models. The parameter \textit{pctTest} is used to specify the fraction of sequences to be used for test dataset.
 The output is a data frame containing the classification results as before.
 <<>>=
-validation<-validateModels(db1,modelDir=".",rank="phylum",table="NSV",pctTest=0.1)
+validation<-validateModels(db,modelDir=".",rank="phylum",table="NSV",pctTest=0.1)
 @
 
 
