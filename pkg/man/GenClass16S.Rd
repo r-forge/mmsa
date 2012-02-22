@@ -9,8 +9,8 @@
 	These functions create objects of class GenClass16S which contain classification hierarchy.
 }
 \usage{
-	GenClass16S_Greengenes(kingdom=NA, phylum=NA, class=NA, order=NA, family=NA, 
-		genus=NA, species=NA, otu=NA, org_name=NA, id=NA) 
+	GenClass16S_Greengenes(kingdom=NA, phylum=NA, class=NA, order=NA, 
+	    family=NA, genus=NA, species=NA, otu=NA, org_name=NA, id=NA) 
 }
 \arguments{
 	\item{kingdom}{Name of the kingdom to which the organism belongs. } 

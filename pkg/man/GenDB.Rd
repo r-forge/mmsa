@@ -5,7 +5,6 @@
 \alias{listGenDB}
 \alias{GenDB}
 \alias{print.GenDB}
-\docType{data}
 \title{
 	Manage Gene Sequence databases
 }
@@ -26,30 +25,29 @@
 
 }
 \value{
-	{createGenDB returns a handle to the database created}
+	{\code{createGenDB()} and \code{openGenDB()} returns a handle to the database. \code{listGenDB()} returns a vector of character strings.}
 }
 \details{
-	These group of functions are used to manage gene sequence database in a local database server. The function createGenDB
+	These group of functions are used to manage gene sequence database in a local database server. The function \code{createGenDB()}
 	creates a database with three initial tables: sequences, classification, and metadata. The sequences table stores the sequences in 
 	character format with the organism name being the primary key. Similarly, the classification table stores the classification
 	details such as kingdom, phylum, class, etc with the organism name being the primary key. The metadata table stores data about the
 	tables in the database. 
-	openGenDB can be used to open an existing database, listGenDB lists all the tables in an existing databases,  and closeGenDB closes an open connection to a database.
+	
+	\code{openGenDB()} can be used to open an existing database, \code{listGenDB()} lists all the tables in an existing databases,  and \code{closeGenDB()} closes an open connection to a database.
 }
-\seealso{
-\code{\link{nSequences}},
-\code{\link{getRank}},
-\code{\link{addSequencesGreengenes}},
-\code{\link{getSequences}},
-\code{\link{getClassification}}
-}
+%\seealso{
+%}
 \examples{
-	db <- createGenDB("GenDB.sqlite", classification = GenClass16S_Greengenes())
+db <- createGenDB("example.sqlite")
+db
+
+listGenDB(db)
+
+closeGenDB(db)
 	
-	listGenDB(db)
-	closeGenDB(db)
-	
-	unlink("GenDB.sqlite")
+### clean up
+unlink("example.sqlite")
 	
 }
-\keyword{datasets}
+\keyword{database}

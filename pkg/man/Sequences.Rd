@@ -4,7 +4,6 @@
 \alias{nSequences}
 \alias{count_sequences}
 \alias{decodeSequence}
-\docType{data}
 \title{
 	Manage Gene sequences
 }
@@ -12,8 +11,9 @@
 	Functions to get, count, and decode sequences out of a gene sequence database.
 }
 \usage{
-	nSequences(db,rank,name)
-	getSequences(db,rank,name,table="sequences",limit=-1,random=-1)
+	nSequences(db, rank=NULL, name=NULL)
+	getSequences(db, rank=NULL, name=NULL, table="sequences",
+	    limit=-1, random=-1)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -25,21 +25,25 @@
 	
 }
 \value{
-	{getSequences returns a list of sequences}
+	\code{getSequences()} returns a list of sequences.
 }
 \details{
-	The function getSequences returns a list of sequences satisfying a search criteria specified by the optional rank and name parameters.
+	The function \code{getSequences()} returns a list of sequences satisfying a search criteria specified by the optional rank and name parameters.
 	If no search criteria is specified, all the sequences are returned. By default, it searches the sequences table to obtain the list of sequences. 
 	To obtain a list of NSVs, specify a NSV table as the "table" parameter. 
-	The function nSequences counts the total number of sequences present in a the sequence table of the database passed in as an argument.
+	
+	The function \code{nSequences()} counts the total number of sequences present in a the sequence table of the database passed in as an argument.
 	If the optional rank and value parameters are supplied, the function filters the results based on the search criteria.
-	If a wrong handle is provided, an error will be thrown.
-
 }
 \examples{
-	db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
-	nSequences(db,"class","Clostridia")
-	getSequences(db,"class","Clostridia",table="sequences")
-	closeGenDB(db)
+db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
+db
+
+nSequences(db,"class","Clostridia")
+	
+### get the first (limit=1) sequence
+getSequences(db,"class","Clostridia",table="sequences", limit=1)
+	
+closeGenDB(db)
 }
-\keyword{datasets}
+\keyword{manip}

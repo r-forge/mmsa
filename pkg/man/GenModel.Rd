@@ -8,10 +8,11 @@
 Manage Gene Sequence Models
 }
 \description{
-Functions to generate, plot, and classify gene sequence models
+Functions to generate a model.
 }
 \usage{
-	genModel(db, rank, name, table, measure="Kullback", threshold=0.10, plus_one=TRUE, selection=NULL, limit=-1)
+genModel(db, rank, name, table, measure="Kullback", 
+    threshold=.10, plus_one=TRUE, selection=NULL, limit=-1)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
@@ -26,15 +27,14 @@ Functions to generate, plot, and classify gene sequence models
 
 }
 \value{
-	{genModel function returns an object of class genModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
+	{\code{genModel()} function returns an object of class genModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
 }
 \details{
-	These group of functions are used after a gene sequence has been converted to NSV format. The first step is to create a gene sequence Model (genModel) using
-	the genModel function, which returns the created emm. After that, this model can be used for plotting and classification purposes. 
+	This function is used after a gene sequence has been converted to NSV format. 
 }
 
 \examples{
-	db<-createGenDB("MMSAExample.sqlite")
+	db<-createGenDB("example.sqlite")
 	processSequences(system.file("examples/phylums", package="MMSA"), db)
     
 	model <- genModel(db, rank="Gen", name="Syntro", table="NSV") 
@@ -42,6 +42,8 @@ Functions to generate, plot, and classify gene sequence models
 	plot(model)
 
 	closeGenDB(db)
-	unlink("MMSAExample.sqlite")
+	
+	### clean up
+	unlink("example.sqlite")
 }
-\keyword{datasets}
+\keyword{model}

@@ -28,9 +28,14 @@
 \code{\link{getSequences}}
 }
 \examples{
-	db <- createGenDB("Firmicutes.sqlite")
-	addSequencesGreengenes(db, system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
-	closeGenDB(db)
-	unlink("Firmicutes.sqlite")
+db <- createGenDB("Firmicutes.sqlite")
+addSequencesGreengenes(db, system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
+
+db
+
+closeGenDB(db)
+	
+### clean up
+unlink("Firmicutes.sqlite")
 }
 
