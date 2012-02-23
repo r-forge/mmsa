@@ -135,6 +135,137 @@ The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain 
 several benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
 The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
 
+%%start
+Sequence Clustering using Position Sensitive $p$-mer Clustering is based 
+on the idea of computing distances between sequences using 
+of $p$-mer frequency counts instead of 
+computationally expensive alignment between the original sequences. 
+This idea is at the core of so-called alignment-free 
+methods~\cite{sequence:Vinga:2003}. 
+However, in contrast to these methods we count $p$-mer frequencies 
+position specific (i.e., for different segments of the sequence) and then use
+high-throughput stream clustering to group similar segments. 
+This approach completely
+avoids expensive alignment of sequences prior to building the models. Even so,
+because of the clustering of like sequence segments, a probabilistic local
+quasi-alignment is automatically achieved. This quasi-alignment
+is exploited for visualization.
+
+The occurrences of letters or base compositions \{A, C, U, G\}
+of an 16S rRNA sequence provide frequency information. The occurrences of all
+patterns of bases of length $p$ generates a $p$-mer frequency representation
+for a sequence.
+Instead of global frequencies, we count $p$-mer frequencies locally to retain
+positional information by moving a window of a given size $L$ across a sequence
+starting at the first position. Within each window (called a segment) we count
+the frequencies for all possible $p$-mers. We call this frequency profile a
+Numerical Summarization Vector (NSV). For example, suppose we have an input
+window containing ACGTGCACG. If counting 2-mers, the NSV count vector would be 
+$\langle 0, 2, 0, 0, 1, 0, 2, 0, 0, 1, 0, 1, 0, 0, 1, 0\rangle$
+representing counts of the subpatterns 
+AA, AC, AG, AT, CA, CC, CG, CT, GA, GC,
+GG, GT, TA, TC, TG, and TT. 
+As the window slides down the input sequence, in
+each new segment $p$-mers are counted. Window sizes may be varied, windows may
+or may not overlap and different values for $p$ can be used within the same
+sequences.
+
+\begin{figure*}
+\centering
+\includegraphics[width=.85\linewidth]{TRACDS_model_building}
+\caption{The Model Building Process. Numerical Summary Vectors (NSV) constitute
+the numerical representations of segments (a moving window) along a sequence
+which are used in building a cluster model. Model building starts with 
+an empty cluster model. As each NSV is processed, it is compared to the 
+existing clusters of the model.  If the NSV is not found to be close 
+enough (using a distance measure on the NSVs) a new cluster is creates.
+For example Cluster~1 (circle) is created for NSV~1, Cluster~2 for NSV~2 and
+Cluster~3 for NSV~3. NSV~3 was found close enough to NSV~2 and thus was also
+assigned to Cluster~1. In addition to the clusters also the transition
+information between the clusters (arrows) is recorded.  When all NSVs are
+processed, the model building process is finished.}
+\label{emm}
+\end{figure*}
+
+%% FIXME: Algorithm here? 
+Figure~\ref{emm} summarizes the model building process. 
+NSVs are clustered using high-throughput data stream clustering 
+techniques and the
+sequence information for the NSVs is preserved in a directed graph $G=(N, E)$,
+where $N={c_1,c_2,\ldots,c_N}$ is the set of clusters and 
+$E={e_1,e_1,\ldots,e_E}$ is the set of transitions.
+This graph can be interpreted as a Markov Chain, however, unlike a classical
+Markov Model, each node is not bound to one symbol. In fact, each node
+represents a cluster consisting of NSVs that are found to be similar by the
+model building process according to a similarity or dissimilarity metric. Since
+several NSVs (i.e., segments) can be assigned to the same cluster, the 
+resulting
+model compresses the original sequence (or sequences if several sequences are 
+clustered into the same model). The directed edges are
+associated with additional information representing the probabilities of
+traversal assigned during the model building process. It is important to
+observe that intra-similarity of a sequence is captured in nodes to the extent
+possible based on the segment length $L$ and transitional information from one
+segment to next is condensed to its relative probability within the sequence.
+Since a segment is contiguous, its integrity is preserved in the model
+inside nodes. Though the segments of a sequence may be distributed all over the
+graph, the transition among them is still available as weighted probabilities
+on the edges of the graph.
+
+
+The Similarity between NSVs used for clustering 
+can be calculated using several measures. Measures
+suggested in the literature about alignment free methods to compare sequences
+using $p$-mer counts are Euclidean distance, squared Euclidean distance,
+Kullback-Leibler discrepancy and Mahalanobis
+distance~\cite{sequence:Vinga:2003}.
+Recently, for Simrank~\cite{sequence:DeSantis:2011} an even simpler similarity
+measure, the number of matching $p$-mers (typically with $p=7$), was proposed
+for efficient search of very large database.
+In the area of approximate string matching Ukkonen proposed the 
+approximate the expensive computation of the edit distance between two strings
+by using $q$-grams (analog to $p$-mers in sequences). First
+$q$-gram profiles are computed
+and then the distance between the profiles is calculated using
+Manhattan distance~\cite{sequence:Ukkonen:1992}.
+The Manhattan distance between
+two $p$-mer NSVs $x$ and $y$ is defined as:
+
+$$d_\mathrm{Manhattan}(x,y)=\sum_{i=1}^{4^p} |x_i-y_i|$$
+
+Manhattan distance also has a particularly straightforward
+interpretation.
+The distance counts the number of $p$-mers by which two sequences
+differ which gives the following lower bound
+on the edit distance between the original sequences $s_x$, $s_y$:
+$$d_\mathrm{Manhattan}(x,y)/(2p) \le d_\mathrm{Edit}(s_x,s_y)$$
+
+This relationship is easy to proof since each insertion/deletion/substitution 
+in a sequences destroys at the most $p$ $p$-grams and introduces
+at most $p$ new $p$-grams.
+Although, we can construct two completely differnt sequences with exactly
+the same NSVs (see \cite{sequence:Ukkonen:1992} for a method), we are typically
+interested in sequences of high similarity in which case 
+$d_\mathrm{Manhattan}(x,y)/(2p)$ gets closer to the edit distance.
+
+Altough our approach can be used with any distance measure, we will
+only report results using Manhattan distance in this paper.
+
+A cluster model can be created for a single sequence and compresses the
+sequence
+information first by creating NSVs and then reduces the number of NSVs 
+to the number of clusters 
+needed to represent the whole sequence. Typically, we will create
+a cluster model for a whole family of sequences by simply adding the NSVs
+of all sequences to a single model following the procedure in Figure~\ref{emm}.
+This will lead to even more compression since many sequences within a family
+will share NSVs steming from similar sequence segments. We explored
+this approach for taxnomic classification in~\cite{hahsler:Kotamarti:2010}. 
+In the following section we will show how the same apporach can be used for
+visualizing gentetic sequence databases.
+
+
+%%end
 \section{MMSA Package}
 In order to start using MMSA, the following packages must be installed: seqinr, rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI, RSQLite.
 MMSA builds on the above packages to develop efficient storage, querying, analysis, and plotting capabilities..
