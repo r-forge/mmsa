@@ -20,7 +20,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	#	d<-d[selection]
 	#else if (length(d)==0)
 	#	stop("GenModel called with 0 sequences")
-    cat("genModel: Creating model for rank:",rank,",name:",name,"\n")
+    cat("genModel: Creating model for rank:",rank,", name:",name,"\n",sep="")
 	if (is.null(selection))
 	{
 		i<-0
@@ -238,7 +238,7 @@ classify<-function(modelDir, NSVList)
 	for (modelFile in modelFiles)
 	{
 		modelName<-basename(modelFile)
-		cat("clasify: Creating score matrix for: ",modelName,"\n")
+		cat("classify: Creating score matrix for: ",modelName,"\n")
 		modelName<- sub(".rds","",modelName)
 		model<-readRDS(modelFile)
 		modelSim<-data.frame()

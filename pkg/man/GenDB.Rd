@@ -3,6 +3,7 @@
 \alias{createGenDB}
 \alias{closeGenDB}
 \alias{listGenDB}
+\alias{metaGenDB}
 \alias{GenDB}
 \alias{print.GenDB}
 \title{
@@ -34,8 +35,9 @@
 	details such as kingdom, phylum, class, etc with the organism name being the primary key. The metadata table stores data about the
 	tables in the database. 
 	
-	\code{openGenDB()} can be used to open an existing database, \code{listGenDB()} lists all the tables in an existing databases,  and \code{closeGenDB()} closes an open connection to a database.
-}
+	\code{openGenDB()} can be used to open an existing database, \code{listGenDB()} lists all the tables in an existing database, \code{metaGenDB()} lists the meta data about all the tables stored in the database,
+	 and \code{closeGenDB()} closes an open connection to a database.
+}	
 %\seealso{
 %}
 \examples{

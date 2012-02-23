@@ -69,6 +69,15 @@ Recent advances in Metagenomics and the Human Microbiome provide a complex lands
 %% The address of (at least) one author should be given
 %% in the following format:
 \Address{
+    Anurag Nagar\\
+        Computer Science and Engineering\\
+        Lyle School of Engineering\\
+        Southern Methodist University\\
+        P.O. Box 750122 \\
+        Dallas, TX 75275-0122\\
+        E-mail: \email{anagar@smu.edu}\\
+}
+\Address{
     Michael Hahsler\\
         Computer Science and Engineering\\
         Lyle School of Engineering\\
@@ -135,7 +144,7 @@ compatible database such as mySQL, or mSQL can also be used. We use the sequence
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=4in]{er-diagram}
+\includegraphics[width=5in]{er-diagram}
 \caption{Entity Relationship diagram of genetic database}
 \label{fig:ER_Diag}
 \end{figure}
@@ -157,12 +166,13 @@ If a genDB already exists, then it can be opened and loaded using the \func{open
 
 The next step is to load data into the database by reading FASTA files.
 Since the meta info in FASTA files is not standardized, we provide several reader functions. For example,
-for FASTA files for GreenGenes, we provide the function \func{addSequencesGreengenes}, which will
+for FASTA files for GreenGenes, we provide the reader function \func{addSequencesGreengenes}, which will
 automatically read and parse GreenGenes FASTA files and extract the classification and sequence information. 
 For each sequence, the header information will be parsed and stored in the appropriate column of the ``Classification'' table. 
 For example, the kingdom value will go into the kingdom field of the table and so on. Each sequence also has a unique ID. This will
 be parsed and used as the \textit{Primary Key} in the ``Classification'' and ``Sequences'' tables. Similarly, the DNA sequence will be
-stored in the ``Sequences'' table as a Binary Large Object (BLOB).
+stored in the ``Sequences'' table as a Binary Large Object (BLOB). As of now, we have implemented the reader for Greengenes format FASTA files, and
+work is in progress to develop more readers for NCBI format FASTA files. 
 
 The command below uses a FASTA file provided by the package, hence we use system.file instead of just a string with the file name.
 <<>>= 
@@ -219,8 +229,16 @@ createNSVTable(db, tableName="NSV1", whereRank="genus",whereName="Thermosinus",
 window=100, overlap=0, word=3,last_window=FALSE)
 @
 The above command converts only those sequences that belong to the genus ``Thermosinus'' and stores them in a table called ``NSV1''.
+The parameters for creating NSVs are also part of the command, such as window size is 100, overlap is 0, word size is 3, and
+last\_window parameter is FALSE.
 
-The NSV format tables can be queried and filtered just as easily. For example, we can get the NSV sequences using the function
+When a new NSV table is created, its name and meta information is stored in the metaData table. The meta data can be queried using the
+\func{metaGenDB} function.
+<<>>=
+metaGenDB(db)["annotation"]
+@
+
+The sequences in the NSV tables can be queried and filtered just as easily. For example, we can get the NSV sequences using the function
 \func{getSequences} as before:
 <<>>=
 dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV")
@@ -242,28 +260,40 @@ is a part of the MMSA package by using the \func{processSequences}. The function
 in a table called ``NSV''.
 
 \subsection{Creating Models}
-The NSVs created in the previous section can be used in Markov Model creation. The EMMs can be created at any level and for any set of subsequences or
+The NSVs created in the previous section can be used in model generation. The models can be created at any level and for any set of subsequences or
 the even the entire dataset of sequences. 
 <<>>=
-emm<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV", limit=100, 
+model<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV", limit=100, 
 measure="Kullback", threshold=0.1,plus_one=TRUE)
 @
-The above command creates a model using a subset of the sequences in the NSV table. The "limit" parameter limits the maximum number of sequences to
-be used in model creation. The returned emm model can now to saved to file or plotted using the \func{plot} function.
-Often it is needed to create models at a particular rank level. For example, you may want to create individual models for all the ranks stored in the database.
-For example, you might want to create models for each phylum present in the database. This can be easily accomplished using the \func{createModels}, which creates models
-and stores them in a directory  with the rank's name (such as "phylum").
+The above command creates a model using a subset of the sequences in the NSV table that belong to the genus ``Desulfosporomusa''. For creating the model,
+we use ``Kullback'' similarity measure with a  threshold  equal to 0.1. The plus\_one parameter gives each transition an initial count of one. For more details
+about model creation, please see the reference manual of the rEMM package \citep{MMSA:rEMM:2012}. The "limit" parameter limits the maximum number of sequences to
+be used in model creation. The model is a compact signature of the sequences and can be easily and efficiently used for analysis. It can be plotted to get a visual
+display of the various states and transitions, and can be used for classification by scoring new sequences against existing models. 
+Often it is needed to create models at a particular rank level. For example, you might want to create models for each phylum present in the database. This can be easily accomplished using the \func{createModels}, which creates models and stores them in a directory  with the rank's name (such as ``phylum'').
 
 The above command creates models for all phylums stored in the database and stores them in a directory called "phylum"
 <<>>=
-createModels(modelDir=".",rank="phylum",db)
+dir.create("models")
+createModels(modelDir="models",rank="phylum",db)
 @
+
+The models are stored as compressed .rds files in the ``models/phylum'' directory. You can get a list of files stored in that directory by the \func{list.files} function 
+<<>>=
+list.files("models")
+@
+The models can be easily loaded using the readRDS function.
+<<>>=
+model<-readRDS("models/phylum/Firmicutes.rds")
+@
+
+
 
 \subsection{Classification}
 Once the models have been constructed, they can be used to score and classify new sequences. We can compare the new sequence against just one model
-or all the models stored in a directory. The classification score is based on the \func{score} from the rEMM package \citep{MMSA:rEMM:2012}.
-
-A score of how likely it is that a sequence was generated by a given EMM model can be calculated by the length-normalized 
+or all the models stored in a directory. The classification score is based on the \func{score} from the rEMM package \citep{MMSA:rEMM:2012}
+and evaluates how likely it is that a sequence was generated by a given model. It is calculated by the length-normalized 
 product or sum of probabilities on the path along the new sequence.
 The scores for a new sequence of length $l$ are defined as:
 \begin{align}
@@ -277,30 +307,46 @@ than the threshold. Data points which are not within the threshold of any cluste
 Note that for a sequence of length $l$ we have $l-1$ transitions. If we want to take the initial
 transition probability also into account we extend the above equations by the additional initial probability $a_{\epsilon,s(1)}$:
 \begin{align}
-P_\mathrm{prod} &= \sqrt[l]{a_{\epsilon,s(1)}\,\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
+P_\mathrm{prod} &= \sqrt[l]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
 P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s(i+1)}} \right)
 \end{align}
+
+The \func{score.GenModel} uses the above equations to compute the similarity between a sequence and a model. 
+<<>>=
+score.GenModel(model,dNSV[[1]]+1)
+@
+The +1 used in the sequences is used to prevent zero count values in the sequences. This is necessary if the model is created using  the
+``Kullback'' similarity measure. If it is created using any other method such as ``Manhattan'', this would not be necessary.
 
 The function \func{classify} can be used to classify NSV sequences against all the models stored in a directory. It will output a data frame containing the
 score matrix and the actual and predicted ranks. The following example shows how the \func{classify} works:
 <<>>=
 d<-getSequences(db,rank="phylum",table="NSV",limit=10,random=TRUE)
-classification<-classify(modelDir=".",d)
+classification<-classify(modelDir="models",d)
+head(classification$scores)
+head(classification$prediction)
 @
+
+
+\subsection{Validation of Classification}
 
 Often, we would like to use a subset of the entire sequences for training and the rest for test purposes. Such a functionality is also available in the 
 MMSA package. The function \func{validateModels} splits up the sequences into \textit{training} and \textit{test} datasets and used the training sequences
 for generating the models. The parameter \textit{pctTest} is used to specify the fraction of sequences to be used for test dataset.
 The output is a data frame containing the classification results as before.
 <<>>=
-validation<-validateModels(db,modelDir=".",rank="phylum",table="NSV",pctTest=0.1)
+validation<-validateModels(db,modelDir="models",rank="phylum",table="NSV",
+pctTest=0.1)
+head(validation$scores)
+head(validation$prediction)
 @
+
 
 
 \subsection{Visualization}
 The EMM model emm created in the previous section can be easily visualized using the MMSA package. The following command plots the EMM model "emm":
 <<EMM_1, fig=TRUE, include=FALSE>>=
-plot(emm$model,main=paste("Rank=",emm$rank,"Name=",emm$name))
+plot.GenModel(model)
 @
 
 \begin{figure}[h]
@@ -310,8 +356,16 @@ plot(emm$model,main=paste("Rank=",emm$rank,"Name=",emm$name))
 \label{fig:EMM_Plot}
 \end{figure}
 
+
+
+
 \section*{Acknowledgments}
 This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).
+
+<<echo=FALSE>>=
+unlink("example.sqlite")
+system("rm -rf models/")
+@
 
 %\bibliographystyle{abbrvnat}
 %\bibliography{MMSA}

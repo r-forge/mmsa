@@ -75,6 +75,10 @@ listGenDB <- function(db) {
     dbListTables(db$db)
 }
 
+metaGenDB <- function(db) {
+	dbGetQuery(db$db,"SELECT * from metaData")
+}
+
 print.GenDB <- function(x, ...) {
     cat("Object of class GenDB")
     cat(" with", nSequences(x), "sequences.\n")
