@@ -1,6 +1,7 @@
 ### convert to NSVs
 
-createNSVTable <- function(db, tableName, whereRank=NULL,whereName=NULL, window=100,
+createNSVTable <- function(db, tableName, 
+	whereRank=NULL, whereName=NULL, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")

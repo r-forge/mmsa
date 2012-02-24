@@ -50,7 +50,17 @@
 
 %% an abstract and keywords
 \Abstract{
-Recent advances in Metagenomics and the Human Microbiome provide a complex landscape for dealing with a multitude of genomes all at once. One of the many challenges in this field is classification of the genomes present in the sample. Effective metagenomic classification and diversity analysis require complex representations of taxa. The significance of our research is that we develop a suite of tools, based on novel lossy alignment techniques that will be applied to environmental metagenomics samples as well as human microbiome samples. Providing such methods to rapidly classify organisms using our new approach on a laptop computer instead of several multi-processor servers will facilitate the development of fast and inexpensive devices for microbiome-based health screening in the near future.
+Recent advances in Metagenomics and the Human Microbiome provide a complex
+landscape for dealing with a multitude of genomes all at once. One of the many
+challenges in this field is classification of the genomes present in the
+sample. Effective metagenomic classification and diversity analysis require
+complex representations of taxa. With this package we
+develop a suite of tools, based on novel lossy alignment techniques
+to rapidly classify organisms using our new
+approach on a laptop computer instead of several multi-processor servers. 
+This approach will
+facilitate the development of fast and inexpensive devices for microbiome-based
+health screening in the near future.
 }
 \Keywords{data mining, clustering, Markov chain}
 \Plainkeywords{data mining, clustering, Markov chain} %% without formatting
@@ -117,23 +127,47 @@ set.seed(1234)
 @
 
 \section{Introduction}
-Recent advances in Metagenomics and the Human Microbiome provide a complex
-landscape for dealing with a multitude of genomes all at once. One of the many
-challenges in this field is classification of the genomes present in the
-sample. Effective metagenomic classification and diversity analysis require
-complex representations of taxa. In this package, we
-develop a suite of tools, based on novel lossy alignment techniques that will
-be applied to environmental metagenomics samples as well as human microbiome
-samples. 
+Metagenomics (Handelsman, 1998) and the Human Microbiome (Turnbaugh et al,
+2007; Volker et al, 2010) provide a complex landscape for dealing with a
+multitude of genomes all at once. One of the many challenges in this field is
+classification of the genomes present in the sample. Effective metagenomic
+classification and diversity analysis require complex representations of taxa.
 
-Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
-based on their genetic sequences. More specifically, we use sequences for 16S rRNA gene, which is known to be conserved across species and is widely used
-for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project ~\citep{MMSA:2012:Greengenes}.
+A common characteristic of most sequence-based classification techniques (e.g.,
+BLAST (Altschul et al., 1990), BAlibase (Smith and Waterman, 1981), ClustalW2
+and ClustalX2 (Larkin et al., 2007), Kalign (Lassmann and Sonnhammer, 2006),
+MAFFT (Kazutaka, 2002), MUSCLE (Edgar, 2004a/b), and T-Coffee (Notredame,
+2000)) is the use of computationally very expensive sequence alignment.
+Statistical signatures (Vinga and Almeida, 2003) created from base composition
+frequencies offer an alternative to using classic alignment. These alignment
+free methods reduce processing time and look promising for whole genome
+phylogenies where previously used methods do not scale well (Thompson, 1999).
+However, pure alignment free methods typically do not provide the desired
+classification accuracy and do not offer large preprocessed databases which
+makes the comparison of a sequence with a large set of known sequences
+impractical.
+
+The position sensitive p-mer frequency clustering techniques developed in this
+package are particularly suited to this classification problem, as they require
+no alignment and scale well for large scale data because it is based on
+high-throughput data stream clustering techniques resulting in so called
+quasi-alignments. Also the growth rate of the size of the learned profile
+models has proven to be sublinear due to the compression achieved by clustering
+(Kotamarti et al, 2010). Note also that the topology of the model is not
+predetermined (as for HMMs (Eddy, 1998)), but is learned through the associated
+machine learning algorithms.
+
+This paper is organized as follows. In Section ...
+
+
+%Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
+%based on their genetic sequences. More specifically, we use sequences for 16S rRNA gene, which is known to be conserved across species and is widely used
+%for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project ~\citep{MMSA:2012:Greengenes}.
 
 \section{Using TRACDS for Genomic Applications}
-The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
-several benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
-The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
+%The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
+%everal benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
+%The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
 
 %%start
 Sequence Clustering using Position Sensitive $p$-mer Clustering is based 
@@ -141,7 +175,7 @@ on the idea of computing distances between sequences using
 of $p$-mer frequency counts instead of 
 computationally expensive alignment between the original sequences. 
 This idea is at the core of so-called alignment-free 
-methods~\cite{sequence:Vinga:2003}. 
+methods~\citep{sequence:Vinga:2003}. 
 However, in contrast to these methods we count $p$-mer frequencies 
 position specific (i.e., for different segments of the sequence) and then use
 high-throughput stream clustering to group similar segments. 
@@ -218,8 +252,8 @@ can be calculated using several measures. Measures
 suggested in the literature about alignment free methods to compare sequences
 using $p$-mer counts are Euclidean distance, squared Euclidean distance,
 Kullback-Leibler discrepancy and Mahalanobis
-distance~\cite{sequence:Vinga:2003}.
-Recently, for Simrank~\cite{sequence:DeSantis:2011} an even simpler similarity
+distance~\citep{sequence:Vinga:2003}.
+Recently, for Simrank~\citep{sequence:DeSantis:2011} an even simpler similarity
 measure, the number of matching $p$-mers (typically with $p=7$), was proposed
 for efficient search of very large database.
 In the area of approximate string matching Ukkonen proposed the 
@@ -227,7 +261,7 @@ approximate the expensive computation of the edit distance between two strings
 by using $q$-grams (analog to $p$-mers in sequences). First
 $q$-gram profiles are computed
 and then the distance between the profiles is calculated using
-Manhattan distance~\cite{sequence:Ukkonen:1992}.
+Manhattan distance~\citep{sequence:Ukkonen:1992}.
 The Manhattan distance between
 two $p$-mer NSVs $x$ and $y$ is defined as:
 
@@ -243,12 +277,12 @@ $$d_\mathrm{Manhattan}(x,y)/(2p) \le d_\mathrm{Edit}(s_x,s_y)$$
 This relationship is easy to proof since each insertion/deletion/substitution 
 in a sequences destroys at the most $p$ $p$-grams and introduces
 at most $p$ new $p$-grams.
-Although, we can construct two completely differnt sequences with exactly
+Although, we can construct two completely different sequences with exactly
 the same NSVs (see \cite{sequence:Ukkonen:1992} for a method), we are typically
 interested in sequences of high similarity in which case 
 $d_\mathrm{Manhattan}(x,y)/(2p)$ gets closer to the edit distance.
 
-Altough our approach can be used with any distance measure, we will
+Although our approach can be used with any distance measure, we will
 only report results using Manhattan distance in this paper.
 
 A cluster model can be created for a single sequence and compresses the
@@ -259,19 +293,33 @@ needed to represent the whole sequence. Typically, we will create
 a cluster model for a whole family of sequences by simply adding the NSVs
 of all sequences to a single model following the procedure in Figure~\ref{emm}.
 This will lead to even more compression since many sequences within a family
-will share NSVs steming from similar sequence segments. We explored
-this approach for taxnomic classification in~\cite{hahsler:Kotamarti:2010}. 
-In the following section we will show how the same apporach can be used for
-visualizing gentetic sequence databases.
+will share NSVs stemming from similar sequence segments. We explored
+this approach for taxonomic classification in~\cite{hahsler:Kotamarti:2010}. 
+In the following section we will show how the same approach can be used for
+visualizing genetic sequence databases.
 
 
 %%end
 \section{MMSA Package}
-In order to start using MMSA, the following packages must be installed: seqinr, rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI, RSQLite.
-MMSA builds on the above packages to develop efficient storage, querying, analysis, and plotting capabilities..
+In order to start using MMSA, the following packages must be installed: seqinr,
+rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI,
+RSQLite.  MMSA builds on the above packages to develop efficient storage,
+querying, analysis, and plotting capabilities.
+
 \subsection{Genetic Databases}
-At the heart of the MMSA package are Genetic Databases (genDB) which are used for efficient storage and retrieval. The examples below use SQLite database, but any other
-compatible database such as mySQL, or mSQL can also be used. We use the sequences from Greengenes and the associated sequence ID as the primary key in the tables. 
+At the heart of the MMSA package are Genetic Databases (GenDB) which are used
+for efficient storage and retrieval. By default we use light-weight 
+SQLite databases,
+but any other compatible database such as mySQL or Oracle can also be used.
+Figure~\ref{fig:ER_Diag} shows an example of the basic table layout of a
+GenDB instance with a table containing classification information, a table 
+containing the sequence information and a meta data table.
+For each sequence we will have an entry in the classification table
+and an corresponding entry in the sequence table.
+The tables are connected by a unique sequence ID as the primary key.
+Classification and sequence 
+are separated because later we will also add tables with NSVs for sequences
+which will share the classification table.
 
 \begin{figure}[h]
 \centering
@@ -280,213 +328,324 @@ compatible database such as mySQL, or mSQL can also be used. We use the sequence
 \label{fig:ER_Diag}
 \end{figure}
 
+More description to come...
+
 \section{Examples}
+
+\subsection{Setting up a GenDB}
 
 First, we load the library into the R environment.
 <<>>=
 library(MMSA)
 @
 
-The first step is to create an empty genDB into which sequences can be loaded.
+The first step is to create an empty GenDB into which sequences can be loaded.
 <<>>=
 db<-createGenDB("example.sqlite")
 @
-The above command creates an empty database with table structure similar to Figure \ref{fig:ER_Diag}
-and stores it in the file "example.sqlite".
-If a genDB already exists, then it can be opened and loaded using the \func{openGenDB} command
+The above command creates an empty database with table structure similar to
+Figure~\ref{fig:ER_Diag} and stores it in the file "example.sqlite".  If a
+genDB already exists, then it can be opened and loaded using the
+\func{openGenDB} command.
 
-The next step is to load data into the database by reading FASTA files.
-Since the meta info in FASTA files is not standardized, we provide several reader functions. For example,
-for FASTA files for GreenGenes, we provide the reader function \func{addSequencesGreengenes}, which will
-automatically read and parse GreenGenes FASTA files and extract the classification and sequence information. 
-For each sequence, the header information will be parsed and stored in the appropriate column of the ``Classification'' table. 
-For example, the kingdom value will go into the kingdom field of the table and so on. Each sequence also has a unique ID. This will
-be parsed and used as the \textit{Primary Key} in the ``Classification'' and ``Sequences'' tables. Similarly, the DNA sequence will be
-stored in the ``Sequences'' table as a Binary Large Object (BLOB). As of now, we have implemented the reader for Greengenes format FASTA files, and
+The next step is to load sequences into the database by reading FASTA files.  
+Since
+the meta info in FASTA files is not standardized, we provide several reader
+functions. For example, for FASTA files for GreenGenes, we provide the reader
+function \func{addSequencesGreengenes}, which will automatically read and parse
+GreenGenes FASTA files and extract the classification and sequence information.
+For each sequence, the header information will be parsed and stored in the
+appropriate column of the ``Classification'' table.  For example, the kingdom
+value will go into the kingdom field of the table and so on. Each sequence also
+has a unique ID. This will be parsed and used as the \textit{Primary Key} in
+the ``Classification'' and ``Sequences'' tables. Similarly, the DNA sequence
+will be stored in the ``Sequences'' table as a Binary Large Object (BLOB). As
+of now, we have implemented the reader for Greengenes format FASTA files, and
 work is in progress to develop more readers for NCBI format FASTA files. 
 
-The command below uses a FASTA file provided by the package, hence we use system.file instead of just a string with the file name.
+%%% FIXME: We need to isolate the meta data reader and explain how to create a new one for a different format!
+
+The command below uses a FASTA file provided by the package, hence we use
+\func{system.file} instead of just a string with the file name.
 <<>>= 
 addSequencesGreengenes(db,
-system.file("examples/phylums/Firmicutes.fasta",package="MMSA"))
-@
-
-After loading the sequences, various querying and limiting functions can be used to check the data and obtain 
-a subset of the sequences.
-The name of the genDB outputs the names of all the tables contained.
-<<>>=
+system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
 db
 @
+
+After loading the sequences, various querying and limiting functions can be
+used to check the data and obtain a subset of the sequences.  
 To get a count of the number of sequences in the database, the function \func{nSequences} can be used:
 <<>>=
 nSequences(db)
 @
 
-Similarly, the function \func{getSequences} returns the DNA sequences as a vector. The first 50 bases of the first sequence are shown as an example.
+The function \func{getSequences} returns the sequences as a vector. 
+In the following example we get all sequences in the database and then show
+the first 50 bases of the first sequence.
 <<>>=
 d<-getSequences(db)
-substr(d[1],1,50)
+length(d)
+substr(d[1], 1, 50)
 @
-The sequences can also be filtered at various ranks. For example, to get the sequences that have the genus name ``Desulfosporomusa'', the following
-command is issued:
-<<>>=
-d<-getSequences(db,rank="genus",name="Desulfosporomusa")
-@
-It's very easy to obtain the various unique names stored in the database for any rank. For example, to find all names for the rank ``order'',
-we use the \func{getRank}.
-<<>>=
-getRank(db,rank="order")
-@
-In the above case, the 100 sequences only contain organisms from \textit{two} different orders. 
 
-If you would like to query more specific hierarchies, that's easily done as well. For example, if you want to find out the genuses within the phylum ``Firmicutes'',
-you can use the function \func{getRank} with filters as:
+Sequences in the database can also be filtered using classification 
+information. For example, we can get all sequences of the genus name 
+``Desulfosporomusa'' by specifying rank and name.
 <<>>=
-getRank(db, rank="genus", whereRank="phylum", whereName="Firmicutes")
+d<-getSequences(db, rank="genus", name="Desulfosporomusa")
+length(d)
 @
-The above output shows all the genuses within the phylum ``Firmicutes''.
+
+We can obtain the classification hierarchy used in 
+the database with \func{getClassification}.     
+<<>>=
+getClassification(db)
+@
+
+To obtain all unique names stored in the database 
+for a given rank we can use \func{getRank}.     
+<<>>=
+getRank(db, rank="order")
+@
+
+The \Sexpr{nSequences(db)}~sequences 
+in our example data base contain
+organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
+
+Filtering also works for \func{getRank}.
+For example, we can find the genuses within the order
+``Thermoanaerobacterales''.
+<<>>=
+getRank(db, rank="genus", whereRank="order", whereName="Thermo")
+@
+Note that partial matching is performed from ``Therm'' to 
+``Thermoanaerobacterales.'' Partial matching is available for most
+operations in \pkg{MMSA}.
+
+%%% FIXME: nSequences should also have parameters called whereRank and whereName
 
 \subsection{Converting Sequences to NSV}
-In order to create position sensitive p-mer clustering algorithms and models, we need to first create Numerical Summarization Vectors (NSVs).
-The MMSA package can easily convert large number of sequences to NSV format and store them in the same database as character sequences. 
-The following command will convert all the sequences to NSV format  and store them in a table called "NSV".
+In order to create position sensitive $p$-mer clustering models, we need to
+first create Numerical Summarization Vectors (NSVs).  The MMSA package can
+easily convert large number of sequences to NSV format and store them in the
+same database as character sequences. The following command will convert all
+the sequences to NSV format  and store them in a table called "NSV".
 <<>>=
-createNSVTable(db,tableName="NSV")
+createNSVTable(db, tableName="NSV")
 @
-In the above function, we have accepted the default values of all the parameters such as word, overlap, and last\_window.
-More parameters and filter criteria can also be easily specified as:
-<<>>=
-createNSVTable(db, tableName="NSV1", whereRank="genus",whereName="Thermosinus", 
-window=100, overlap=0, word=3,last_window=FALSE)
-@
-The above command converts only those sequences that belong to the genus ``Thermosinus'' and stores them in a table called ``NSV1''.
-The parameters for creating NSVs are also part of the command, such as window size is 100, overlap is 0, word size is 3, and
-last\_window parameter is FALSE.
 
-When a new NSV table is created, its name and meta information is stored in the metaData table. The meta data can be queried using the
+In the function call above we use the default values of all the
+parameters such as word, overlap, and last\_window.  Custom parameter settings 
+and filter
+criteria can be easily specified as:
+<<>>=
+createNSVTable(db, tableName="NSV_genus_Thermosinus", 
+    whereRank="genus", whereName="Thermosinus", 
+    window=100, overlap=0, word=3, last_window=FALSE)
+@
+
+The above command converts only the sequences that belong to the 
+genus ``Thermosinus'' and stores them in a separate NSV table called ``NSV\_genus\_Thermosinus''.
+The parameters for creating NSVs are also part of the command, 
+such as window size is 100, overlap is 0, word size is 3, and
+last\_window parameter is FALSE indicating that the last (incomplete) window
+will be ignored.
+
+When a new sequence or NSV table is created, its name and meta information is 
+stored in the metaData table. The meta data can be queried using the
 \func{metaGenDB} function.
 <<>>=
-metaGenDB(db)["annotation"]
+metaGenDB(db)
 @
+The annotation column contains information about how the NSVs were created.
 
-The sequences in the NSV tables can be queried and filtered just as easily. For example, we can get the NSV sequences using the function
-\func{getSequences} as before:
+
+The sequences in the NSV tables can be queried and filtered
+using \func{getSequences} in the same way as regular sequences before. 
 <<>>=
-dNSV<-getSequences(db, rank="Genus", name="Desulfosporomusa",table="NSV")
+dNSV <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
+length(dNSV)
 @
 
-Most of the times, we would like sequences to be in NSV format in the database as the NSVs form the basis of most operations such as model generation,
-and classification. The function \func{processSequences} loads all the FASTA sequences from a direct into the database and also converts them 
-into NSVs. This function saves the extra step of loading sequences and then creating NSVs explicitly. 
+The code above selects the NSVs for the genus ``Desulfosporomusa'' in
+table NSV. Note sequences of NSVs are not strings like the original
+sequences but tables of $p$-mer counts and thus are stored in a
+list. The code below shows the dimensions of the NSV table 
+for the first sequence and then shows the first 2 rows and 100 columns 
+of the table.
+<<>>=
+dim(dNSV[[1]])
+dNSV[[1]][1:2,1:10]
+@
+
+Finally, we can close a GenDB after we are done working on it. The data base
+can later be opened again using \func{openGenDB}.
 <<>>=
 closeGenDB(db)
-unlink("example.sqlite")
-db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums",package="MMSA"),db)
 @
 
-In the above code, we have first closed and deleted the existing database. This is done using the function \func{closeGenDB}. Note that the ``sequences''
-table does not allow duplicate sequence IDs to be stored. The above code shows how to add \textbf{all} the FASTA files from the system directory ``phylums'' that
-is a part of the MMSA package by using the \func{processSequences}. The function also automatically converts the sequences to NSV format and stores them
-in a table called ``NSV''.
+To permanently remove the database we need to delete the file (for
+SQLite databases) or remove the database using the administrative tool
+for the database management system.
+<<>>=
+unlink("example.sqlite")
+@
+
+\subsection{Adding and converting sequences in one batch}
+
+Often, we would like sequences to be in NSV format in the database
+as the NSVs form the basis of most operations such as model building, and
+classification. The function \func{processSequences} loads all the FASTA
+sequences from a directory into the database and also converts them into NSVs.
+This function saves the extra step of loading sequences and then creating NSVs
+explicitly.  
+
+<<>>=
+db<-createGenDB("example.sqlite")
+processSequences(system.file("examples/phylums", package="MMSA"), db)
+@
+
 
 \subsection{Creating Models}
-The NSVs created in the previous section can be used in model generation. The models can be created at any level and for any set of subsequences or
-the even the entire dataset of sequences. 
+The NSVs created in the previous section can be used for model generation. The
+models can be created at for all 
+sequences in the database or for any set of sequences selected using filters.
 <<>>=
-model<- genModel(db,rank="Genus",name="Desulfosporomusa",table="NSV", limit=100, 
-measure="Kullback", threshold=0.1,plus_one=TRUE)
+model <- genModel(db, rank="Genus", name="Desulfosporomusa", table="NSV",
+    measure="Kullback", threshold =.1)
 @
-The above command creates a model using a subset of the sequences in the NSV table that belong to the genus ``Desulfosporomusa''. For creating the model,
-we use ``Kullback'' similarity measure with a  threshold  equal to 0.1. The plus\_one parameter gives each transition an initial count of one. For more details
-about model creation, please see the reference manual of the rEMM package \citep{MMSA:rEMM:2012}. The "limit" parameter limits the maximum number of sequences to
-be used in model creation. The model is a compact signature of the sequences and can be easily and efficiently used for analysis. It can be plotted to get a visual
-display of the various states and transitions, and can be used for classification by scoring new sequences against existing models. 
-Often it is needed to create models at a particular rank level. For example, you might want to create models for each phylum present in the database. This can be easily accomplished using the \func{createModels}, which creates models and stores them in a directory  with the rank's name (such as ``phylum'').
 
-The above command creates models for all phylums stored in the database and stores them in a directory called "phylum"
+The above command builds a model using a subset of the sequences in the NSV
+table that belong to the Genus ``Desulfosporomusa''. For creating the model, we
+use Kullback–Leibler divergence with a threshold of 0.1
+for clustering NSVs. 
+For more
+details about model creation, please see the reference manual of the rEMM
+package \citep{MMSA:rEMM:2012}. In addition a limit parameter 
+can be used to restrict the maximum number
+of sequences to be used in model creation. 
+
+The model is a compact signature of
+the sequences and can be easily and efficiently used for analysis. It can be
+plotted to get a visual display of the various states and transitions, and can
+be used for classification by scoring new sequences against existing models.
+Often it is needed to create models at a particular rank level. For example,
+you might want to create models for each Phylum present in the database. This
+can be accomplished using \func{createModels}, which creates a set of
+models and stores them in a directory.
+
+The following command creates models for all Phylums stored in the database and stores them in a directory models in subdirectory phylum.
 <<>>=
 dir.create("models")
-createModels(modelDir="models",rank="phylum",db)
+createModels(modelDir="models", rank="phylum", db)
 @
 
-The models are stored as compressed .rds files in the ``models/phylum'' directory. You can get a list of files stored in that directory by the \func{list.files} function 
+The models are stored as compressed files in the ``models/phylum''
 <<>>=
-list.files("models")
-@
-The models can be easily loaded using the readRDS function.
-<<>>=
-model<-readRDS("models/phylum/Firmicutes.rds")
+list.files("models/phylum")
 @
 
+A model can be  models loaded using the readRDS function.
+<<>>=
+model <- readRDS("models/phylum/Proteobacteria.rds")
+model
+@
 
 
 \subsection{Classification}
-Once the models have been constructed, they can be used to score and classify new sequences. We can compare the new sequence against just one model
-or all the models stored in a directory. The classification score is based on the \func{score} from the rEMM package \citep{MMSA:rEMM:2012}
-and evaluates how likely it is that a sequence was generated by a given model. It is calculated by the length-normalized 
-product or sum of probabilities on the path along the new sequence.
-The scores for a new sequence of length $l$ are defined as:
+Once the models have been constructed, they can be used to score and classify
+new sequences. We can compare the new sequence against just one model or all
+the models stored in a directory. The classification score evaluates how likely
+it is that a sequence was generated by a given model~\citep{MMSA:rEMM:2012}.
+It is calculated by the length-normalized product or sum of probabilities on
+the path along the new sequence.  The scores for a new sequence of length $l$
+are defined as:
 \begin{align}
 P_\mathrm{prod} &= \sqrt[l-1]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
 P_\mathrm{sum} &= \frac{1}{l-1} \sum_{i=1}^{l-1}{a_{s(i)s(i+1)}}
 \end{align}
-
-where $s(i)$ is the state of the $i^\textrm{th}$ data point in the new sequence it is assigned to. 
-Points are assigned to the closest cluster only if the distance to the center is smaller
-than the threshold. Data points which are not within the threshold of any cluster stay unassigned.
-Note that for a sequence of length $l$ we have $l-1$ transitions. If we want to take the initial
-transition probability also into account we extend the above equations by the additional initial probability $a_{\epsilon,s(1)}$:
+where $s(i)$ is the state the $i^\textrm{th}$ NSV in the new sequence
+is assigned to. NSVs are assigned to the closest cluster. 
+Note that for a sequence
+of length $l$ we have $l-1$ transitions. If we want to take the initial
+transition probability also into account we extend the above equations by the
+additional initial probability $a_{\epsilon,s(1)}$:
 \begin{align}
 P_\mathrm{prod} &= \sqrt[l]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
 P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s(i+1)}} \right)
 \end{align}
 
-The \func{score.GenModel} uses the above equations to compute the similarity between a sequence and a model. 
+The \func{score} implements the above equations to compute the 
+similarity between a sequence and a model. 
 <<>>=
-score.GenModel(model,dNSV[[1]]+1)
+random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
+score.GenModel(model, random_sequence)
 @
-The +1 used in the sequences is used to prevent zero count values in the sequences. This is necessary if the model is created using  the
-``Kullback'' similarity measure. If it is created using any other method such as ``Manhattan'', this would not be necessary.
 
-The function \func{classify} can be used to classify NSV sequences against all the models stored in a directory. It will output a data frame containing the
-score matrix and the actual and predicted ranks. The following example shows how the \func{classify} works:
+%%% FIXME: can we get the classification etc from the id attribute in random_sequence?
+
+The function \func{classify} can be used to classify NSV sequences against all
+the models stored in a directory. It returns a data.frame containing the
+score matrix and the actual and predicted ranks. 
 <<>>=
-d<-getSequences(db,rank="phylum",table="NSV",limit=10,random=TRUE)
-classification<-classify(modelDir="models",d)
+unknown <- getSequences(db, rank="phylum", table="NSV", limit=10, random=TRUE)
+classification<-classify(modelDir="models", unknown)
 head(classification$scores)
 head(classification$prediction)
+table(classification$prediction[,"actual"], 
+    classification$prediction[,"predicted"])
 @
 
+%%% FIXME: Better way to get the actual class!
 
-\subsection{Validation of Classification}
+\subsection{Assessing classification accuracy}
 
-Often, we would like to use a subset of the entire sequences for training and the rest for test purposes. Such a functionality is also available in the 
-MMSA package. The function \func{validateModels} splits up the sequences into \textit{training} and \textit{test} datasets and used the training sequences
-for generating the models. The parameter \textit{pctTest} is used to specify the fraction of sequences to be used for test dataset.
-The output is a data frame containing the classification results as before.
+For validation we split the data into a training and test set.
+We use the training sequences for generating the models and then evaluate
+classification accuracy on the hold out test set.  This is implemented in
+function \func{validateModels}. 
+The parameter pctTest is used to specify
+the fraction of sequences to be used for test dataset. 
 <<>>=
-validation<-validateModels(db,modelDir="models",rank="phylum",table="NSV",
-pctTest=0.1)
+validation <- validateModels(db, modelDir="models", rank="phylum", 
+    table="NSV", pctTest=.1)
 head(validation$scores)
 head(validation$prediction)
+table(classification$prediction[,"actual"], 
+    classification$prediction[,"predicted"])
 @
 
 
 
 \subsection{Visualization}
-The EMM model emm created in the previous section can be easily visualized using the MMSA package. The following command plots the EMM model "emm":
+Models can be visualized in several ways.
+
 <<EMM_1, fig=TRUE, include=FALSE>>=
-plot.GenModel(model)
+plot(model)
 @
+<<EMM_2, fig=TRUE, include=FALSE>>=
+plot(model, method="MDS")
+@
+
+%%% This is too slow for such a large model
+%<<EMM_3, fig=TRUE, include=FALSE>>=
+%plot(model, method="graph")
+%@
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=.5\linewidth]{MMSA-EMM_1}
-\caption{Plot of EMM}
+\caption{Graph}
 \label{fig:EMM_Plot}
 \end{figure}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=.5\linewidth]{MMSA-EMM_2}
+\caption{Using MDS}
+\label{fig:EMM_Plot}
+\end{figure}
 
 
 
@@ -501,7 +660,7 @@ system("rm -rf models/")
 %\bibliographystyle{abbrvnat}
 %\bibliography{MMSA}
 
-\bibliography{MMSA}
+\bibliography{MMSA,sequence}
 
 
 \end{document}

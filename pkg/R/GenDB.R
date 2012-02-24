@@ -1,15 +1,3 @@
-openGenDB <- function(dbName, drv=NULL) {
-    if(!file.exists(dbName)) 
-	stop("GenDB does not exist. Use createGenDB first.\n")
-    
-    if(is.null(drv)) drv<-dbDriver("SQLite");
-
-    db<-dbConnect(drv, dbname = dbName);
-
-    db <- list(db=db, dbName=dbName)
-    class(db) <- "GenDB"
-    db
-}
 
 createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 	 drv=NULL) {
@@ -64,11 +52,24 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
     db
 }
 
+openGenDB <- function(dbName, drv=NULL) {
+    if(!file.exists(dbName)) 
+	stop("GenDB does not exist. Use createGenDB first.\n")
+    
+    if(is.null(drv)) drv<-dbDriver("SQLite");
+
+    db<-dbConnect(drv, dbname = dbName);
+
+    db <- list(db=db, dbName=dbName)
+    class(db) <- "GenDB"
+    db
+}
 
 
 closeGenDB <- function(db) {
     dbCommit(db$db)
-	dbDisconnect(db$db)
+    ret <- dbDisconnect(db$db)
+    return(invisible(ret))
 }
 
 listGenDB <- function(db) {
@@ -80,8 +81,8 @@ metaGenDB <- function(db) {
 }
 
 print.GenDB <- function(x, ...) {
-    cat("Object of class GenDB")
-    cat(" with", nSequences(x), "sequences.\n")
+    cat("Object of class GenDB ")
+    cat("with", nSequences(x), "sequences.\n")
     cat("DB File:", x$dbName, "\n")
     cat("Tables: ")
     print(dbListTables(x$db))
@@ -94,13 +95,6 @@ getClassification <- function(db) {
     cl <- dbListFields(db$db, "classification")
     cl <- head(cl, length(cl)-1L)   ### remove data
     cl
-}
-
-nSequences <- function(db, rank=NULL, name=NULL) {
-    dbGetQuery(db$db, 
-	    statement = paste("SELECT COUNT(*) FROM classification", 
-		    .getWhere(db, rank, name)))[1,1]
-
 }
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
@@ -123,12 +117,20 @@ getHierarchy <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
 		    .getWhere(db, whereRank, whereName)))
 }
 
-getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=-1) {
+nSequences <- function(db, rank=NULL, name=NULL) {
+    dbGetQuery(db$db, 
+	    statement = paste("SELECT COUNT(*) FROM classification", 
+		    .getWhere(db, rank, name)))[1,1]
+
+}
+
+
+getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE) {
 
     if(limit[1]<0) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
     
-	if(random>0)  
+	if(random)  
     	limit <- paste(" ORDER BY RANDOM() ",limit)
 
 	if (!is.null(rank))    
@@ -169,8 +171,8 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 
 .getWhere <- function(col, rank, name) {
     if(is.null(rank) && is.null(name)) where <- ""
-    else where <- paste("WHERE classification.", .pmatchRank(col, rank), 
-		" LIKE '", name,"%'", sep='')
+    else where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+		"' LIKE '", name,"%'", sep='')
     where
 }
 

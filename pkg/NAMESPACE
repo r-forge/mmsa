@@ -1,0 +1,35 @@
+import("rEMM")
+
+export( 
+	GenClass16S,
+
+	GenClass16S_Greengenes,
+	addSequencesGreengenes,
+
+	createGenDB,
+	openGenDB,
+	closeGenDB,
+	listGenDB,
+	metaGenDB,
+	getClassification,
+	getRank,
+	getHierarchy,
+	nSequences,
+	getSequences,
+
+	createNSVTable,
+	dropNSVTable,
+
+	genModel,
+	processSequences,
+	createModels,
+	classify,
+	validateModels,
+	score.GenModel ### make score a generic
+)
+
+S3method(print, GenDB)
+S3method(print, GenModel)
+S3method(plot, GenModel)
+### S3method(score, GenModel)
+

@@ -13,7 +13,7 @@
 \usage{
 	nSequences(db, rank=NULL, name=NULL)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=-1, random=-1)
+	    limit=-1, random=FALSE)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -21,7 +21,7 @@
 	\item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
 	\item{table}{Value of the NSV table which stores sequences in NSV format.}
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
-	\item{random}{Used to randomize the sequences before selection. Default value of -1 does not randomize sequences, a positive value will randomize sequences} 
+	\item{random}{Get sequences in randomized order.} 
 	
 }
 \value{

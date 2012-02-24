@@ -1,6 +1,6 @@
 # creates an model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
-	measure="Kullback", threshold=0.10, plus_one=TRUE, 
+	measure="Kullback", threshold=.1, plus_one=TRUE, 
 	selection=NULL, limit=-1) {
 	
 	#check if table exists in db
@@ -20,7 +20,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 	#	d<-d[selection]
 	#else if (length(d)==0)
 	#	stop("GenModel called with 0 sequences")
-    cat("genModel: Creating model for rank:",rank,", name:",name,"\n",sep="")
+    cat("genModel: Creating model for ",rank,": ",name,"\n",sep="")
 	if (is.null(selection))
 	{
 		i<-0
@@ -29,11 +29,14 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 		{
 			d<-getSequences(db,rank,name,table,limit=c(i,100))
 			i<-min(i+100,nSequences)
-			cat("genModel: Read ",i,"sequences \n")
 			sequences<-.make_stream(d)
-			if(plus_one) sequences<-sequences + 1
+			
+			### Kullback can not handle 0 counts!
+			if(measure=="Kullback") sequences<-sequences + 1
+			
 			build(emm,.make_stream(d)+1)
 			reset(emm)
+			cat("genModel: Processed",i,"sequences\n")
 		}
 	}
 	else if (!is.null(selection))
@@ -44,13 +47,15 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 			stop("GenModel called with 0 sequences")
         for(i in 1:length(d))
 		{
-			if (i%%100==0) cat("genModel: Read ",i," sequences \n")
 			sequence<- d[[i]]		
-			if(plus_one) sequence <- sequence + 1
+			
+			if(measure=="Kullback") sequence <- sequence + 1
+			
 			build(emm,sequence)
 			reset(emm)
+			if (i%%100==0) cat("genModel: Processed",i,"sequences\n")
 		}	
-		cat("genModel: Read ",length(d)," sequences \n")
+		cat("genModel: Processed",length(d),"sequences\n")
 	}
 	rank <- .pmatchRank(db, rank)
 	rankName<- unique(unlist(attr(d,"name")))
@@ -64,7 +69,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 print.GenModel <- function(x, ...) {
     cat("Object of class GenModel")
     cat(" of", x$nSequences, "sequences.\n")
-    cat("Rank/Name:", x$rank,"-", x$name, "\n")
+    cat(x$rank,": ", x$name, "\n", sep="")
     
     cat("\nModel:\n")
     print(x$model)
@@ -72,13 +77,16 @@ print.GenModel <- function(x, ...) {
 
 ### plot a model
 plot.GenModel <- function(x, ...) {
-    plot(x$model,main=paste(x$rank,"-", x$name), ...)
+    plot(x$model,main=paste(x$rank,": ", x$name, sep=""), ...)
 }
 
 ### score a new sequence of NSVs against a model
 score.GenModel <- function(x, newdata, method = "prod", 
 	match_cluster = "nn", plus_one=TRUE, 
 	initial_transition = FALSE) {
+    
+    if(model$model@measure=="Kullback") newdata <- newdata+1
+    
     score(x$model, newdata=newdata, method=method, 
 	    match_cluster=match_cluster, plus_one=plus_one, 
 	    initial_transition=initial_transition)
@@ -238,7 +246,7 @@ classify<-function(modelDir, NSVList)
 	for (modelFile in modelFiles)
 	{
 		modelName<-basename(modelFile)
-		cat("classify: Creating score matrix for: ",modelName,"\n")
+		cat("classify: Creating score matrix for", modelName,"\n")
 		modelName<- sub(".rds","",modelName)
 		model<-readRDS(modelFile)
 		modelSim<-data.frame()
