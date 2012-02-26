@@ -81,8 +81,8 @@ metaGenDB <- function(db) {
 }
 
 print.GenDB <- function(x, ...) {
-    cat("Object of class GenDB ")
-    cat("with", nSequences(x), "sequences.\n")
+    cat("Object of class GenDB\n")
+    cat("Sequences:", nSequences(x), "\n")
     cat("DB File:", x$dbName, "\n")
     cat("Tables: ")
     print(dbListTables(x$db))

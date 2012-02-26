@@ -52,10 +52,10 @@
 \Abstract{
 Recent advances in Metagenomics and the Human Microbiome provide a complex
 landscape for dealing with a multitude of genomes all at once. One of the many
-challenges in this field is classification of the genomes present in the
+challenges in this field is classification of the genomes present in a
 sample. Effective metagenomic classification and diversity analysis require
 complex representations of taxa. With this package we
-develop a suite of tools, based on novel lossy alignment techniques
+develop a suite of tools, based on novel quasi-alignment techniques
 to rapidly classify organisms using our new
 approach on a laptop computer instead of several multi-processor servers. 
 This approach will
@@ -86,8 +86,7 @@ health screening in the near future.
         P.O. Box 750122 \\
         Dallas, TX 75275-0122\\
         E-mail: \email{anagar@smu.edu}\\
-}
-\Address{
+    
     Michael Hahsler\\
         Computer Science and Engineering\\
         Lyle School of Engineering\\
@@ -103,19 +102,14 @@ health screening in the near future.
 %% Fax: +43/1/31336-734
 
 %% for those who use Sweave please include the following line (with % symbols):
-    %% need no \usepackage{Sweave.sty}
+%% need no \usepackage{Sweave.sty}
 
-    %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 \begin{document}
 
-%\title{rEMM: Extensible Markov Model for Data Stream Clustering in R}
-%\author{Michael Hahsler and Margaret H. Dunham}
-%\date{}
-
-%\maketitle
 \sloppy
 
 %\abstract{}
@@ -127,34 +121,43 @@ set.seed(1234)
 @
 
 \section{Introduction}
-Metagenomics (Handelsman, 1998) and the Human Microbiome (Turnbaugh et al,
-2007; Volker et al, 2010) provide a complex landscape for dealing with a
+Metagenomics~\citep{sequence:Handelsman:1998} 
+and the Human Microbiome~\citep{sequence:Turnbaugh:2007, sequence:Volker:2010}
+provide a complex landscape for dealing with a
 multitude of genomes all at once. One of the many challenges in this field is
 classification of the genomes present in the sample. Effective metagenomic
 classification and diversity analysis require complex representations of taxa.
 
 A common characteristic of most sequence-based classification techniques (e.g.,
-BLAST (Altschul et al., 1990), BAlibase (Smith and Waterman, 1981), ClustalW2
-and ClustalX2 (Larkin et al., 2007), Kalign (Lassmann and Sonnhammer, 2006),
-MAFFT (Kazutaka, 2002), MUSCLE (Edgar, 2004a/b), and T-Coffee (Notredame,
-2000)) is the use of computationally very expensive sequence alignment.
-Statistical signatures (Vinga and Almeida, 2003) created from base composition
-frequencies offer an alternative to using classic alignment. These alignment
-free methods reduce processing time and look promising for whole genome
-phylogenies where previously used methods do not scale well (Thompson, 1999).
-However, pure alignment free methods typically do not provide the desired
+BAlibase~\citep{sequence:Smith:1981},
+BLAST~\citep{sequence:Altschul:1990}, 
+T-Coffee~\citep{sequence:Notredame:2000},
+MAFFT~\citep{sequence:Katoh:2002}, 
+MUSCLE~\citep{sequence:Edgar:2004,sequence:Edgar:2004b}, 
+Kalign~\citep{sequence:Lassmann:2006} and
+ClustalW2 and ClustalX2~\citep{sequence:Larkin:2007}) 
+is the use of computationally very expensive sequence alignment.
+Statistical signatures~\citep{sequence:Vinga:2003} created from 
+base composition
+frequencies offer an alternative to using classic alignment. These 
+alignment-free methods reduce processing time and 
+look promising for whole genome
+phylogenic analysis where previously used methods do not scale 
+well~\citep{sequence:Thompson:1999}.
+However, pure alignment-free methods typically do not provide the desired
 classification accuracy and do not offer large preprocessed databases which
 makes the comparison of a sequence with a large set of known sequences
 impractical.
 
-The position sensitive p-mer frequency clustering techniques developed in this
+The position sensitive $p$-mer frequency clustering techniques developed in this
 package are particularly suited to this classification problem, as they require
 no alignment and scale well for large scale data because it is based on
 high-throughput data stream clustering techniques resulting in so called
 quasi-alignments. Also the growth rate of the size of the learned profile
-models has proven to be sublinear due to the compression achieved by clustering
-(Kotamarti et al, 2010). Note also that the topology of the model is not
-predetermined (as for HMMs (Eddy, 1998)), but is learned through the associated
+models has proven to be sublinear due to the compression achieved by 
+clustering~\citep{hahsler:Kotamarti:2010}.
+Note also that the topology of the model is not
+predetermined (as for HMMs~\citep{sequence:Eddy:1998}), but is learned through the associated
 machine learning algorithms.
 
 This paper is organized as follows. In Section ...
@@ -170,94 +173,101 @@ This paper is organized as follows. In Section ...
 %The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
 
 %%start
-Sequence Clustering using Position Sensitive $p$-mer Clustering is based 
+Sequence clustering using position sensitive $p$-mer clustering is based 
 on the idea of computing distances between sequences using 
-of $p$-mer frequency counts instead of 
+$p$-mer frequency counts instead of 
 computationally expensive alignment between the original sequences. 
 This idea is at the core of so-called alignment-free 
 methods~\citep{sequence:Vinga:2003}. 
 However, in contrast to these methods we count $p$-mer frequencies 
 position specific (i.e., for different segments of the sequence) and then use
-high-throughput stream clustering to group similar segments. 
+high-throughput data stream clustering to group similar segments. 
 This approach completely
 avoids expensive alignment of sequences prior to building the models. Even so,
 because of the clustering of like sequence segments, a probabilistic local
-quasi-alignment is automatically achieved. This quasi-alignment
-is exploited for visualization.
+quasi-alignment is automatically achieved. 
 
 The occurrences of letters or base compositions \{A, C, U, G\}
-of an 16S rRNA sequence provide frequency information. The occurrences of all
+of a 16S~rRNA sequence provide frequency information. The occurrences of all
 patterns of bases of length $p$ generates a $p$-mer frequency representation
 for a sequence.
 Instead of global frequencies, we count $p$-mer frequencies locally to retain
-positional information by moving a window of a given size $L$ across a sequence
-starting at the first position. Within each window (called a segment) we count
+positional information by first splitting the sequence into
+segments of a given size $L$. Within each segment we count
 the frequencies for all possible $p$-mers. We call this frequency profile a
 Numerical Summarization Vector (NSV). For example, suppose we have an input
-window containing ACGTGCACG. If counting 2-mers, the NSV count vector would be 
-$\langle 0, 2, 0, 0, 1, 0, 2, 0, 0, 1, 0, 1, 0, 0, 1, 0\rangle$
-representing counts of the subpatterns 
-AA, AC, AG, AT, CA, CC, CG, CT, GA, GC,
-GG, GT, TA, TC, TG, and TT. 
-As the window slides down the input sequence, in
-each new segment $p$-mers are counted. Window sizes may be varied, windows may
-or may not overlap and different values for $p$ can be used within the same
-sequences.
+segment containing ACGTGCACG. If counting 2-mers, the NSV count vector would be
 
-\begin{figure*}
+\centerline{$\langle 0, 2, 0, 0, 1, 0, 2, 0, 0, 1, 0, 1, 0, 0, 1, 0\rangle$}
+representing counts for the subpatterns 
+
+\centerline{AA, AC, AG, AT, CA, CC, CG, CT, GA, GC,
+GG, GT, TA, TC, TG, and TT.} 
+
+As we move down the input sequence, in
+each new segment $p$-mers are counted. Segment sizes may be varied and may
+or may not overlap. Also different values for $p$ could 
+be used within the same sequences.
+
+\begin{figure}
 \centering
-\includegraphics[width=.85\linewidth]{TRACDS_model_building}
-\caption{The Model Building Process. Numerical Summary Vectors (NSV) constitute
-the numerical representations of segments (a moving window) along a sequence
-which are used in building a cluster model. Model building starts with 
+\includegraphics[width=1\linewidth]{TRACDS_model_building}
+\caption{The Model Building Process. 
+The sequence is split into several segments. For each segment 
+a Numerical Summary Vectors (NSV) is calculated by counting the occurrence
+of $p$-mers (2-mers in this case).
+Model building starts with 
 an empty cluster model. As each NSV is processed, it is compared to the 
 existing clusters of the model.  If the NSV is not found to be close 
-enough (using a distance measure on the NSVs) a new cluster is creates.
+enough (using a distance measure on the NSVs) a new cluster is created.
 For example Cluster~1 (circle) is created for NSV~1, Cluster~2 for NSV~2 and
-Cluster~3 for NSV~3. NSV~3 was found close enough to NSV~2 and thus was also
+Cluster~3 for NSV~3. NSV~3 was found close enough to NSV~1 and thus was also
 assigned to Cluster~1. In addition to the clusters also the transition
 information between the clusters (arrows) is recorded.  When all NSVs are
 processed, the model building process is finished.}
 \label{emm}
-\end{figure*}
+\end{figure}
 
 %% FIXME: Algorithm here? 
 Figure~\ref{emm} summarizes the model building process. 
-NSVs are clustered using high-throughput data stream clustering 
+NSVs representing segments 
+are clustered using high-throughput data stream clustering 
 techniques and the
 sequence information for the NSVs is preserved in a directed graph $G=(N, E)$,
 where $N={c_1,c_2,\ldots,c_N}$ is the set of clusters and 
-$E={e_1,e_1,\ldots,e_E}$ is the set of transitions.
+$E={e_1,e_1,\ldots,e_E}$ is the set of transitions between clusters.
 This graph can be interpreted as a Markov Chain, however, unlike a classical
 Markov Model, each node is not bound to one symbol. In fact, each node
-represents a cluster consisting of NSVs that are found to be similar by the
-model building process according to a similarity or dissimilarity metric. Since
-several NSVs (i.e., segments) can be assigned to the same cluster, the 
-resulting
-model compresses the original sequence (or sequences if several sequences are 
-clustered into the same model). The directed edges are
-associated with additional information representing the probabilities of
-traversal assigned during the model building process. It is important to
-observe that intra-similarity of a sequence is captured in nodes to the extent
-possible based on the segment length $L$ and transitional information from one
-segment to next is condensed to its relative probability within the sequence.
-Since a segment is contiguous, its integrity is preserved in the model
-inside nodes. Though the segments of a sequence may be distributed all over the
-graph, the transition among them is still available as weighted probabilities
-on the edges of the graph.
+represents a cluster consisting of NSVs that are found to be similar during the
+model building process according to a similarity or dissimilarity metric.
+Since several NSVs (i.e., segments) can be assigned to the same cluster, the
+resulting model compresses the original sequence (or sequences if several
+sequences are clustered into the same model). The directed edges are associated
+with additional information representing the probabilities of traversal
+assigned during the model building process. 
 
+%It is important to
+%observe that intra-similarity of a sequence is captured in nodes to the extent
+%possible based on the segment length $L$ and transitional information from one
+%segment to next is condensed to its relative probability within the sequence.
+%Since a segment is contiguous, its integrity is preserved in the model
+%inside nodes. Though the segments of a sequence may be distributed all over the
+%graph, the transition among them is still available as weighted probabilities
+%on the edges of the graph.
 
-The Similarity between NSVs used for clustering 
-can be calculated using several measures. Measures
-suggested in the literature about alignment free methods to compare sequences
-using $p$-mer counts are Euclidean distance, squared Euclidean distance,
+The similarity between NSVs used for clustering 
+can be calculated using several measures. Measures suggested
+in the literature
+to compare sequences based on $p$-mer counts (alignment-free methods)
+include Euclidean distance, squared Euclidean distance,
 Kullback-Leibler discrepancy and Mahalanobis
 distance~\citep{sequence:Vinga:2003}.
 Recently, for Simrank~\citep{sequence:DeSantis:2011} an even simpler similarity
 measure, the number of matching $p$-mers (typically with $p=7$), was proposed
 for efficient search of very large database.
 In the area of approximate string matching Ukkonen proposed the 
-approximate the expensive computation of the edit distance between two strings
+approximate the expensive computation of the edit 
+distance~\citep{sequence:Levenshtein:1966} between two strings
 by using $q$-grams (analog to $p$-mers in sequences). First
 $q$-gram profiles are computed
 and then the distance between the profiles is calculated using
@@ -268,7 +278,7 @@ two $p$-mer NSVs $x$ and $y$ is defined as:
 $$d_\mathrm{Manhattan}(x,y)=\sum_{i=1}^{4^p} |x_i-y_i|$$
 
 Manhattan distance also has a particularly straightforward
-interpretation.
+interpretation for NSVs.
 The distance counts the number of $p$-mers by which two sequences
 differ which gives the following lower bound
 on the edit distance between the original sequences $s_x$, $s_y$:
@@ -278,14 +288,18 @@ This relationship is easy to proof since each insertion/deletion/substitution
 in a sequences destroys at the most $p$ $p$-grams and introduces
 at most $p$ new $p$-grams.
 Although, we can construct two completely different sequences with exactly
-the same NSVs (see \cite{sequence:Ukkonen:1992} for a method), we are typically
+the same NSVs (see \cite{sequence:Ukkonen:1992} for a method for regular 
+strings), we are typically
 interested in sequences of high similarity in which case 
 $d_\mathrm{Manhattan}(x,y)/(2p)$ gets closer to the edit distance.
+%Although our approach can be used with any distance/smilarity measure, 
+%we will only report results using Manhattan distance in this paper.
+However, not that our approach is not bound to using Manhattan distance,
+it can be use any distance/similarity measure defined on the 
+frequency counts in NSVs.
 
-Although our approach can be used with any distance measure, we will
-only report results using Manhattan distance in this paper.
-
-A cluster model can be created for a single sequence and compresses the
+A $p$-mer frequency cluster model can be created for a 
+single sequence and compresses the
 sequence
 information first by creating NSVs and then reduces the number of NSVs 
 to the number of clusters 
@@ -294,21 +308,31 @@ a cluster model for a whole family of sequences by simply adding the NSVs
 of all sequences to a single model following the procedure in Figure~\ref{emm}.
 This will lead to even more compression since many sequences within a family
 will share NSVs stemming from similar sequence segments. We explored
-this approach for taxonomic classification in~\cite{hahsler:Kotamarti:2010}. 
-In the following section we will show how the same approach can be used for
-visualizing genetic sequence databases.
+this approach for taxonomic classification in~\citep{hahsler:Kotamarti:2010}. 
 
 
 %%end
 \section{MMSA Package}
-In order to start using MMSA, the following packages must be installed: seqinr,
-rEMM, proxy, cluster, MASS, clusterGeneration, iGraph, caTools, bitops, DBI,
-RSQLite.  MMSA builds on the above packages to develop efficient storage,
-querying, analysis, and plotting capabilities.
+\pkg{MMSA} builds on the packages 
+\pkg{seqinr} for biological sequence analysis,
+\pkg{RSQLite} and \pkg{DBI} for storage and data management 
+functionality, \pkg{caTools} for
+Base64 encoding of models, and \pkg{rEMM} for model
+building using TRACDS (Transitions Among Clusters for Data Streams).
 
-\subsection{Genetic Databases}
-At the heart of the MMSA package are Genetic Databases (GenDB) which are used
-for efficient storage and retrieval. By default we use light-weight 
+The main components of the package are:
+\begin{itemize}
+\item Data storage an management (GenDB)
+\item Sequence to NSV conversion
+\item Model creation
+\item Visualization
+\item Classification
+\end{itemize}
+
+\subsection{GenDB: Data storage an management}
+At the heart of the \pkg{MMSA} package 
+are genetic databases (GenDB) which are used
+for efficient storage and retrieval. By default we use s light-weight 
 SQLite databases,
 but any other compatible database such as mySQL or Oracle can also be used.
 Figure~\ref{fig:ER_Diag} shows an example of the basic table layout of a
@@ -321,242 +345,15 @@ Classification and sequence
 are separated because later we will also add tables with NSVs for sequences
 which will share the classification table.
 
-\begin{figure}[h]
+\begin{figure}
 \centering
-\includegraphics[width=5in]{er-diagram}
+\includegraphics[width=.7\linewidth]{er-diagram}
 \caption{Entity Relationship diagram of genetic database}
 \label{fig:ER_Diag}
 \end{figure}
 
-More description to come...
-
-\section{Examples}
-
-\subsection{Setting up a GenDB}
-
-First, we load the library into the R environment.
-<<>>=
-library(MMSA)
-@
-
-The first step is to create an empty GenDB into which sequences can be loaded.
-<<>>=
-db<-createGenDB("example.sqlite")
-@
-The above command creates an empty database with table structure similar to
-Figure~\ref{fig:ER_Diag} and stores it in the file "example.sqlite".  If a
-genDB already exists, then it can be opened and loaded using the
-\func{openGenDB} command.
-
-The next step is to load sequences into the database by reading FASTA files.  
-Since
-the meta info in FASTA files is not standardized, we provide several reader
-functions. For example, for FASTA files for GreenGenes, we provide the reader
-function \func{addSequencesGreengenes}, which will automatically read and parse
-GreenGenes FASTA files and extract the classification and sequence information.
-For each sequence, the header information will be parsed and stored in the
-appropriate column of the ``Classification'' table.  For example, the kingdom
-value will go into the kingdom field of the table and so on. Each sequence also
-has a unique ID. This will be parsed and used as the \textit{Primary Key} in
-the ``Classification'' and ``Sequences'' tables. Similarly, the DNA sequence
-will be stored in the ``Sequences'' table as a Binary Large Object (BLOB). As
-of now, we have implemented the reader for Greengenes format FASTA files, and
-work is in progress to develop more readers for NCBI format FASTA files. 
-
-%%% FIXME: We need to isolate the meta data reader and explain how to create a new one for a different format!
-
-The command below uses a FASTA file provided by the package, hence we use
-\func{system.file} instead of just a string with the file name.
-<<>>= 
-addSequencesGreengenes(db,
-system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
-db
-@
-
-After loading the sequences, various querying and limiting functions can be
-used to check the data and obtain a subset of the sequences.  
-To get a count of the number of sequences in the database, the function \func{nSequences} can be used:
-<<>>=
-nSequences(db)
-@
-
-The function \func{getSequences} returns the sequences as a vector. 
-In the following example we get all sequences in the database and then show
-the first 50 bases of the first sequence.
-<<>>=
-d<-getSequences(db)
-length(d)
-substr(d[1], 1, 50)
-@
-
-Sequences in the database can also be filtered using classification 
-information. For example, we can get all sequences of the genus name 
-``Desulfosporomusa'' by specifying rank and name.
-<<>>=
-d<-getSequences(db, rank="genus", name="Desulfosporomusa")
-length(d)
-@
-
-We can obtain the classification hierarchy used in 
-the database with \func{getClassification}.     
-<<>>=
-getClassification(db)
-@
-
-To obtain all unique names stored in the database 
-for a given rank we can use \func{getRank}.     
-<<>>=
-getRank(db, rank="order")
-@
-
-The \Sexpr{nSequences(db)}~sequences 
-in our example data base contain
-organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
-
-Filtering also works for \func{getRank}.
-For example, we can find the genuses within the order
-``Thermoanaerobacterales''.
-<<>>=
-getRank(db, rank="genus", whereRank="order", whereName="Thermo")
-@
-Note that partial matching is performed from ``Therm'' to 
-``Thermoanaerobacterales.'' Partial matching is available for most
-operations in \pkg{MMSA}.
-
-%%% FIXME: nSequences should also have parameters called whereRank and whereName
-
-\subsection{Converting Sequences to NSV}
-In order to create position sensitive $p$-mer clustering models, we need to
-first create Numerical Summarization Vectors (NSVs).  The MMSA package can
-easily convert large number of sequences to NSV format and store them in the
-same database as character sequences. The following command will convert all
-the sequences to NSV format  and store them in a table called "NSV".
-<<>>=
-createNSVTable(db, tableName="NSV")
-@
-
-In the function call above we use the default values of all the
-parameters such as word, overlap, and last\_window.  Custom parameter settings 
-and filter
-criteria can be easily specified as:
-<<>>=
-createNSVTable(db, tableName="NSV_genus_Thermosinus", 
-    whereRank="genus", whereName="Thermosinus", 
-    window=100, overlap=0, word=3, last_window=FALSE)
-@
-
-The above command converts only the sequences that belong to the 
-genus ``Thermosinus'' and stores them in a separate NSV table called ``NSV\_genus\_Thermosinus''.
-The parameters for creating NSVs are also part of the command, 
-such as window size is 100, overlap is 0, word size is 3, and
-last\_window parameter is FALSE indicating that the last (incomplete) window
-will be ignored.
-
-When a new sequence or NSV table is created, its name and meta information is 
-stored in the metaData table. The meta data can be queried using the
-\func{metaGenDB} function.
-<<>>=
-metaGenDB(db)
-@
-The annotation column contains information about how the NSVs were created.
-
-
-The sequences in the NSV tables can be queried and filtered
-using \func{getSequences} in the same way as regular sequences before. 
-<<>>=
-dNSV <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
-length(dNSV)
-@
-
-The code above selects the NSVs for the genus ``Desulfosporomusa'' in
-table NSV. Note sequences of NSVs are not strings like the original
-sequences but tables of $p$-mer counts and thus are stored in a
-list. The code below shows the dimensions of the NSV table 
-for the first sequence and then shows the first 2 rows and 100 columns 
-of the table.
-<<>>=
-dim(dNSV[[1]])
-dNSV[[1]][1:2,1:10]
-@
-
-Finally, we can close a GenDB after we are done working on it. The data base
-can later be opened again using \func{openGenDB}.
-<<>>=
-closeGenDB(db)
-@
-
-To permanently remove the database we need to delete the file (for
-SQLite databases) or remove the database using the administrative tool
-for the database management system.
-<<>>=
-unlink("example.sqlite")
-@
-
-\subsection{Adding and converting sequences in one batch}
-
-Often, we would like sequences to be in NSV format in the database
-as the NSVs form the basis of most operations such as model building, and
-classification. The function \func{processSequences} loads all the FASTA
-sequences from a directory into the database and also converts them into NSVs.
-This function saves the extra step of loading sequences and then creating NSVs
-explicitly.  
-
-<<>>=
-db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="MMSA"), db)
-@
-
-
-\subsection{Creating Models}
-The NSVs created in the previous section can be used for model generation. The
-models can be created at for all 
-sequences in the database or for any set of sequences selected using filters.
-<<>>=
-model <- genModel(db, rank="Genus", name="Desulfosporomusa", table="NSV",
-    measure="Kullback", threshold =.1)
-@
-
-The above command builds a model using a subset of the sequences in the NSV
-table that belong to the Genus ``Desulfosporomusa''. For creating the model, we
-use Kullback–Leibler divergence with a threshold of 0.1
-for clustering NSVs. 
-For more
-details about model creation, please see the reference manual of the rEMM
-package \citep{MMSA:rEMM:2012}. In addition a limit parameter 
-can be used to restrict the maximum number
-of sequences to be used in model creation. 
-
-The model is a compact signature of
-the sequences and can be easily and efficiently used for analysis. It can be
-plotted to get a visual display of the various states and transitions, and can
-be used for classification by scoring new sequences against existing models.
-Often it is needed to create models at a particular rank level. For example,
-you might want to create models for each Phylum present in the database. This
-can be accomplished using \func{createModels}, which creates a set of
-models and stores them in a directory.
-
-The following command creates models for all Phylums stored in the database and stores them in a directory models in subdirectory phylum.
-<<>>=
-dir.create("models")
-createModels(modelDir="models", rank="phylum", db)
-@
-
-The models are stored as compressed files in the ``models/phylum''
-<<>>=
-list.files("models/phylum")
-@
-
-A model can be  models loaded using the readRDS function.
-<<>>=
-model <- readRDS("models/phylum/Proteobacteria.rds")
-model
-@
-
-
 \subsection{Classification}
-Once the models have been constructed, they can be used to score and classify
-new sequences. We can compare the new sequence against just one model or all
-the models stored in a directory. The classification score evaluates how likely
+The classification score evaluates how likely
 it is that a sequence was generated by a given model~\citep{MMSA:rEMM:2012}.
 It is calculated by the length-normalized product or sum of probabilities on
 the path along the new sequence.  The scores for a new sequence of length $l$
@@ -576,28 +373,319 @@ P_\mathrm{prod} &= \sqrt[l]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
 P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s(i+1)}} \right)
 \end{align}
 
-The \func{score} implements the above equations to compute the 
-similarity between a sequence and a model. 
+{\bf FIXME: state algorithm.}
+
+{\bf FIXME: Can we compare the score for different models? What if one model has always 2 equally likely outgoing transitions? The maximal score is then only .5!}
+
+{\bf FIXME: How do we handle if the closest cluster is very different from the NSV?}
+
+\subsection{Other components}
+More description of the other components to come...
+
+\section{Examples}
+
+In the following we will demonstrate the key features of 
+\pkg{MMSA} using several examples.
+
+\subsection{Setting up a GenDB}
+
+First, we load the library into the R environment.
 <<>>=
-random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
-score.GenModel(model, random_sequence)
+library(MMSA)
 @
 
-%%% FIXME: can we get the classification etc from the id attribute in random_sequence?
+To start we need to create an empty GenDB to store and organize
+sequences.
+<<>>=
+db<-createGenDB("example.sqlite")
+db
+@
 
-The function \func{classify} can be used to classify NSV sequences against all
+The above command creates an empty database with a table structure similar to
+Figure~\ref{fig:ER_Diag} and stores it in the file example.sqlite.  If a
+GenDB already exists, then it can be opened using
+\func{openGenDB}.
+
+The next step is to import sequences into the database by reading FASTA files.  
+Since metadata in FASTA files is not standardized, we provide several reader
+functions. For example, we provide the reader
+function \func{addSequencesGreengenes}
+for FASTA files from the Greengenes project,
+which will automatically extract the classification and sequence information 
+and adds it to the database.
+For each sequence, the header information will be parsed and stored in the
+appropriate columns of the Classification table. The sequence information
+will be stored in the Sequences table.
+Each sequence also has a unique ID which will be used as 
+the primary key in all tables.
+
+As
+of now, we have implemented the reader for Greengenes format FASTA files, and
+work is in progress to develop more readers for NCBI format FASTA files. 
+
+{\bf FIXME: We need to isolate the meta data reader and explain how to create a new one for a different format!}
+
+The command below uses a FASTA file provided by the package, hence we use
+\func{system.file} instead of just a string with the file name.
+<<>>= 
+addSequencesGreengenes(db,
+system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
+@
+
+After inserting the sequences, various querying and limiting functions can be
+used to check the data and obtain a subset of the sequences.  
+To get a count of the number of sequences in the database, the function \func{nSequences} can be used.
+<<>>=
+nSequences(db)
+@
+
+The function \func{getSequences} returns the sequences as a vector. 
+In the following example we get all sequences in the database and then show
+the first 50 bases of the first sequence.
+<<>>=
+s <- getSequences(db)
+length(s)
+substr(s[1], 1, 50)
+@
+
+Sequences in the database can also be filtered using classification 
+information. For example, we can get all sequences of the genus name 
+``Desulfosporomusa'' by specifying rank and name.
+<<>>=
+s <- getSequences(db, rank="genus", name="Desulfosporomusa")
+length(s)
+@
+
+We can obtain the classification hierarchy used in 
+the database with \func{getClassification}.     
+<<>>=
+getClassification(db)
+@
+
+{\bf FIXME: We need to make sure that the ranks come out with the first letter capitalized.}
+
+To obtain all unique names stored in the database 
+for a given rank we can use \func{getRank}.     
+<<>>=
+getRank(db, rank="order")
+@
+
+The \Sexpr{nSequences(db)}~sequences 
+in our example data base contain
+organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
+
+Filtering also works for \func{getRank}.
+For example, we can find the genera within the order
+``Thermoanaerobacterales''.
+<<>>=
+getRank(db, rank="genus", whereRank="order", whereName="Thermo")
+@
+Note that partial matching is performed from ``Therm'' to 
+``Thermoanaerobacterales.'' Partial matching is available for ranks and 
+names in most operations in \pkg{MMSA}.
+
+
+\subsection{Converting Sequences to NSV}
+In order to create position sensitive $p$-mer clustering models, we need to
+first create Numerical Summarization Vectors (NSVs).  The \pkg{MMSA} package can
+easily convert large number of sequences in the database to NSV format and 
+store them in the same database. The following command will convert all
+the sequences to NSV format  and store them in a table called NSV.
+<<>>=
+createNSVTable(db, tableName="NSV")
+@
+
+In the function call above we used the default values for most of the
+parameters such as word, overlap, and last\_window.  Custom parameter settings 
+and filter
+criteria can be easily specified in the following way:
+<<>>=
+createNSVTable(db, tableName="NSV_genus_Thermosinus", 
+    whereRank="genus", whereName="Thermosinus", 
+    window=100, overlap=0, word=3, last_window=FALSE)
+@
+
+{\bf FIXME: rename window to segment?}
+
+{\bf FIXME: why do we have whereRank here but rank in nSequences()?}
+
+The above command converts only the sequences that belong to the 
+genus ``Thermosinus'' and stores them in a separate NSV table called NSV\_genus\_Thermosinus.
+The parameters for creating NSVs are also part of the command, 
+such as window size is 100, overlap is 0, word size is 3, and
+last\_window parameter is FALSE indicating that the last (incomplete) window
+will be ignored.
+
+When a new sequence or NSV table is created, its name and meta information is 
+stored in the metaData table. The meta data can be queried using the
+\func{metaGenDB} function.
+<<>>=
+metaGenDB(db)
+@
+The annotation column contains information about how the NSVs were created.
+
+
+
+The sequences in the NSV tables can be queried and filtered
+using \func{getSequences} in the same way as regular sequences. 
+<<>>=
+NSVs <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
+length(NSVs)
+@
+
+The code above selects the NSVs for the genus ``Desulfosporomusa'' in
+table NSV. Note sequences of NSVs are not strings like the original
+sequences but tables of $p$-mer counts and thus are stored in a
+list. The code below shows the dimensions of the NSV table 
+for the first sequence and then shows the first 2 rows and 16 columns 
+of the table.
+<<>>=
+dim(NSVs[[1]])
+NSVs[[1]][1:5,1:16]
+@
+
+Finally, we can close a GenDB after we are done working with it. The database
+can later be reopened using \func{openGenDB}.
+<<>>=
+closeGenDB(db)
+@
+
+To permanently remove the database we need to delete the file (for
+SQLite databases) or remove the database using the administrative tool
+for the database management system.
+<<>>=
+unlink("example.sqlite")
+@
+
+{\bf FIXME: Is there a purge function in DBI to do this?}
+
+Often, we would like to convert sequences from many FASTA files into NSV 
+format in the database in a single step.
+The convenience function \func{processSequences} loads all FASTA
+files from a directory into the database and then converts them into NSVs.
+
+<<>>=
+db<-createGenDB("example.sqlite")
+processSequences(system.file("examples/phylums", package="MMSA"), db)
+@
+
+Additional parameters (e.g., window or word) will be passed on to creating
+the NSVs.
+
+
+\subsection{Creating a model}
+The NSVs created in the previous section can be used for model generation. The
+models can be created at for all 
+sequences in the database or for any set of sequences selected using filters.
+<<>>=
+model <- genModel(db, rank="Genus", name="Desulfosporomusa", table="NSV",
+    measure="Manhattan", threshold =30)
+model
+@
+
+The above command builds a model using a subset of the sequences in the NSV
+table that belong to the genus ``Desulfosporomusa''. For creating the model, we
+use Manhattan distance with a threshold of 30 for clustering NSVs. 
+For more
+details about model creation, please see the reference manual of the rEMM
+package \citep{MMSA:rEMM:2012}. In addition a limit parameter 
+can be used to restrict the maximum number
+of sequences to be used in model creation. 
+
+The model is a compact signature of
+the sequences and can be easily and efficiently used for analysis. It can be
+plotted to get a visual display of the various states and transitions
+using \func{plot}.
+
+<<EMM_1, fig=TRUE, include=FALSE>>=
+plot(model)
+@
+<<EMM_2, fig=TRUE, include=FALSE>>=
+plot(model, method="MDS")
+@
+<<EMM_3, fig=TRUE, include=FALSE>>=
+plot(model, method="graph")
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_1}
+\caption{Default plot of a model as a graph using a standard graph-layout algorithm.}
+\label{fig:EMM_Plot}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_2}
+\caption{Plot of the model using MDS do display more similar clusters closer together.}
+\label{fig:EMM_Plot_MDS}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_3}
+\caption{Plot of the model using Graphviz .}
+\label{fig:EMM_Plot_Graphviz}
+\end{figure}
+
+The default plot which displays the model as a graph is shown in
+Figure~\ref{fig:EMM_Plot}.  A plot where the clusters are arranged using
+multi-dimensional scaling to place similar clusters closer together is shown in
+Figure~\ref{fig:EMM_Plot_MDS}. Figure~\ref{fig:EMM_Plot_Graphviz} shows
+the model using the Graphviz library.
+
+\subsection{Classification}
+To classify a new sequence at a particular rank level (e.g., at the phylum
+level) we need to have the set of all models at this level.  For example, we
+need to create models for each phylum present in the database. This can be
+accomplished using \func{createModels}, which creates a set of models and
+stores them in a directory.
+
+The following command creates models for all phylums stored in the database and stores them in directory models (which is created first) 
+and places them in the subdirectory phylum.
+<<>>=
+dir.create("models")
+createModels(modelDir="models", rank="phylum", db, 
+    measure="Manhattan", threshold=50)
+@
+
+The models are now stored as compressed files.
+<<>>=
+list.files("models/phylum")
+@
+
+A model can be loaded using the \func{readRDS}.
+<<>>=
+model <- readRDS("models/phylum/Proteobacteria.rds")
+model
+@
+
+
+Once all models have been constructed, they can be used to score and classify
+new sequences. We can compare the new sequence against just one model or all
+the models stored in a directory using \func{scoreSequence}. 
+<<>>=
+random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
+scoreSequence(model, random_sequence)
+@
+
+
+{\bf FIXME: can we get the classification etc from the id attribute in random\_sequence?}
+
+
+The function \func{classify} can be used to classify sequences in NSV format 
+against all
 the models stored in a directory. It returns a data.frame containing the
 score matrix and the actual and predicted ranks. 
 <<>>=
-unknown <- getSequences(db, rank="phylum", table="NSV", limit=10, random=TRUE)
+unknown <- getSequences(db, rank="phylum", table="NSV", limit=5, random=TRUE)
 classification<-classify(modelDir="models", unknown)
-head(classification$scores)
-head(classification$prediction)
+classification
 table(classification$prediction[,"actual"], 
     classification$prediction[,"predicted"])
 @
 
-%%% FIXME: Better way to get the actual class!
+{\bf FIXME: Better way to get the actual class!}
 
 \subsection{Assessing classification accuracy}
 
@@ -618,36 +706,8 @@ table(classification$prediction[,"actual"],
 
 
 
-\subsection{Visualization}
-Models can be visualized in several ways.
-
-<<EMM_1, fig=TRUE, include=FALSE>>=
-plot(model)
-@
-<<EMM_2, fig=TRUE, include=FALSE>>=
-plot(model, method="MDS")
-@
-
-%%% This is too slow for such a large model
-%<<EMM_3, fig=TRUE, include=FALSE>>=
-%plot(model, method="graph")
-%@
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=.5\linewidth]{MMSA-EMM_1}
-\caption{Graph}
-\label{fig:EMM_Plot}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=.5\linewidth]{MMSA-EMM_2}
-\caption{Using MDS}
-\label{fig:EMM_Plot}
-\end{figure}
-
-
+\subsection{Conclusion}
+...
 
 \section*{Acknowledgments}
 This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).
