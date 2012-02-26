@@ -3,7 +3,7 @@
 \alias{genModel}
 \alias{plot.GenModel}
 \alias{print.GenModel}
-\alias{score.GenModel}
+\alias{scoreSequence}
 \docType{data}
 \title{
 Manage Gene Sequence Models
@@ -12,8 +12,8 @@ Manage Gene Sequence Models
 Functions to generate a model.
 }
 \usage{
-genModel(db, rank, name, table, measure="Kullback", 
-    threshold=.10, plus_one=TRUE, selection=NULL, limit=-1)
+genModel(db, rank=NULL, name=NULL, table, measure="Manhattan", 
+    threshold=30, plus_one=TRUE, selection=NULL, limit=-1)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
@@ -37,11 +37,13 @@ genModel(db, rank, name, table, measure="Kullback",
 \examples{
 	db<-createGenDB("example.sqlite")
 	processSequences(system.file("examples/phylums", package="MMSA"), db)
-    
 	model <- genModel(db, rank="Gen", name="Syntro", table="NSV") 
 	model
-	plot(model)
+	#score sequence against the model
+	random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
+	scoreSequence(model,random_sequence)
 
+	plot(model)
 	closeGenDB(db)
 	
 	### clean up

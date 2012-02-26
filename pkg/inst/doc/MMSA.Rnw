@@ -160,7 +160,7 @@ Note also that the topology of the model is not
 predetermined (as for HMMs~\citep{sequence:Eddy:1998}), but is learned through the associated
 machine learning algorithms.
 
-This paper is organized as follows. In Section ...
+%%This paper is organized as follows. In Section ...
 
 
 %Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
@@ -380,7 +380,7 @@ P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s
 {\bf FIXME: How do we handle if the closest cluster is very different from the NSV?}
 
 \subsection{Other components}
-More description of the other components to come...
+%%More description of the other components to come...
 
 \section{Examples}
 
@@ -467,7 +467,7 @@ getClassification(db)
 To obtain all unique names stored in the database 
 for a given rank we can use \func{getRank}.     
 <<>>=
-getRank(db, rank="order")
+getRank(db, rank="class")
 @
 
 The \Sexpr{nSequences(db)}~sequences 
@@ -478,10 +478,10 @@ Filtering also works for \func{getRank}.
 For example, we can find the genera within the order
 ``Thermoanaerobacterales''.
 <<>>=
-getRank(db, rank="genus", whereRank="order", whereName="Thermo")
+getRank(db, rank="genus", whereRank="class", whereName="Clos")
 @
-Note that partial matching is performed from ``Therm'' to 
-``Thermoanaerobacterales.'' Partial matching is available for ranks and 
+Note that partial matching is performed from ``Clos'' to 
+``Clostridia.'' Partial matching is available for ranks and 
 names in most operations in \pkg{MMSA}.
 
 
@@ -645,8 +645,7 @@ The following command creates models for all phylums stored in the database and 
 and places them in the subdirectory phylum.
 <<>>=
 dir.create("models")
-createModels(modelDir="models", rank="phylum", db, 
-    measure="Manhattan", threshold=50)
+createModels(modelDir="models", rank="phylum", db)
 @
 
 The models are now stored as compressed files.
@@ -707,7 +706,7 @@ table(classification$prediction[,"actual"],
 
 
 \subsection{Conclusion}
-...
+%%...
 
 \section*{Acknowledgments}
 This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).

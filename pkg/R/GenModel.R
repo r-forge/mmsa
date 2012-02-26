@@ -1,6 +1,6 @@
 # creates an model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
-	#	measure="Kullback", threshold=.1, plus_one=TRUE, 
+##		measure="Kullback", threshold=.1, plus_one=TRUE, 
 	measure="Manhattan", threshold=30, plus_one=TRUE, 
 	selection=NULL, limit=-1) {
 
@@ -16,11 +16,6 @@ genModel <- function(db, rank=NULL, name=NULL, table,
     nSequences<-nSequences(db,rank,name)
     if (limit != -1)
 	nSequences <- min(nSequences,limit)
-    #d<-getSequences(db, rank, name, table, limit=limit)
-    #if (!is.null(selection))
-    #	d<-d[selection]
-    #else if (length(d)==0)
-    #	stop("GenModel called with 0 sequences")
     cat("genModel: Creating model for ",rank,": ",name,"\n",sep="")
     if (is.null(selection))
     {
@@ -97,52 +92,16 @@ scoreSequence <- function(x, newdata, method = "prod",
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
-processSequences <- function(dir, db, reader = addSequencesGreengenes, ...) {
+processSequences <- function(dir, db, reader = addSequencesGreengenes) {
     for(f in dir(dir, full.names=TRUE))
     {
 	cat("Processing file: ",f,"\n")
 	reader(db, f)
     }
 
-    createNSVTable(db, "NSV", ...)
+    createNSVTable(db, "NSV")
 }
 
-### FIXME: What does this function do?
-sequencesToModels <- function(dir, modelDir, rank) {
-    rankDir<-file.path(modelDir,rank)
-    if (file.exists(modelDir))
-    {
-	if(!file.exists(rankDir)) dir.create(rankDir)
-    }
-    else
-    {
-	dir.create(modelDir)
-	dir.create(rankDir)
-    }
-    for(f in dir(dir, full.names=TRUE))
-    {
-	cat("Processing file: ",f,"\n")
-	fileName <-basename(f)
-	modelName<-sub(".fasta",".rds",fileName)
-	dbName<-sub(".fasta",".sqlite",fileName)
-	rankName<-sub(".fasta","",fileName)
-	#donot overwrite existing model files
-	if (!file.exists(file.path(rankDir,modelName)))
-	{
-	    if (file.exists(dbName))
-		unlink(dbName)	
-	    db<-createGenDB(dbName)
-	    addSequencesGreengenes(db, f)
-	    createNSVTable(db, "NSV")
-	    emm <- genModel(db, table="NSV",rank=rank,name=rankName)
-	    saveRDS(emm, file=file.path(rankDir,modelName))
-	    unlink(dbName)
-	    rm(db)
-	    rm(emm)
-	}
-    }
-
-}
 
 # Takes the sequences from a directory and splits them up into training and
 # test sets.  Uses the training sequences to create models and stores them in
@@ -209,7 +168,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 # Creates models in modelDir directory for all names in rank.  If selection is
 # specified, then it uses only those sequences for creating the model
 createModels <- function(modelDir, rank = "phylum", db, selection=NULL, 
-	limit=-1, ...) 
+	limit=-1) 
 {
     ### check if modelDir exists
     ### create rank subdir
@@ -227,7 +186,7 @@ createModels <- function(modelDir, rank = "phylum", db, selection=NULL,
     rankNames <- getRank(db, rank)[,1]
     for(n in rankNames) {
 	emm <- genModel(db, table="NSV", rank, name=n,
-		selection=selection, limit=limit, ...)
+		selection=selection, limit=limit)
 	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
     }
 }

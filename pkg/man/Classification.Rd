@@ -3,7 +3,6 @@
 \alias{createModels}
 \alias{processSequences}
 \alias{validateModels}
-\alias{sequencesToModels}
 \alias{classify}
 \docType{data}
 \title{
@@ -17,7 +16,6 @@ processSequences(dir, db, reader=addSequencesGreengenes)
 createModels(modelDir, rank, db, selection, limit=-1)
 classify(modelDir, NSVList)
 validateModels(db, modelDir, rank, table="NSV", pctTest=0.1)
-sequencesToModels(dir, modelDir, rank)	
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -43,7 +41,6 @@ sequencesToModels(dir, modelDir, rank)
 	The function createModels creates models at a given rank (for example, phylum) and stores the models in a serialized format in the directory specified by the first parameter. 
 	The function classify finds similarity between a sequence (whose classification hierarchy may be unknown) and the models saved in a directory. The function goes through all the sequences in the seqFile (which should be in FASTA format) and finds their similarity with all the models in the modelDir directory. The output is a dataframe with the similarity score matrix, and also the actual and predicted ranks.
 	The function validateModels reads in all the FASTA files in the dir and uses a fraction of those for generating models for each rank and stores the models in the modelDir. It uses the remaining sequences for testing and tries to classify the test sequences by comparing their similarity with the generated models. It outputs a dataframe with the similarity score matrix, and also the actual and predicted ranks.
-	The function sequencesToModels converts all the sequences in a directory to models one by one without loading the whole dataset into memory at once. 
 }
 \examples{
 #create a db for demonstration purpose
@@ -59,7 +56,6 @@ classification<-classify("MMSAExample",d)
 
 #run validation on the db
 validation<-validateModels(db,"MMSAExample",rank,table="NSV",pctTest=0.1)
-sequencesToModels(system.file("examples/phylums",package="MMSA"),".","phylum")
 
 #delete the database file to cleanup
 closeGenDB(db)
