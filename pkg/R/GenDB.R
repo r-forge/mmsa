@@ -102,7 +102,7 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
     dbGetQuery(db$db, 
-	    statement = paste("SELECT DISTINCT ",cols,
+	    statement = paste("SELECT DISTINCT classification.",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName)))
 }
@@ -112,7 +112,7 @@ getHierarchy <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
     dbGetQuery(db$db, 
-	    statement = paste("SELECT  ",cols,
+	    statement = paste("SELECT  classification.",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName)))
 }

@@ -478,10 +478,10 @@ Filtering also works for \func{getRank}.
 For example, we can find the genera within the order
 ``Thermoanaerobacterales''.
 <<>>=
-getRank(db, rank="genus", whereRank="class", whereName="Clos")
+getRank(db, rank="genus", whereRank="order", whereName="Thermo")
 @
-Note that partial matching is performed from ``Clos'' to 
-``Clostridia.'' Partial matching is available for ranks and 
+Note that partial matching is performed from ``Thermo'' to 
+``Thermoanaerobacterales.'' Partial matching is available for ranks and 
 names in most operations in \pkg{MMSA}.
 
 
