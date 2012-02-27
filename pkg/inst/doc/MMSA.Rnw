@@ -462,7 +462,6 @@ the database with \func{getClassification}.
 getClassification(db)
 @
 
-{\bf FIXME: We need to make sure that the ranks come out with the first letter capitalized.}
 
 To obtain all unique names stored in the database 
 for a given rank we can use \func{getRank}.     
@@ -501,13 +500,12 @@ and filter
 criteria can be easily specified in the following way:
 <<>>=
 createNSVTable(db, tableName="NSV_genus_Thermosinus", 
-    whereRank="genus", whereName="Thermosinus", 
+    rank="genus", name="Thermosinus", 
     window=100, overlap=0, word=3, last_window=FALSE)
 @
 
 {\bf FIXME: rename window to segment?}
 
-{\bf FIXME: why do we have whereRank here but rank in nSequences()?}
 
 The above command converts only the sequences that belong to the 
 genus ``Thermosinus'' and stores them in a separate NSV table called NSV\_genus\_Thermosinus.

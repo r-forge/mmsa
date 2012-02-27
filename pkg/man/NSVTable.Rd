@@ -6,15 +6,15 @@
 	Create and Drop tables containing sequences in NSV format
   }
 \usage{
-	createNSVTable(db, tableName, whereRank=NULL, whereName=NULL, 
+	createNSVTable(db, tableName, rank=NULL, name=NULL, 
 	    window=100, overlap=0, word=3, last_window=FALSE)
 	dropNSVTable(db, tableName)
 }
 \arguments{
 	\item{db}{Handle of the database} 
 	\item{tableName}{Name of the new NSV table which will store the NSV format sequences.}
-	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
-	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
+	\item{rank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
+	\item{name}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
 	\item{window}{Value of window size.}
 	\item{overlap}{Value of overlap parameter.}
 	\item{word}{Value of word parameter.}

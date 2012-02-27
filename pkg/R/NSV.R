@@ -1,7 +1,7 @@
 ### convert to NSVs
 
 createNSVTable <- function(db, tableName, 
-	whereRank=NULL, whereName=NULL, window=100,
+	rank=NULL, name=NULL, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 
     if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
@@ -16,7 +16,7 @@ createNSVTable <- function(db, tableName,
 		    )
 	    )
 	# insert into metadata
-	meta<-paste("'", tableName , "','NSV','whereRank=" , whereRank , ";whereName=" ,whereName , ";window=", window ,
+	meta<-paste("'", tableName , "','NSV','rank=" , rank , ";name=" ,name , ";window=", window ,
 		";overlap=", overlap ,";word=" , word , ";last_window=" , last_window , ";'",sep='')
 	try(
 	    dbSendQuery(db$db, 
@@ -32,11 +32,11 @@ createNSVTable <- function(db, tableName,
 	num_records<-100 # number of records at a time
 	while(TRUE)
 	{
-		if (is.null(whereRank) && is.null(whereName))
+		if (is.null(rank) && is.null(name))
 			d <- dbGetQuery(db$db, statement = paste("SELECT * FROM sequences LIMIT ",start,",",num_records,sep=""))    
 		else
 			d <- dbGetQuery(db$db, statement = paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
-					.pmatchRank(db,whereRank)," LIKE '", whereName,"%' LIMIT ",start,",",num_records,sep="" ))    
+					.pmatchRank(db,rank)," LIKE '", name,"%' LIMIT ",start,",",num_records,sep="" ))    
 		
 		if (nrow(d)==0) break;
 
