@@ -94,7 +94,7 @@ print.GenDB <- function(x, ...) {
 getClassification <- function(db) {
     cl <- dbListFields(db$db, "classification")
     cl <- head(cl, length(cl)-1L)   ### remove data
-    paste(toupper(substr(cl,1,1)),substr(cl,2,nchar(cl)),sep="")
+    cl
 }
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {

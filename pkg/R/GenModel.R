@@ -168,9 +168,13 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 
 # Creates models in modelDir directory for all names in rank.  If selection is
 # specified, then it uses only those sequences for creating the model
-createModels <- function(modelDir, rank = "phylum", db, selection=NULL, 
+createModels <- function(modelDir, rank = "Phylum", db, selection=NULL, 
 	limit=-1, ...) 
 {
+    
+    ### make sure the directory is always lower case
+    rank <- tolower(rank)
+    
     ### check if modelDir exists
     ### create rank subdir
     rankDir<-file.path(modelDir,rank)
@@ -202,7 +206,8 @@ classify<-function(modelDir, NSVList)
 {
 
     ### takes models from rank subdir
-    rank<-attr(NSVList,"rank")
+    rank <- tolower(attr(NSVList,"rank"))
+    
     if (is.null(rank))
 	stop("NSVList does not have a rank attribute")
     rankDir<-file.path(modelDir,rank)

@@ -12,7 +12,7 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 
 
 
-addSequencesGreengenes <- function(db, file,verbose=FALSE) {
+addSequencesGreengenes <- function(db, file, verbose=FALSE) {
 
     #helper function
     .parseAnnotation <- function(annot)
