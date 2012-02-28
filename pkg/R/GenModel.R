@@ -92,14 +92,15 @@ scoreSequence <- function(x, newdata, method = "prod",
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
-processSequences <- function(dir, db, reader = addSequencesGreengenes) {
+processSequences <- function(dir, db, reader = addSequencesGreengenes, 
+	...) {
     for(f in dir(dir, full.names=TRUE))
     {
 	cat("Processing file: ",f,"\n")
 	reader(db, f)
     }
 
-    createNSVTable(db, "NSV")
+    createNSVTable(db, "NSV", ...)
 }
 
 
@@ -168,7 +169,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 # Creates models in modelDir directory for all names in rank.  If selection is
 # specified, then it uses only those sequences for creating the model
 createModels <- function(modelDir, rank = "phylum", db, selection=NULL, 
-	limit=-1) 
+	limit=-1, ...) 
 {
     ### check if modelDir exists
     ### create rank subdir
@@ -186,7 +187,7 @@ createModels <- function(modelDir, rank = "phylum", db, selection=NULL,
     rankNames <- getRank(db, rank)[,1]
     for(n in rankNames) {
 	emm <- genModel(db, table="NSV", rank, name=n,
-		selection=selection, limit=limit)
+		selection=selection, limit=limit, ...)
 	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
     }
 }
