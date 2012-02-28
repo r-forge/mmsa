@@ -3,9 +3,9 @@
 GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA, 
 	family=NA, genus=NA, species=NA, otu=NA,org_name=NA,id=NA) {
 
-    c(kingdom=kingdom, phylum=phylum, class=class,
-	    order=order, family=family, genus=genus, species=species,
-	    otu=otu,org_name=org_name,id=id)
+    c(Kingdom=kingdom, Phylum=phylum, Class=class,
+	    Order=order, Family=family, Genus=genus, Species=species,
+	    Otu=otu,Org_name=org_name,Id=id)
 }
 
 
