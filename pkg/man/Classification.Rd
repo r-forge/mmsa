@@ -12,8 +12,8 @@ Generate models and classify sequences.
 Function to generate and save models from a given database and use them for classification of new sequences.
 }
 \usage{
-processSequences(dir, db, reader=addSequencesGreengenes)
-createModels(modelDir, rank, db, selection, limit=-1)
+processSequences(dir, db, reader=addSequencesGreengenes, ...)
+createModels(modelDir, rank, db, selection, limit=-1, ...)
 classify(modelDir, NSVList)
 validateModels(db, modelDir, rank, table="NSV", pctTest=0.1)
 }
@@ -28,6 +28,7 @@ validateModels(db, modelDir, rank, table="NSV", pctTest=0.1)
 	\item{selection}{Numeric vector indicating which sequences to be used for creating the model. By default, all sequences are used for model creation.}
 	\item{limit}{Number of sequences to consider while creating a genmodel. By default, all sequences are considered and value is -1.}
 	\item{pctTest}{Fraction of sequences within each rank to be used for testing.}
+	\item{...}{Further arguments that are passed to \code{createNSVTable} from processSequences and to \code{genModel} from createModels}
 }
 \value{
 	{classify and validateModels functions return a data.frame containing the classification matrix and actual and predicted values.}
