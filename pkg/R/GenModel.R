@@ -1,7 +1,7 @@
 # creates an model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
 ##		measure="Kullback", threshold=.1, plus_one=TRUE, 
-	measure="Manhattan", threshold=30, plus_one=TRUE, 
+	measure="Manhattan", threshold=10, plus_one=TRUE, 
 	selection=NULL, limit=-1) {
 
     #check if table exists in db
@@ -89,21 +89,22 @@ plot.GenModel <- function(x, ...) {
 #	    match_cluster=match_cluster, plus_one=plus_one, 
 #	    initial_transition=initial_transition)
 #}
-setGeneric("scoreSequence", function(x, newdata, ...) standardGeneric("scoreSequence"))
 
-setMethod("scoreSequence", signature(x = "GenModel", newdata = "matrix"),
-        function(x, newdata, method = c("prod", "malik", "misstran", "prune","recluster"),
+setGeneric("scoreSequence", function(x, newdata, method="prod", ...) standardGeneric("scoreSequence"))
+
+setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
+        function(x, newdata, method = c("default", "malik", "misstran", "prune","recluster"),
                 match_cluster="nn", plus_one = FALSE,
                 initial_transition = FALSE) {
 
             method <- match.arg(method)
 
-            if(method == "prod") {
+            if(method == "default") {
     			if(model$model@measure=="Kullback") newdata <- newdata+1
-
-    			return(score(x$model, newdata=newdata, method=method, 
-	    		match_cluster=match_cluster, plus_one=plus_one, 
-	    		initial_transition=initial_transition))
+				if (length(method)==0 || is.na(method)) method="product"
+    			score(x$model, newdata=newdata, method="prod", 
+	    			match_cluster=match_cluster, plus_one=plus_one, 
+	    			initial_transition=initial_transition)
 				#prob <- transition_table(x, newdata, method="prob",
                 #        match_cluster, plus_one,
                 #        initial_transition)[,3]
@@ -112,51 +113,61 @@ setMethod("scoreSequence", signature(x = "GenModel", newdata = "matrix"),
 
             if(method == "malik") {
     			if(model$model@measure=="Kullback") newdata <- newdata+1
-                #find which transition table entries have prob >0 and give them value 1
-				prob <- transition_table(x, newdata, method="prob",
-                        match_cluster, plus_one,
-                        initial_transition)[,3]
-				prob[prob > 0] <- 1
-				return(sum(prob)/length(prob))
-
+    			#logOddsScore<- score(x$model, newdata=newdata, method="log_odds", 
+	    		#	match_cluster="nn", plus_one=plus_one, 
+	    		#	initial_transition=initial_transition)
+				emm_test<- EMM(threshold=attr(model$model,"threshold"))
+				emm_test<-build(emm_test,newdata)
+				distance<-0
+				#for each state in emm_test find closest cluster 
+				for(i in 1:nstates(emm_test))
+				{
+					d<-vector()
+					#for(j in 1:nstates(model$model)) {
+					for(j in 1:2) {
+						d<-c(d,dist(rbind(cluster_centers(emm_test)[i,],cluster_centers(model$model)[j,]),method="Manhattan"))
+						#find min distance to get closest cluster
+						closest<-which.min(d)
+						closestDist <- min(d)
+						#check if previous transition exists in model
+						previousTransition<-transition(model$model,as.character(closest),as.character(closest-1))
+						if (previousTransition > 0)
+							previousTransition=1 
+						else if (previousTransition ==0)
+							previousTransition = -log(1/nstates(emm_test));
+						
+						distance<-distance+(closestDist*previousTransition)
+					}
+					rm(d)				
+				}
+				return (1/(1+distance))
+				
             }
 
             if(method == "misstran") {
     			if(model$model@measure=="Kullback") newdata <- newdata+1
-                #find total possible transitions
-				totalTransitions <- states(model$model)*(states(model$model)-1)/2
-				#actual transitions
-				transitionTable <- transition_table(x, newdata, method="prob",
+				transitionTable <- transition_table(model$model, newdata, method="prob",
                         match_cluster, plus_one,
                         initial_transition)
-				transitions<-nrow(unique(transitionTable))
-				missingTransitions <- totalTransitions - transitions
-				return(missingTransitions)
+				missingTransitions <- length(which(transitionTable[,3]==0))
+				#missingTransitions <- length(whichi(is.na(transitionTable[,1]) || which(is.na(transitionTable[,2]))))
+       			return(missingTransitions)     
+			}
 
-            }
 
-            if(method == "prune") {
-    			if(model$model@measure=="Kullback") newdata <- newdata+1
-				
-				model$model<-prune(model$model,count_threshold=30)
-    			
-				score(x$model, newdata=newdata, method=method, 
-	    			match_cluster=match_cluster, plus_one=plus_one, 
-	    			initial_transition=initial_transition)
-                return(score)
-            }
+  })
 
-            if(method == "recluster") {
-    			if(model$model@measure=="Kullback") newdata <- newdata+1
-				
-				model$model<-recluster(model$model,h=0.5)
-    			
-				score(x$model, newdata=newdata, method=method, 
-	    			match_cluster=match_cluster, plus_one=plus_one, 
-	    			initial_transition=initial_transition)
-                return(score)
-            }
-        })
+prune.GenModel <- function(x, ...) {
+	prune(x$model, ...)
+	
+}
+
+recluster.GenModel <- function(x, ...) {
+	recluster(x$model, ...)
+
+}
+
+
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences

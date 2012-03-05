@@ -3,6 +3,8 @@
 \alias{genModel}
 \alias{plot.GenModel}
 \alias{print.GenModel}
+\alias{prune.GenModel}
+\alias{recluster.GenModel}
 \alias{scoreSequence}
 \docType{data}
 \title{
@@ -13,7 +15,7 @@ Functions to generate a model.
 }
 \usage{
 genModel(db, rank=NULL, name=NULL, table, measure="Manhattan", 
-    threshold=30, plus_one=TRUE, selection=NULL, limit=-1)
+    threshold=10, plus_one=TRUE, selection=NULL, limit=-1)
 }
 \arguments{
 	\item{db}{Handle of the database whose tables are to be listed or which is to be closed.} 
