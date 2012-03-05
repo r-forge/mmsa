@@ -346,3 +346,40 @@ classify<-function(modelDir, NSVList)
     return(classification)
 
 }
+
+### Converts sequences to models without having to go through a db
+.sequencesToModels <- function(dir, modelDir, rank) {
+    rankDir<-file.path(modelDir,rank)
+    if (file.exists(modelDir))
+    {
+	if(!file.exists(rankDir)) dir.create(rankDir)
+    }
+    else
+    {
+	dir.create(modelDir)
+	dir.create(rankDir)
+    }
+    for(f in dir(dir, full.names=TRUE))
+    {
+	cat("Processing file: ",f,"\n")
+	fileName <-basename(f)
+	modelName<-sub(".fasta",".rds",fileName)
+	dbName<-sub(".fasta",".sqlite",fileName)
+	rankName<-sub(".fasta","",fileName)
+	#donot overwrite existing model files
+		if (!file.exists(file.path(rankDir,modelName)))
+		{
+			if (file.exists(dbName))
+			unlink(dbName)	
+			db<-createGenDB(dbName)
+			addSequencesGreengenes(db, f)
+			createNSVTable(db, "NSV")
+			emm <- genModel(db, table="NSV",rank=rank,name=rankName)
+			saveRDS(emm, file=file.path(rankDir,modelName))
+			unlink(dbName)
+			rm(db)
+			rm(emm)
+		}
+    }
+
+}
