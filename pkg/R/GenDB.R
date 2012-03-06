@@ -138,7 +138,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	else
 		fullRank <-"-1"
 	ret <- dbGetQuery(db$db, 
-		statement = paste("SELECT data, classification.id AS id, ", fullRank ," AS fullRank  FROM ", table ,
+		statement = paste("SELECT data, classification.id AS id, classification.", fullRank ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.id = ",
 		table, ".id ", 
 		.getWhere(db, rank, name), limit)
