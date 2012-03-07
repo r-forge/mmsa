@@ -133,12 +133,15 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	if(random)  
     	limit <- paste(" ORDER BY RANDOM() ",limit)
 
-	if (!is.null(rank))    
+	if (!is.null(rank)) {    
 		fullRank<-.pmatchRank(db,rank)
+		#Do this so that the column order appears as [order] since order is a SQL keyword
+		fullRankSQL<-paste("[",fullRank,"]",sep="")
+	}
 	else
-		fullRank <-"-1"
+		fullRankSQL <-"-1"
 	ret <- dbGetQuery(db$db, 
-		statement = paste("SELECT data, classification.id AS id, classification.", fullRank ," AS fullRank  FROM ", table ,
+		statement = paste("SELECT data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.id = ",
 		table, ".id ", 
 		.getWhere(db, rank, name), limit)

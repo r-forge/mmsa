@@ -93,7 +93,7 @@ plot.GenModel <- function(x, ...) {
 setGeneric("scoreSequence", function(x, newdata, method="prod", ...) standardGeneric("scoreSequence"))
 
 setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
-        function(x, newdata, method = c("default", "malik", "misstran", "prune","recluster"),
+        function(x, newdata, method = c("default", "malik", "misstran"),
                 match_cluster="nn", plus_one = FALSE,
                 initial_transition = FALSE) {
 
@@ -119,13 +119,14 @@ setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
 				emm_test<- EMM(threshold=attr(model$model,"threshold"))
 				emm_test<-build(emm_test,newdata)
 				distance<-0
+				#d<-dist(cluster_centers(emm_test),cluster_centers(model$model)
+				#apply(d, MARGIN=1, FUN=which.min)
 				#for each state in emm_test find closest cluster 
 				for(i in 1:nstates(emm_test))
 				{
-					d<-vector()
-					#for(j in 1:nstates(model$model)) {
-					for(j in 1:2) {
-						d<-c(d,dist(rbind(cluster_centers(emm_test)[i,],cluster_centers(model$model)[j,]),method="Manhattan"))
+					d<-numeric(nstates(model$model))
+					for(j in 1:nstates(model$model)) {
+						d[j]<-dist(rbind(cluster_centers(emm_test)[i,],cluster_centers(model$model)[j,]),method="Manhattan")
 						#find min distance to get closest cluster
 						closest<-which.min(d)
 						closestDist <- min(d)
@@ -138,7 +139,6 @@ setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
 						
 						distance<-distance+(closestDist*previousTransition)
 					}
-					rm(d)				
 				}
 				return (1/(1+distance))
 				
@@ -149,7 +149,7 @@ setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
 				transitionTable <- transition_table(model$model, newdata, method="prob",
                         match_cluster, plus_one,
                         initial_transition)
-				missingTransitions <- length(which(transitionTable[,3]==0))
+				missingTransitions <- sum(transitionTable[,3]==0)
 				#missingTransitions <- length(whichi(is.na(transitionTable[,1]) || which(is.na(transitionTable[,2]))))
        			return(missingTransitions)     
 			}
@@ -229,6 +229,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 	#create model using the training set
 	emm<-genModel(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
 	#save the model to file
+	rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 	saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 	#get all sequences and filter it to just test sequences
 	d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
@@ -271,6 +272,7 @@ createModels <- function(modelDir, rank = "Phylum", db, selection=NULL,
     for(n in rankNames) {
 	emm <- genModel(db, table="NSV", rank, name=n,
 		selection=selection, limit=limit, ...)
+	n<-gsub("/","",n)
 	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
     }
 }
