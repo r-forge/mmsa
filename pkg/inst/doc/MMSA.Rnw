@@ -142,7 +142,7 @@ base composition
 frequencies offer an alternative to using classic alignment. These 
 alignment-free methods reduce processing time and 
 look promising for whole genome
-phylogenic analysis where previously used methods do not scale 
+phylogenetic analysis where previously used methods do not scale 
 well~\citep{sequence:Thompson:1999}.
 However, pure alignment-free methods typically do not provide the desired
 classification accuracy and do not offer large preprocessed databases which
@@ -228,7 +228,6 @@ processed, the model building process is finished.}
 \label{emm}
 \end{figure}
 
-%% FIXME: Algorithm here? 
 Figure~\ref{emm} summarizes the model building process. 
 NSVs representing segments 
 are clustered using high-throughput data stream clustering 
@@ -373,11 +372,24 @@ P_\mathrm{prod} &= \sqrt[l]{\prod_{i=1}^{l-1}{a_{s(i)s(i+1)}}} \\
 P_\mathrm{sum} &= \frac{1}{l} \left( a_{\epsilon,s(1)}+\sum_{i=1}^{l-1}{a_{s(i)s(i+1)}} \right)
 \end{align}
 
-{\bf FIXME: state algorithm.}
+{\bf FIXME: State algorithm.}
 
-{\bf FIXME: Can we compare the score for different models? What if one model has always 2 equally likely outgoing transitions? The maximal score is then only .5!}
+{\bf FIXME: Can we compare the score for different models? What if one model is more complicated than the other? It will have automatically a lower score!}
+
+{\bf FIXME: Models will have a different number of states depending on the data. Can we have different thresholds for different models? Are they still comparable? }
 
 {\bf FIXME: How do we handle if the closest cluster is very different from the NSV?}
+
+{\bf FIXME: How do we handle missing states/transitions?}
+
+{\bf FIXME: How can we incorporate PAM/BLOSUM substitution matrices into distance computation on NSVs (Manhattan on k-gram counts)?}
+
+{\bf FIXME: How can we compute distance between two models for phylogenetic analysis?}
+
+{\bf FIXME: How do we know that a score is significant higher than a score 
+created by chance?}
+
+
 
 \subsection{Other components}
 %%More description of the other components to come...
@@ -567,7 +579,7 @@ db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="MMSA"), db)
 @
 
-Additional parameters (e.g., window or word) will be passed on to creating
+Additional parameters (e.g., window or word) will be passed on to creating 
 the NSVs.
 
 
