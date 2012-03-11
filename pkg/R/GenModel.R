@@ -93,53 +93,58 @@ plot.GenModel <- function(x, ...) {
 setGeneric("scoreSequence", function(x, newdata, method="prod", ...) standardGeneric("scoreSequence"))
 
 setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
-        function(x, newdata, method = c("default", "malik", "misstran"),
+        function(x, newdata, method = c("prod", "malik", "misstran",""),
                 match_cluster="nn", plus_one = FALSE,
-                initial_transition = FALSE) {
+                initial_transition = FALSE) 
+{
+			#for Kullback method add 1 to newdata
+    		if(model$model@measure=="Kullback") newdata <- newdata+1
 
             method <- match.arg(method)
-
-            if(method == "default") {
-    			if(model$model@measure=="Kullback") newdata <- newdata+1
-				if (length(method)==0 || is.na(method)) method="product"
+            
+			if(method == "prod" || is.na(method) || length(method)==0) {
     			score(x$model, newdata=newdata, method="prod", 
 	    			match_cluster=match_cluster, plus_one=plus_one, 
 	    			initial_transition=initial_transition)
-				#prob <- transition_table(x, newdata, method="prob",
-                #        match_cluster, plus_one,
-                #        initial_transition)[,3]
-                #return(prod(prob)^(1/length(prob)))
             }
 
             if(method == "malik") {
-    			if(model$model@measure=="Kullback") newdata <- newdata+1
-    			#logOddsScore<- score(x$model, newdata=newdata, method="log_odds", 
-	    		#	match_cluster="nn", plus_one=plus_one, 
-	    		#	initial_transition=initial_transition)
 				emm_test<- EMM(threshold=attr(model$model,"threshold"))
 				emm_test<-build(emm_test,newdata)
 				distance<-0
-				#d<-dist(cluster_centers(emm_test),cluster_centers(model$model)
-				#apply(d, MARGIN=1, FUN=which.min)
-				#for each state in emm_test find closest cluster 
-				for(i in 1:nstates(emm_test))
+				d<-dist(cluster_centers(emm_test),cluster_centers(model$model))
+				closestClusters<-apply(d, MARGIN=1, FUN=which.min)
+				for(i in 1:length(closestClusters))
 				{
-					d<-numeric(nstates(model$model))
-					for(j in 1:nstates(model$model)) {
-						d[j]<-dist(rbind(cluster_centers(emm_test)[i,],cluster_centers(model$model)[j,]),method="Manhattan")
-						#find min distance to get closest cluster
-						closest<-which.min(d)
-						closestDist <- min(d)
+						closestDist <- d[i,closestClusters[i]]
 						#check if previous transition exists in model
-						previousTransition<-transition(model$model,as.character(closest),as.character(closest-1))
+						previousTransition<-transition(model$model,as.character(closestClusters[i]),as.character(closestClusters[i]-1))
 						if (previousTransition > 0)
 							previousTransition=1 
 						else if (previousTransition ==0)
 							previousTransition = -log(1/nstates(emm_test));
 						
 						distance<-distance+(closestDist*previousTransition)
-					}
 				}
+				#for each state in emm_test find closest cluster 
+				#for(i in 1:nstates(emm_test))
+				#{
+				#	d<-numeric(nstates(model$model))
+				#	for(j in 1:nstates(model$model)) {
+				#		d[j]<-dist(rbind(cluster_centers(emm_test)[i,],cluster_centers(model$model)[j,]),method="Manhattan")
+				#		#find min distance to get closest cluster
+				#		closest<-which.min(d)
+				#		closestDist <- min(d)
+				#		#check if previous transition exists in model
+				#		previousTransition<-transition(model$model,as.character(closest),as.character(closest-1))
+				#		if (previousTransition > 0)
+				#			previousTransition=1 
+				#		else if (previousTransition ==0)
+				#			previousTransition = -log(1/nstates(emm_test));
+				#		
+				#		distance<-distance+(closestDist*previousTransition)
+				#	}
+				#}
 				return (1/(1+distance))
 				
             }
