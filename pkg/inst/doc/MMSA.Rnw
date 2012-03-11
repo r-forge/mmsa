@@ -709,8 +709,8 @@ validation <- validateModels(db, modelDir="models", rank="phylum",
     table="NSV", pctTest=.1)
 head(validation$scores)
 head(validation$prediction)
-table(classification$prediction[,"actual"], 
-    classification$prediction[,"predicted"])
+table(validation$prediction[,"actual"], 
+    validation$prediction[,"predicted"])
 @
 
 

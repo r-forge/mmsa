@@ -1,7 +1,7 @@
 # creates an model from sequences in the db 
 genModel <- function(db, rank=NULL, name=NULL, table, 
 ##		measure="Kullback", threshold=.1, plus_one=TRUE, 
-	measure="Manhattan", threshold=10, plus_one=TRUE, 
+	measure="Manhattan", threshold=30, plus_one=TRUE, 
 	selection=NULL, limit=-1) {
 
     #check if table exists in db
