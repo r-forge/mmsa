@@ -4,7 +4,7 @@
 \alias{plot.GenModel}
 \alias{print.GenModel}
 \alias{prune.GenModel}
-\alias{recluster.GenModel}
+\alias{recluster}
 \docType{data}
 \title{
 Manage Gene Sequence Models
