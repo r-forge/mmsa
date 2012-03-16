@@ -11,7 +11,6 @@ setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
             method <- match.arg(method)
 
             if(method == "prod" || is.na(method) || length(method)==0) {
-                print("point 1")
 				sc<-rEMM::score(x$model, newdata=newdata, method="prod",
                     match_cluster=match_cluster, plus_one=plus_one,
                     initial_transition=initial_transition)
