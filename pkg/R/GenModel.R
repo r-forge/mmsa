@@ -77,7 +77,6 @@ plot.GenModel <- function(x, ...) {
     plot(x$model,main=paste(x$rank,": ", x$name, sep=""), ...)
 }
 
-}
 
 
 prune.GenModel <- function(x, ...) {
