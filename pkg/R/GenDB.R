@@ -81,11 +81,10 @@ metaGenDB <- function(db) {
 }
 
 print.GenDB <- function(x, ...) {
-    cat("Object of class GenDB\n")
-    cat("Sequences:", nSequences(x), "\n")
+    cat("Object of class GenDB with", nSequences(x), "sequences\n")
     cat("DB File:", x$dbName, "\n")
     cat("Tables: ")
-    print(dbListTables(x$db))
+    cat(paste(dbListTables(x$db), ", ", sep=""), "\n")
 }
 
 
@@ -140,21 +139,31 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	}
 	else
 		fullRankSQL <-"-1"
-	ret <- dbGetQuery(db$db, 
+	res <- dbGetQuery(db$db, 
 		statement = paste("SELECT data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.id = ",
 		table, ".id ", 
 		.getWhere(db, rank, name), limit)
 	    )
-	
-    if (table !="sequences") ret$data <- lapply(ret$data,decodeSequence)		
-    if(!is.null(rank))
-	{
-		attr(ret$data,"rank")<-fullRank
-		attr(ret$data,"name")<-ret$fullRank
+
+    if (table !="sequences") {
+	ret <- lapply(res$data,decodeSequence)		
+	if(!is.null(rank)) {
+	    attr(ret,"rank")<-fullRank
+	    attr(ret,"name")<-res$fullRank
 	}
-	attr(ret$data,"id")<-ret$id
-    ret$data
+	attr(ret,"id")<-res$id
+	class(ret) <- "NSVSet"
+    }else{
+
+	ret <- DNAStringSet(res$data)
+	names(ret) <- res$id
+	if(!is.null(rank)){
+	    attr(ret,"rank")<-fullRank
+	    attr(ret,"name")<-res$fullRank
+	}
+    }
+    ret
 }
 
 

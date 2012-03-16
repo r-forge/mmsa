@@ -64,8 +64,7 @@ genModel <- function(db, rank=NULL, name=NULL, table,
 
 ### print basic info about a model
 print.GenModel <- function(x, ...) {
-    cat("Object of class GenModel\n")
-    cat("Sequences:", x$nSequences, "\n")
+    cat("Object of class GenModel with", x$nSequences, "sequences\n")
     cat(x$rank,": ", x$name, "\n", sep="")
 
     cat("\nModel:\n")

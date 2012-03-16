@@ -456,8 +456,10 @@ In the following example we get all sequences in the database and then show
 the first 50 bases of the first sequence.
 <<>>=
 s <- getSequences(db)
+s
 length(s)
-substr(s[1], 1, 50)
+s[[1]]
+substr(s[[1]], 1, 50)
 @
 
 Sequences in the database can also be filtered using classification 
@@ -465,7 +467,7 @@ information. For example, we can get all sequences of the genus name
 ``Desulfosporomusa'' by specifying rank and name.
 <<>>=
 s <- getSequences(db, rank="genus", name="Desulfosporomusa")
-length(s)
+s
 @
 
 We can obtain the classification hierarchy used in 
@@ -503,7 +505,7 @@ easily convert large number of sequences in the database to NSV format and
 store them in the same database. The following command will convert all
 the sequences to NSV format  and store them in a table called NSV.
 <<>>=
-createNSVTable(db, tableName="NSV")
+createNSVTable(db, tableName = "NSV")
 @
 
 In the function call above we used the default values for most of the
@@ -511,9 +513,10 @@ parameters such as word, overlap, and last\_window.  Custom parameter settings
 and filter
 criteria can be easily specified in the following way:
 <<>>=
-createNSVTable(db, tableName="NSV_genus_Thermosinus", 
-    rank="genus", name="Thermosinus", 
-    window=100, overlap=0, word=3, last_window=FALSE)
+createNSVTable(db, tableName = "NSV_genus_Thermosinus", 
+    rank = "genus", name = "Thermosinus", 
+    window = 100, overlap = 0, word = 3, last_window = FALSE)
+db
 @
 
 {\bf FIXME: rename window to segment?}
@@ -540,6 +543,7 @@ The sequences in the NSV tables can be queried and filtered
 using \func{getSequences} in the same way as regular sequences. 
 <<>>=
 NSVs <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
+NSVs
 length(NSVs)
 @
 
@@ -674,21 +678,23 @@ Once all models have been constructed, they can be used to score and classify
 new sequences. We can compare the new sequence against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
 <<>>=
-random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
-scoreSequence(model, random_sequence)
+random_sequences <- getSequences(db, table="NSV", limit=1, random=TRUE)
+random_sequences
+scoreSequence(model, random_sequences[[1]])
 @
 
 
 {\bf FIXME: can we get the classification etc from the id attribute in random\_sequence?}
 
+{\bf FIXME: maybe scoreSequence could handle more sequences at a time!}
 
 The function \func{classify} can be used to classify sequences in NSV format 
 against all
 the models stored in a directory. It returns a data.frame containing the
 score matrix and the actual and predicted ranks. 
 <<>>=
-unknown <- getSequences(db, rank="phylum", table="NSV", limit=5, random=TRUE)
-classification<-classify(modelDir="models", unknown)
+unknown <- getSequences(db, table="NSV", rank="Phylum", limit=5, random=TRUE)
+classification<-classify(modelDir="models", unknown, rank="Phylum")
 classification
 table(classification$prediction[,"actual"], 
     classification$prediction[,"predicted"])

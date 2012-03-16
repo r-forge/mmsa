@@ -1,7 +1,7 @@
 Package: MMSA
 Type: Package
 Title: Markov Models in Sequence Analysis
-Version: 0.0-1
+Version: 0.0-2
 Date: 20xx-xx-xx
 Author:  Andy Nagar and Michael Hahsler
 Maintainer: Michael Hahsler <michael@hahsler.net>, Andy Nagar <andynagar@yahoo.edu>

@@ -58,73 +58,45 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
     rm(db)
     attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
-    return(classify(modelDir,testList))
+    return(classify(modelDir, testList, rank=rank))
 }
 
 # modelDir is a directory with subfolders for various ranks NSVList is a list
 # containing NSV with a rank attribute and a "name" attribute which is a list
 # of rankNames output is a data.frame containing the similarity scores,
 # predicted value and the actual value
-classify<-function(modelDir, NSVList)
+classify<-function(modelDir, NSVList, rank)
 {
 
-    ### takes models from rank subdir
-    rank <- tolower(attr(NSVList,"rank"))
+    rankDir<-file.path(modelDir, tolower(rank))
+    if (!file.exists(rankDir)) stop("Model directory ",rankDir," not found!")
     
-    if (is.null(rank))
-	stop("NSVList does not have a rank attribute")
-    rankDir<-file.path(modelDir,rank)
-    ### read and NSVs for test Seq
-    if (!file.exists(rankDir))
-	stop("Directory ",rankDir," not found")
     modelFiles <- dir(rankDir, full.names=TRUE)    
-    classificationScores<-data.frame()
-    for (modelFile in modelFiles)
-    {
-	modelName<-basename(modelFile)
-	cat("classify: Creating score matrix for", modelName,"\n")
-	modelName<- sub(".rds","",modelName)
-	model<-readRDS(modelFile)
-	modelSim<-data.frame()
-	for (NSV in NSVList)
-	{
-	    sc<-scoreSequence(model,NSV,plus_one=TRUE)
-	    if(length(modelSim)==0)
-			modelSim<-base::rbind(sc,deparse.level=3) #deparse.level=3=>no rownames
-	    else
-			modelSim<-base::rbind(modelSim,sc,deparse.level=3) #deparse.level=3=> no rownames
-	}
-	colnames(modelSim)<-modelName
-	if (length(classificationScores)!=0)
-	    classificationScores<-cbind(classificationScores,modelSim)
-	else if (length(classificationScores)==0)
-	    classificationScores <- modelSim
-    }    
-    #find predicted value
-    predValues<-data.frame()
-    actualValues<-data.frame()
-    prediction<-data.frame() #final prediction
-    for (i in 1:length(classificationScores[,1]))
-    {
-	#find the max row
-	maxRow=which.max(classificationScores[i,])
-	predicted=colnames(classificationScores)[maxRow]
-	if(length(predValues)==0)
-	    predValues<-base::rbind(predicted, deparse.level=3)
-	else
-	    predValues<-base::rbind(predValues,predicted, deparse.level=3)
-	if(length(actualValues)==0)
-	    actualValues<-base::rbind(attr(NSVList,"name")[[i]], deparse.level=3)
-	else 
-	    actualValues<-base::rbind(actualValues,attr(NSVList,"name")[[i]], deparse.level=3)
-    }
-    colnames(predValues)<-"predicted"
-    colnames(actualValues)<-"actual"
-    prediction<-cbind(actualValues)
-    prediction<-cbind(prediction,predValues)
-    classification<-list(scores=classificationScores,prediction=prediction)
-    return(classification)
+    modelNames <- sub(".rds", "", basename(modelFiles))
+    
+    classificationScores <- matrix(NA, ncol=length(modelFiles), 
+	    nrow=length(NSVList))
+    colnames(classificationScores) <- modelNames
 
+    for (i in 1:length(modelFiles)) {
+	
+	### FIXME: use the rank and name stored in the model file here!
+	cat("classify: Creating score matrix for", modelNames[i],"\n")
+	model<-readRDS(modelFiles[i])
+
+	classificationScores[,i] <- sapply(NSVList, FUN =
+		function(x) scoreSequence(model, x, plus_one=TRUE))
+    }    
+    
+    winner <- apply(classificationScores, MARGIN=1, which.max)
+    prediction <- modelNames[winner]
+
+    ### FIXME: this is not great!
+    actual <-  attr(NSVList, "name")
+
+
+    list(scores=classificationScores, 
+	    prediction=cbind(predicted=prediction, actual=actual))
 }
 
 
