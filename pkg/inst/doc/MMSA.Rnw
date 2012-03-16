@@ -610,9 +610,9 @@ using \func{plot}.
 <<EMM_1, fig=TRUE, include=FALSE>>=
 plot(model)
 @
-<<EMM_2, fig=TRUE, include=FALSE>>=
-plot(model, method="MDS")
-@
+%<<EMM_2, fig=TRUE, include=FALSE>>=
+%plot(model, method="MDS")
+%@
 <<EMM_3, fig=TRUE, include=FALSE>>=
 plot(model, method="graph")
 @
