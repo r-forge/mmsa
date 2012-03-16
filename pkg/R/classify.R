@@ -88,11 +88,11 @@ classify<-function(modelDir, NSVList)
 	modelSim<-data.frame()
 	for (NSV in NSVList)
 	{
-	    sc<-score(model$model,NSV,plus_one=TRUE)
+	    sc<-scoreSequence(model,NSV,plus_one=TRUE)
 	    if(length(modelSim)==0)
-			modelSim<-rbind(sc,deparse.level=3) #deparse.level=3=>no rownames
+			modelSim<-base::rbind(sc,deparse.level=3) #deparse.level=3=>no rownames
 	    else
-			modelSim<-rbind(modelSim,sc,deparse.level=3) #deparse.level=3=> no rownames
+			modelSim<-base::rbind(modelSim,sc,deparse.level=3) #deparse.level=3=> no rownames
 	}
 	colnames(modelSim)<-modelName
 	if (length(classificationScores)!=0)
@@ -110,15 +110,13 @@ classify<-function(modelDir, NSVList)
 	maxRow=which.max(classificationScores[i,])
 	predicted=colnames(classificationScores)[maxRow]
 	if(length(predValues)==0)
-	    predValues<-rbind(predicted, deparse.level=3)
+	    predValues<-base::rbind(predicted, deparse.level=3)
 	else
-	    predValues<-rbind(predValues,predicted, deparse.level=3)
+	    predValues<-base::rbind(predValues,predicted, deparse.level=3)
 	if(length(actualValues)==0)
-	    #actualValues<-rbind(attr(NSVList,"name")[i,1], deparse.level=3)
-	    actualValues<-rbind(attr(NSVList,"name")[[i]], deparse.level=3)
+	    actualValues<-base::rbind(attr(NSVList,"name")[[i]], deparse.level=3)
 	else 
-	    #actualValues<-rbind(actualValues,attr(NSVList,"name")[i,1], deparse.level=3)
-	    actualValues<-rbind(actualValues,attr(NSVList,"name")[[i]], deparse.level=3)
+	    actualValues<-base::rbind(actualValues,attr(NSVList,"name")[[i]], deparse.level=3)
     }
     colnames(predValues)<-"predicted"
     colnames(actualValues)<-"actual"

@@ -4,7 +4,8 @@
 	last_window=FALSE) {
     
     #returns the sequence as a vector  
-    x <- getSequence(x)    
+    #x <- getSequence(x)    
+    x <- DNAString(x)    
     l <- as.integer(length(x)/(window-overlap)) -1L
     
     #start and end positions as vectors
@@ -42,7 +43,7 @@ lapply(x, .counter, window=window, overlap=overlap, word=word,
     stream <- matrix(NA, ncol= ncol(cnt[[1]]), nrow=0)
     colnames(stream) <- colnames(cnt[[1]])
 
-	for(i in 1:length(cnt)) stream <- rbind(stream, ss, cnt[[i]])
+	for(i in 1:length(cnt)) stream <- base::rbind(stream, ss, cnt[[i]])
     
     stream
 }
