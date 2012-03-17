@@ -14,7 +14,7 @@ Function to generate and save models from a given database and use them for clas
 \usage{
 processSequences(dir, db, reader=addSequencesGreengenes, ...)
 createModels(modelDir, rank, db, selection, limit=-1, ...)
-classify(modelDir, NSVList)
+classify(modelDir, NSVList, rank)
 validateModels(db, modelDir, rank, table="NSV", pctTest=0.1)
 }
 \arguments{
@@ -53,7 +53,7 @@ if (!file.exists("MMSAExample"))
 #Create a "phylum" folder within the MMSAExample directory and store models there
 createModels("MMSAExample",rank,db)
 d<-getSequences(db,rank,table="NSV")
-classification<-classify("MMSAExample",d)
+classification<-classify("MMSAExample",d,rank)
 
 #run validation on the db
 validation<-validateModels(db,"MMSAExample",rank,table="NSV",pctTest=0.1)
