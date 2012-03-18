@@ -6,6 +6,14 @@ print.NSVSet <- function(x, ...) {
 }
 
 ### convert to NSVs
+createNSVSet <- function(x, window=100, overlap=0, word=3, 
+	last_window=FALSE) {
+    s <- lapply(x, .counter, window, overlap, word, last_window)
+    class(s) <- "NSVSet"
+    s
+}
+
+
 createNSVTable <- function(db, tableName, 
 	rank=NULL, name=NULL, window=100,
 	overlap=0, word=3, last_window=FALSE) {

@@ -6,6 +6,11 @@
     #returns the sequence as a vector  
     #x <- getSequence(x)    
     x <- DNAString(x)    
+    if(length(x) < window) {
+	warning("Sequence is shorter than window size!")
+	return(matrix(nrow=0, ncol=0))
+    }
+    
     l <- as.integer(length(x)/(window-overlap)) -1L
     
     #start and end positions as vectors

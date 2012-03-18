@@ -1,16 +1,20 @@
 \name{createNSVTable}
 \alias{createNSVTable}
+\alias{createNSVSet}
 \alias{dropNSVTable}
 \title{Manage NSV format tables}
 \description{
 	Create and Drop tables containing sequences in NSV format
   }
 \usage{
+	createNSVSet(x, 
+	    window=100, overlap=0, word=3, last_window=FALSE)
 	createNSVTable(db, tableName, rank=NULL, name=NULL, 
 	    window=100, overlap=0, word=3, last_window=FALSE)
 	dropNSVTable(db, tableName)
 }
 \arguments{
+	\item{x}{An object of class DNAStringSet.} 
 	\item{db}{Handle of the database} 
 	\item{tableName}{Name of the new NSV table which will store the NSV format sequences.}
 	\item{rank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
@@ -21,6 +25,9 @@
 	\item{last_window}{Value of boolean last_window parameter.}
 }
 \details{
+	\code{createNSVSet()} creates NSVs from the sequences stored in a
+	DNAStringSet.
+	
 	\code{createNSVTable()} function converts character sequences into NSV format using the parameters specified or the default parameters.
 	A new table is created in the database with the name equal to the second parameter.
 	The new table is very similar to the sequences table in structure, but the sequence field contains NSVs instead of the character sequences.	

@@ -1,9 +1,7 @@
-setGeneric("scoreSequence", function(x, newdata, method="prod", ...) standardGeneric("scoreSequence"))
-
-setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
-        function(x, newdata, method = c("prod", "malik", "misstran",""),
-                match_cluster="nn", plus_one = FALSE,
-                initial_transition = FALSE)
+scoreSequence <- function(x, newdata, 
+	method = c("prod", "malik", "misstran",""),
+	match_cluster="nn", plus_one = FALSE,
+	initial_transition = FALSE)
 {
             #for Kullback method add 1 to newdata
             if(x$model@measure=="Kullback") newdata <- newdata+1
@@ -50,5 +48,5 @@ setMethod("scoreSequence", signature(x="GenModel" , newdata = "matrix"),
             }
 
 
-})
+}
 
