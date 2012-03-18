@@ -25,7 +25,10 @@ export(
 	createModels,
 	classify,
 	validateModels,
-	scoreSequence
+	scoreSequence,
+
+	clustal,
+	simRank
 )
 
 
