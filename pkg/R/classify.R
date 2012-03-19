@@ -42,7 +42,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
 	#notsel contains the test sequences
 	notsel<-which(selList==0)
 	#create model using the training set
-	emm<-genModel(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
+	emm<-genModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=sel)
 	#save the model to file
 	rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 	saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))

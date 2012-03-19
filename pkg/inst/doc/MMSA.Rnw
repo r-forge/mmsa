@@ -592,7 +592,7 @@ The NSVs created in the previous section can be used for model generation. The
 models can be created at for all 
 sequences in the database or for any set of sequences selected using filters.
 <<>>=
-model <- genModel(db, rank="Genus", name="Desulfosporomusa", table="NSV",
+model <- genModelDB(db, rank="Genus", name="Desulfosporomusa", table="NSV",
     measure="Manhattan", threshold =30)
 model
 @

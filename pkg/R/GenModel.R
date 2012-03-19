@@ -1,62 +1,74 @@
+genModel <- function(x, rank=NULL, name = NULL, measure="Manhattan", threshold=30) {
+    d <- .make_stream(x)
+    if(measure=="Kullback") d <- d + 1
+    
+    emm <- EMM(measure=measure,threshold=threshold)
+    build(emm, d)
+    emm
+    
+    genModel <- list(name=rankName, rank=rank, nSequences=length(x), model=emm)
+    class(genModel) <- "GenModel"	
+    genModel		
+}
+
 # creates an model from sequences in the db 
-genModel <- function(db, rank=NULL, name=NULL, table, 
-	measure="Manhattan", threshold=30, plus_one=TRUE, 
+genModelDB <- function(db, rank=NULL, name=NULL, table, 
+	measure="Manhattan", threshold=30, 
 	selection=NULL, limit=-1) {
 
     #check if table exists in db
     if (length(which(table==listGenDB(db))) == 0)
 		stop("Could not find table in database")
+    
     #check if table is of type NSV	
     meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
     index<-which(meta$name==table)  #find index of table
     if (meta$type[index]!="NSV")
 		stop("Not an NSV table")
+    
     emm <- EMM(measure=measure,threshold=threshold)
-    # how many sequences
-	nSequences<-nSequences(db,rank,name)
-    # if limit has been specified, use that
-	if (limit != -1)
-		nSequences <- min(nSequences,limit)
+    
+    nSequences<-nSequences(db,rank,name)
+    if (limit != -1) nSequences <- min(nSequences,limit)
+    
     cat("genModel: Creating model for ",rank,": ",name,"\n",sep="")
-    if (is.null(selection))
-    {
-		i<-0
-		total<-0
-		while(i<nSequences)
-		{
-	    	d<-getSequences(db,rank,name,table,limit=c(i,100))
-	    	i<-min(i+100,nSequences)
-	    	sequences<-.make_stream(d)
+    
+    if (is.null(selection)){
+	i<-0
+	total<-0
+	
+	while(i<nSequences){
+	    d<-getSequences(db,rank,name,table,limit=c(i,100))
+	    i<-min(i+100,nSequences)
+	    
+	    d <- .make_stream(d)
+	    ### Kullback can not handle 0 counts!
+	    if(measure=="Kullback") d <- d + 1
 
-	    	### Kullback can not handle 0 counts!
-	    	if(measure=="Kullback") sequences<-sequences + 1
+	    build(emm, d)
+	    reset(emm)
+	    
+	    cat("genModel: Processed",i,"sequences\n")
+	}
+    }else if (!is.null(selection)){
+	d<-getSequences(db, rank, name, table, limit=limit)
+	d<-d[selection]
+	if (length(d)==0) stop("GenModel called with 0 sequences")
+	
+	d <- .make_stream(d)
+	### Kullback can not handle 0 counts!
+	if(measure=="Kullback") d <- d + 1
 
-	    	build(emm,.make_stream(d)+1)
-	    	reset(emm)
-	    	cat("genModel: Processed",i,"sequences\n")
-		}
+	build(emm, d)
+	reset(emm)
+	
+	cat("genModel: Processed",length(d),"sequences\n")
     }
-    else if (!is.null(selection))
-    {
-		d<-getSequences(db, rank, name, table, limit=limit)
-		d<-d[selection]
-		if (length(d)==0)
-	    	stop("GenModel called with 0 sequences")
-		for(i in 1:length(d))
-		{
-	    	sequence<- d[[i]]		
-
-	    	if(measure=="Kullback") sequence <- sequence + 1
-
-	    	build(emm,sequence)
-	    	reset(emm)
-	    	if (i%%100==0) cat("genModel: Processed",i,"sequences\n")
-		}	
-		cat("genModel: Processed",length(d),"sequences\n")
-    }
+    
     rank <- .pmatchRank(db, rank)
     rankName<- unique(unlist(attr(d,"name")))
     nSequences<-length(d)	
+    
     genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm)
     class(genModel) <- "GenModel"	
     genModel		
@@ -131,7 +143,7 @@ createModels <- function(modelDir, rank = "Phylum", db, selection=NULL,
     #get All ranks
     rankNames <- getRank(db, rank)[,1]
     for(n in rankNames) {
-	emm <- genModel(db, table="NSV", rank, name=n,
+	emm <- genModelDB(db, table="NSV", rank, name=n,
 		selection=selection, limit=limit, ...)
 	n<-gsub("/","",n)
 	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))

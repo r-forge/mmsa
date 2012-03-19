@@ -8,7 +8,10 @@ print.NSVSet <- function(x, ...) {
 ### convert to NSVs
 createNSVSet <- function(x, window=100, overlap=0, word=3, 
 	last_window=FALSE) {
-    s <- lapply(x, .counter, window, overlap, word, last_window)
+    ### This should work but as.list does not inside the package!
+    #s <- lapply(x, .counter, window, overlap, word, last_window)
+    s <- lapply(1:length(x), FUN= function(i) .counter(x[[i]], window, 
+		    overlap, word, last_window))
     class(s) <- "NSVSet"
     s
 }
