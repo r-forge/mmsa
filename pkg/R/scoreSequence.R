@@ -1,5 +1,5 @@
 scoreSequence <- function(x, newdata, 
-	method = c("prod", "malik", "misstran",""),
+	method = c("prod", "malik", "misstran"),
 	match_cluster="nn", plus_one = FALSE,
 	initial_transition = FALSE)
 {
@@ -8,7 +8,7 @@ scoreSequence <- function(x, newdata,
 
             method <- match.arg(method)
 
-            if(method == "prod" || is.na(method) || length(method)==0) {
+            if(method == "prod") {
 				sc<-rEMM::score(x$model, newdata=newdata, method="prod",
                     match_cluster=match_cluster, plus_one=plus_one,
                     initial_transition=initial_transition)
@@ -38,13 +38,10 @@ scoreSequence <- function(x, newdata,
             }
 
             if(method == "misstran") {
-                if(x$model@measure=="Kullback") newdata <- newdata+1
                 transitionTable <- transition_table(x$model, newdata, method="prob",
-                        match_cluster, plus_one,
+                        match_cluster, plus_one=FALSE,
                         initial_transition)
-                missingTransitions <- sum(transitionTable[,3]==0)
-                #missingTransitions <- length(whichi(is.na(transitionTable[,1]) || which(is.na(transitionTable[,2]))))
-                return(missingTransitions)
+                sum(transitionTable[,3]==0)
             }
 
 
