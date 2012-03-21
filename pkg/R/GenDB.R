@@ -124,7 +124,7 @@ nSequences <- function(db, rank=NULL, name=NULL) {
 }
 
 
-getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE) {
+getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE, start=1, length=10000) {
 
     if(limit[1]<0) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
@@ -140,7 +140,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	else
 		fullRankSQL <-"-1"
 	res <- dbGetQuery(db$db, 
-		statement = paste("SELECT data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
+		statement = paste("SELECT substr(data,",start,",",length,") AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 		" INNER JOIN classification ON classification.id = ",
 		table, ".id ", 
 		.getWhere(db, rank, name), limit)
@@ -155,7 +155,6 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	attr(ret,"id")<-res$id
 	class(ret) <- "NSVSet"
     }else{
-
 	ret <- DNAStringSet(res$data)
 	names(ret) <- res$id
 	if(!is.null(rank)){

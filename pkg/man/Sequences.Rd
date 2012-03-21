@@ -13,7 +13,7 @@
 \usage{
 	nSequences(db, rank=NULL, name=NULL)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=-1, random=FALSE)
+	    limit=-1, random=FALSE, start=1, length=10000)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -22,6 +22,8 @@
 	\item{table}{Value of the NSV table which stores sequences in NSV format.}
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
 	\item{random}{Get sequences in randomized order.} 
+	\item{start}{Start position for the subsequence.} 
+	\item{length}{Length of the subsequence.} 
 	
 }
 \value{
