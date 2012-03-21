@@ -1,5 +1,5 @@
 scoreSequence <- function(x, newdata, 
-	method = c("prod", "malik", "misstran"),
+	method = c("prod", "malik", "misstran","compareTransitions"),
 	match_cluster="nn", plus_one = FALSE,
 	initial_transition = FALSE)
 {
@@ -41,7 +41,17 @@ scoreSequence <- function(x, newdata,
                 transitionTable <- transition_table(x$model, newdata, method="prob",
                         match_cluster, plus_one=FALSE,
                         initial_transition)
-                sum(transitionTable[,3]==0)
+                missingTransitions <- sum(transitionTable[,3]==0)
+                return(missingTransitions)
+            }
+
+            if(method == "compareTransitions") {
+                transitionTable <- transition_table(x$model, newdata, method="prob",
+                        match_cluster, plus_one=TRUE,
+                        initial_transition)
+				similarity<- pr_dist2simil(transitionTable[,3])
+				dist<-sum(abs(log(similarity))*transitionTable[,3])
+				return(1/(1+dist))
             }
 
 

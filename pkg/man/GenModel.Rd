@@ -1,6 +1,7 @@
 \name{GenModel}
 \alias{GenModel}
 \alias{genModel}
+\alias{genModelDB}
 \alias{plot.GenModel}
 \alias{print.GenModel}
 \alias{prune.GenModel}
@@ -12,7 +13,7 @@ Manage Gene Sequence Models
 Functions to generate a model.
 }
 \usage{
-genModel(x, threshold=30, selection=NULL)
+genModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
 genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan", 
     threshold=30, selection=NULL, limit=-1)
 }

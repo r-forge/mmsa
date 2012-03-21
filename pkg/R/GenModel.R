@@ -5,8 +5,9 @@ genModel <- function(x, rank=NULL, name = NULL, measure="Manhattan", threshold=3
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
     emm
-    
-    genModel <- list(name=rankName, rank=rank, nSequences=length(x), model=emm)
+
+	    
+    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
     class(genModel) <- "GenModel"	
     genModel		
 }
@@ -29,47 +30,75 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
     emm <- EMM(measure=measure,threshold=threshold)
     
     nSequences<-nSequences(db,rank,name)
-    if (limit != -1) nSequences <- min(nSequences,limit)
-    
-    cat("genModel: Creating model for ",rank,": ",name,"\n",sep="")
-    
-    if (is.null(selection)){
-	i<-0
-	total<-0
-	
-	while(i<nSequences){
-	    d<-getSequences(db,rank,name,table,limit=c(i,100))
-	    i<-min(i+100,nSequences)
-	    
-	    d <- .make_stream(d)
-	    ### Kullback can not handle 0 counts!
-	    if(measure=="Kullback") d <- d + 1
-
-	    build(emm, d)
-	    reset(emm)
-	    
-	    cat("genModel: Processed",i,"sequences\n")
-	}
-    }else if (!is.null(selection)){
-	d<-getSequences(db, rank, name, table, limit=limit)
-	d<-d[selection]
-	if (length(d)==0) stop("GenModel called with 0 sequences")
-	
-	d <- .make_stream(d)
+	hierarchy<- GenClass16S_Greengenes()
+	rankNum<- which(names(hierarchy)==.pmatchRank(db,rank))
+	for(i in 1:(rankNum-1))
+		{
+			hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
+		}
+	if (limit != -1) nSequences <- min(nSequences,limit)
+	clusterInfo<-list(nSequences)
 	### Kullback can not handle 0 counts!
 	if(measure=="Kullback") d <- d + 1
-
-	build(emm, d)
-	reset(emm)
+    
+	cat("genModel: Creating model for ",rank,": ",name,"\n",sep="")
+    
+	if (is.null(selection)){
+		i<-0
+		total<-0
+	while(i<nSequences){
+	    d<-getSequences(db,rank,name,table,limit=c(i,100))
+	    d <- .make_stream(d)
+	    #get actual number of sequences
+		clusterSequences <- attr(d,"id")
+		build(emm, d)
+	    l<-last_clustering(emm)
+		#start states gives the starting state of each new sequence
+		startStates <- which(is.na(l))
+		for(j in 1:length(startStates))
+		{
+			start<-startStates[j]
+			#check if its the last one
+			if(is.na(startStates[j+1])) 
+				end<-length(l)
+			else
+				end<-startStates[j+1]-1
+			clusterInfo[[i+j]]<-l[start:end]
+		} 
+		reset(emm)
+	    #update value of i 
+	    i<-min(i+100,nSequences)
+	    cat("genModel: Processed",i,"sequences\n")
+		}
+    } else if (!is.null(selection)){
+		d<-getSequences(db, rank, name, table, limit=limit)
+		d<-d[selection]
+		if (length(d)==0) stop("GenModel called with 0 sequences")
 	
-	cat("genModel: Processed",length(d),"sequences\n")
+		d <- .make_stream(d)
+
+		build(emm, d)
+		l<-last_clustering(emm)
+		#start states gives the starting state of each new sequence
+		startStates <- which(is.na(l))
+		for(j in 1:length(startStates))
+		{
+			start<-startStates[j]
+			#check if its the last one
+			if(is.na(startStates[j+1])) 
+				end<-length(l)
+			else
+				end<-startStates[j+1]-1
+			clusterInfo[[j]]<-l[start:end]
+		} 	
+		reset(emm)
+	
+		cat("genModel: Processed",length(d),"sequences\n")
     }
     
     rank <- .pmatchRank(db, rank)
     rankName<- unique(unlist(attr(d,"name")))
-    nSequences<-length(d)	
-    
-    genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm)
+    genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm, clusterInfo=clusterInfo, hierarchy=hierarchy, measure=measure)
     class(genModel) <- "GenModel"	
     genModel		
 }
