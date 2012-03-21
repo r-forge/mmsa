@@ -49,8 +49,14 @@ scoreSequence <- function(x, newdata,
                 transitionTable <- transition_table(x$model, newdata, method="prob",
                         match_cluster, plus_one=TRUE,
                         initial_transition)
-				similarity<- pr_dist2simil(transitionTable[,3])
-				dist<-sum(abs(log(similarity))*transitionTable[,3])
+				dist<-0
+				for(i in 1:nrow(transitionTable))
+				{	
+					tempDist<-dist(cluster_centers(x)[transitionTable[i,1]],cluster_centers(x)[transitionTable[i,2]],measure=x$measure)
+					tempSim <- pr_dist2simil(tempDist)
+					tempProb <- transitionTable[i,3]
+					dist<-dist+(abs(log(tempSim))*tempProb)
+				}
 				return(1/(1+dist))
             }
 
