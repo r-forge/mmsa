@@ -15,7 +15,7 @@ genModel <- function(x, rank=NULL, name = NULL, measure="Manhattan", threshold=3
 # creates an model from sequences in the db 
 genModelDB <- function(db, rank=NULL, name=NULL, table, 
 	measure="Manhattan", threshold=30, 
-	selection=NULL, limit=-1) {
+	selection=NULL, limit=-1, showClusterInfo=TRUE) {
 
     #check if table exists in db
     if (length(which(table==listGenDB(db))) == 0)
@@ -26,7 +26,14 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
     index<-which(meta$name==table)  #find index of table
     if (meta$type[index]!="NSV")
 		stop("Not an NSV table")
-    
+    #get metadata about the table
+	meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
+	x<-unlist(strsplit(meta,";"))	
+	window <-sub("window=","",x[3])
+	overlap <- sub("overlap=","",x[4])
+	word <-sub("word=","",x[5])
+	last_window <-sub("last_window=","",x[6])	
+	
     emm <- EMM(measure=measure,threshold=threshold)
     
     nSequences<-nSequences(db,rank,name)
@@ -37,6 +44,8 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
 			hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
 		}
 	if (limit != -1) nSequences <- min(nSequences,limit)
+
+	#clusterinfo stores the last_clustering details
 	clusterInfo<-list(nSequences)
 	### Kullback can not handle 0 counts!
 	if(measure=="Kullback") d <- d + 1
@@ -47,24 +56,17 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
 		i<-0
 		total<-0
 	while(i<nSequences){
-	    d<-getSequences(db,rank,name,table,limit=c(i,100))
-	    d <- .make_stream(d)
+		#get 100 sequences at a time
+	    d <-getSequences(db,rank,name,table,limit=c(i,100))
+		n <- length(d)
+		n <- min(n,100)
+		ids <- attr(d,"id")[1:n]
+		d <- .make_stream(d)
 	    #get actual number of sequences
-		clusterSequences <- attr(d,"id")
 		build(emm, d)
 	    l<-last_clustering(emm)
-		#start states gives the starting state of each new sequence
-		startStates <- which(is.na(l))
-		for(j in 1:length(startStates))
-		{
-			start<-startStates[j]
-			#check if its the last one
-			if(is.na(startStates[j+1])) 
-				end<-length(l)
-			else
-				end<-startStates[j+1]-1
-			clusterInfo[[i+j]]<-l[start:end]
-		} 
+		clusterInfo<- .getClusterInfo(clusterInfo,l,i)
+		names(clusterInfo)[(i+1):(i+n)] <- ids
 		reset(emm)
 	    #update value of i 
 	    i<-min(i+100,nSequences)
@@ -74,23 +76,10 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
 		d<-getSequences(db, rank, name, table, limit=limit)
 		d<-d[selection]
 		if (length(d)==0) stop("GenModel called with 0 sequences")
-	
 		d <- .make_stream(d)
-
 		build(emm, d)
 		l<-last_clustering(emm)
-		#start states gives the starting state of each new sequence
-		startStates <- which(is.na(l))
-		for(j in 1:length(startStates))
-		{
-			start<-startStates[j]
-			#check if its the last one
-			if(is.na(startStates[j+1])) 
-				end<-length(l)
-			else
-				end<-startStates[j+1]-1
-			clusterInfo[[j]]<-l[start:end]
-		} 	
+		clusterInfo <- .getClusterInfo(clusterInfo,l,i)
 		reset(emm)
 	
 		cat("genModel: Processed",length(d),"sequences\n")
@@ -98,10 +87,63 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
     
     rank <- .pmatchRank(db, rank)
     rankName<- unique(unlist(attr(d,"name")))
-    genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm, clusterInfo=clusterInfo, hierarchy=hierarchy, measure=measure)
-    class(genModel) <- "GenModel"	
-    genModel		
+    #names(clusterInfo) <- ids
+	genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm, hierarchy=hierarchy, measure=measure, window=window, word=word, overlap=overlap, last_window=last_window)
+    if (showClusterInfo)
+		genModel <- c(genModel,clusterInfo=list(clusterInfo))
+	class(genModel) <- "GenModel"	
+	genModel		
 }
+
+
+getClusteringDetails <- function(model, modelState=-1, db=NULL, table="sequences")
+{	
+	states<-list()
+	for(i in 1:length(model$clusterInfo))
+	{
+		sequence <- names(model$clusterInfo)[i]
+		for(j in 1:length(model$clusterInfo[[i]]))
+		{
+			state <- model$clusterInfo[[i]][j]
+			if(length(states) >= state)
+				states[[state]][length(states[[state]])+1] <- sequence
+			else
+				states[[state]]<-sequence
+		}
+	}
+	if (modelState==-1)
+		return(states)
+	else
+	{
+		state<- states[[state]]
+		sapply(state, FUN=function(x) {getSequences(db,rank="id",name=x, table)})
+	}
+}
+
+
+#takes a model and returns the clusterInfo i.e. how many states and which sequence goes to which cluster
+.getClusterInfo <- function(clusterInfo, last_clustering, offset)
+{
+		#states are separated by NAs, so get position of NAs
+		startStates <- which(is.na(last_clustering))
+		for(j in 1:length(startStates))
+		{
+			start<-startStates[j]+1
+			#check if its the last one
+			if(is.na(startStates[j+1])) 
+				end<-length(last_clustering)
+			else
+				end<-startStates[j+1]-1
+			clusterInfo[[offset+j]]<-last_clustering[start:end]
+			#clusterInfo <- c(clusterInfo,last_clustering[start:end])
+			#clusterInfo <- c(clusterInfo,last_clustering[start:end])
+		}
+		return(clusterInfo) 
+}
+
+
+
+
 
 ### print basic info about a model
 print.GenModel <- function(x, ...) {

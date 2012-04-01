@@ -124,7 +124,7 @@ nSequences <- function(db, rank=NULL, name=NULL) {
 }
 
 
-getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE, start=1, length=10000) {
+getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE, start=1, length=100000000) {
 
     if(limit[1]<0) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
@@ -135,7 +135,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	if (!is.null(rank)) {    
 		fullRank<-.pmatchRank(db,rank)
 		#Do this so that the column order appears as [order] since order is a SQL keyword
-		fullRankSQL<-paste("[",fullRank,"]",sep="")
+		fullRankSQL<-paste("classification.[",fullRank,"]",sep="")
 	}
 	else
 		fullRankSQL <-"-1"
@@ -147,10 +147,18 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	    )
 
     if (table !="sequences") {
-	ret <- lapply(res$data,decodeSequence)		
+	ret <- lapply(res$data,decodeSequence)
+	#get metadata about the table
+	meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
+	x<-unlist(strsplit(meta,";"))	
+	attr(ret,"window")<-sub("window=","",x[3])
+	attr(ret,"overlap") <- sub("overlap=","",x[4])
+	attr(ret,"word")<-sub("word=","",x[5])
+	attr(ret,"last_window")<-sub("last_window=","",x[6])	
 	if(!is.null(rank)) {
 	    attr(ret,"rank")<-fullRank
-	    attr(ret,"name")<-res$fullRank
+	    #this returns the values of the fullRank i.e. rankName from the db
+		attr(ret,"name")<-res$fullRank
 	}
 	attr(ret,"id")<-res$id
 	class(ret) <- "NSVSet"

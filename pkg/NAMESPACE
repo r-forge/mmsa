@@ -15,7 +15,7 @@ export(
 	getHierarchy,
 	nSequences,
 	getSequences,
-
+    getClusteringDetails,
 	createNSVSet,
 	createNSVTable,
 	dropNSVTable,

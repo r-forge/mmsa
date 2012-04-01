@@ -6,6 +6,7 @@
 \alias{print.GenModel}
 \alias{prune.GenModel}
 \alias{recluster}
+\alias{getClusteringDetails}
 \title{
 Manage Gene Sequence Models
 }
@@ -15,7 +16,8 @@ Functions to generate a model.
 \usage{
 genModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
 genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan", 
-    threshold=30, selection=NULL, limit=-1)
+    threshold=30, selection=NULL, limit=-1, showClusterInfo=TRUE)
+getClusteringDetails(model,modelState=-1, db=NULL, table="sequences" )
 }
 \arguments{
 	\item{x}{An object of class NSVSet.}
@@ -27,6 +29,9 @@ genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan",
 	\item{threshold}{Numeric dissimilarity threshold used by the clustering algorithm for assigning a new observation to existing clusters.}
 	\item{selection}{Numeric vector indicating which sequences to take while creating the model. By default, all sequences are taken when constructing the model.} 
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account.} 
+	\item{model}{genModel object returned by the genModel and genModelDB classes.} 
+	\item{modelState}{genModel state about which details are required.} 
+	\item{showClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
 
 }
 \value{
@@ -41,6 +46,7 @@ genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan",
 	processSequences(system.file("examples/phylums", package="MMSA"), db)
 	model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV") 
 	model
+	getClusteringDetails(model)
 	#score sequence against the model
 	random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
 	scoreSequence(model,random_sequence)
