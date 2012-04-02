@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, similarityMethod="product")
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -58,14 +58,14 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1)
     rm(db)
     attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
-    return(classify(modelDir, testList, rank=rank))
+    return(classify(modelDir, testList, rank=rank, similarityMethod=similarityMethod))
 }
 
 # modelDir is a directory with subfolders for various ranks NSVList is a list
 # containing NSV with a rank attribute and a "name" attribute which is a list
 # of rankNames output is a data.frame containing the similarity scores,
 # predicted value and the actual value
-classify<-function(modelDir, NSVList, rank)
+classify<-function(modelDir, NSVList, rank, similarityMethod="product")
 {
 
     rankDir<-file.path(modelDir, tolower(rank))
@@ -85,7 +85,7 @@ classify<-function(modelDir, NSVList, rank)
 	model<-readRDS(modelFiles[i])
 
 	classificationScores[,i] <- sapply(NSVList, FUN =
-		function(x) scoreSequence(model, x, plus_one=TRUE))
+		function(x) rEMM::score(model$model, x, method=similarityMethod, plus_one=TRUE))
     }    
     
     winner <- apply(classificationScores, MARGIN=1, which.max)
