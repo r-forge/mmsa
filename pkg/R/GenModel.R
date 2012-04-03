@@ -115,7 +115,7 @@ getClusteringDetails <- function(model, modelState=-1, db=NULL, table="sequences
 		return(states)
 	else
 	{
-		state<- states[[state]]
+		state<- states[[modelState]]
 		sapply(state, FUN=function(x) {getSequences(db,rank="id",name=x, table)})
 	}
 }
