@@ -37,12 +37,15 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
     emm <- EMM(measure=measure,threshold=threshold)
     
     nSequences<-nSequences(db,rank,name)
-	hierarchy<- GenClass16S_Greengenes()
-	rankNum<- which(names(hierarchy)==.pmatchRank(db,rank))
-	for(i in 1:(rankNum-1))
-		{
-			hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
-		}
+	#hierarchy<- GenClass16S_Greengenes()
+	#rankNum<- which(names(hierarchy)==.pmatchRank(db,rank))
+	#for(i in 1:(rankNum-1))
+	#	{
+	#		hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
+	#	}
+	#hierarchy[rankNum] <- .pmatchRank(db,rank)
+	hierarchy <- getHierarchy(db,rank,name)
+
 	if (limit != -1) nSequences <- min(nSequences,limit)
 
 	#clusterinfo stores the last_clustering details
@@ -74,20 +77,22 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
 		}
     } else if (!is.null(selection)){
 		d<-getSequences(db, rank, name, table, limit=limit)
+		ids <- attr(d,"id")[selection]
 		d<-d[selection]
 		if (length(d)==0) stop("GenModel called with 0 sequences")
 		d <- .make_stream(d)
 		build(emm, d)
 		l<-last_clustering(emm)
-		clusterInfo <- .getClusterInfo(clusterInfo,l,i)
+		clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+		names(clusterInfo) <- ids
 		reset(emm)
-	
-		cat("genModel: Processed",length(d),"sequences\n")
+		nSequences <- length(selection)
+		cat("genModel: Processed ",nSequences ," sequences\n")
     }
     
     rank <- .pmatchRank(db, rank)
-    rankName<- unique(unlist(attr(d,"name")))
-    #names(clusterInfo) <- ids
+	rankName <- hierarchy[[rank]]
+	
 	genModel <- list(name=rankName, rank=rank, nSequences=nSequences, model=emm, hierarchy=hierarchy, measure=measure, window=window, word=word, overlap=overlap, last_window=last_window)
     if (showClusterInfo)
 		genModel <- c(genModel,clusterInfo=list(clusterInfo))
@@ -95,20 +100,27 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
 	genModel		
 }
 
-
-getClusteringDetails <- function(model, modelState=-1, db=NULL, table="sequences")
+#	Returns the model states and the ID and the segment number of the sequences that are part of that state in format id:segment.
+#	By default, returns all states as a list, if a modelState is specified. returns only the sequences that are part of that state
+getClusteringDetails <- function(model, modelState=-1)
 {	
 	states<-list()
+	#loop over all the sequences 
 	for(i in 1:length(model$clusterInfo))
 	{
+		#name of the sequence gives the id of the sequence
 		sequence <- names(model$clusterInfo)[i]
+		#loop over all models that the sequence goes through
 		for(j in 1:length(model$clusterInfo[[i]]))
 		{
 			state <- model$clusterInfo[[i]][j]
+			#check whether we should add a new index or append to an existing states index
+			#if the state is not new, append to its list
 			if(length(states) >= state)
-				states[[state]][length(states[[state]])+1] <- sequence
+				states[[state]][length(states[[state]])+1] <- paste(sequence,j,sep=":")
+			#if state is new create a new index
 			else
-				states[[state]]<-sequence
+				states[[state]]<-paste(sequence,j,sep=":")
 		}
 	}
 	if (modelState==-1)
@@ -116,8 +128,43 @@ getClusteringDetails <- function(model, modelState=-1, db=NULL, table="sequences
 	else
 	{
 		state<- states[[modelState]]
-		sapply(state, FUN=function(x) {getSequences(db,rank="id",name=x, table)})
+		stateIds <- vector()
+		for(i in 1:length(state))
+			stateIds[i] <- state[i]
+		return(stateIds)
 	}
+}
+
+#	Returns the sequences that are part of a given model state as list of DNA or NSV sequence objects
+#
+getClusteringSequences <- function(db, model, modelState, table="sequences")
+{	
+		#get the ids that are part of the model state as a list
+		ids<-getClusteringDetails(model,modelState)
+
+		#create different lists based on whether sequence or NSV table
+		if (table =="sequences")
+			stateSequences <- DNAStringSet()
+		else
+			stateSequences <- list()
+		#loop through all the ids that are part of the modelstate		
+		for(i in 1:length(ids))
+			{
+				id <- ids[i]
+				#split the sequence on ":" and get sequenceid and segment
+				sequence <- unlist(strsplit(id,split=":"))[1]
+				segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
+				#get window size from the model
+				window <- as.numeric(model$window)
+				#get the start position of the segment eg:1, 101, 201 etc
+				start <- (segment - 1) * window + 1
+				#get sequences and append to the list
+				stateSequences <- c(stateSequences,getSequences(db, rank="id",name=sequence, table, start = start, length=window))
+			}
+		if(table!="sequences")
+			class(stateSequences)<-"NSVSet"
+
+		return(stateSequences)
 }
 
 

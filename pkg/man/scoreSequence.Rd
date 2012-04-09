@@ -7,11 +7,11 @@ Calculates a score of how likely it is that a new sequence was generated
 by the same process as the sequences used to build the EMM.
 }
 \usage{
-\S4method{scoreSequence}{GenModel,matrix}(x, newdata, method =c("prod","malik","misstran",""), match_cluster = "nn", plus_one=FALSE, initial_transition = FALSE)
+\S4method{scoreSequence}{GenModel,matrix}(x, newdata, method ="product", match_cluster = "nn", plus_one=FALSE, initial_transition = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{ an \code{EMM} object. }
+  \item{x}{ an \code{GenModel} object. }
   \item{newdata}{ sequence to score }
   \item{method}{ method to calculate the score (see details) }
   \item{match_cluster}{ do the new observations have to fall within

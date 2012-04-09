@@ -13,7 +13,7 @@
 \usage{
 	nSequences(db, rank=NULL, name=NULL)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=-1, random=FALSE, start=1, length=100000000)
+	    limit=-1, random=FALSE, start=1, length=Inf)
 }
 \arguments{
 	\item{db}{Handle of the database} 

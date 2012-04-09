@@ -7,6 +7,7 @@
 \alias{prune.GenModel}
 \alias{recluster}
 \alias{getClusteringDetails}
+\alias{getClusteringSequences}
 \title{
 Manage Gene Sequence Models
 }
@@ -17,7 +18,8 @@ Functions to generate a model.
 genModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
 genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan", 
     threshold=30, selection=NULL, limit=-1, showClusterInfo=TRUE)
-getClusteringDetails(model,modelState=-1, db=NULL, table="sequences" )
+getClusteringDetails(model, modelState=-1)
+getClusteringSequences(db, model, modelState, table="sequences")
 }
 \arguments{
 	\item{x}{An object of class NSVSet.}
@@ -36,9 +38,12 @@ getClusteringDetails(model,modelState=-1, db=NULL, table="sequences" )
 }
 \value{
 	{\code{genModel()} and \code{genModelDB()} return an object of class genModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
+	{\code{getClusteringDetails()} returns a list of states with the id of sequences in each state \code{getClusteringSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
+
 }
 \details{
-	This function is used after a gene sequence has been converted to NSV format. 
+	genModel group of functions are  used after a gene sequence has been converted to NSV format.
+	After creating the model, \code{getClusteringDetails} and \code{getClusteringSequences} can be used to obtain meta information. 
 }
 
 \examples{
@@ -47,6 +52,7 @@ getClusteringDetails(model,modelState=-1, db=NULL, table="sequences" )
 	model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV") 
 	model
 	getClusteringDetails(model)
+	getClusteringSequences(db, model, modelState = 1)
 	#score sequence against the model
 	random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
 	scoreSequence(model,random_sequence)

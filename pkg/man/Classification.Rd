@@ -15,7 +15,7 @@ Function to generate and save models from a given database and use them for clas
 processSequences(dir, db, reader=addSequencesGreengenes, ...)
 createModels(modelDir, rank, db, selection, limit=-1, ...)
 classify(modelDir, NSVList, rank, similarityMethod="product")
-validateModels(db, modelDir, rank, table="NSV", pctTest=0.1, similarityMethod="product")
+validateModels(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, similarityMethod="product", limit=Inf)
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}

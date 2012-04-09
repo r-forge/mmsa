@@ -470,6 +470,14 @@ s <- getSequences(db, rank="genus", name="Desulfosporomusa")
 s
 @
 
+To obtain unique sequences, getSequences can be used with rank equal to "id" and supplying the sequence's greengenes ID as the name.
+This will return one sequence which can be either in a DNA Sequence format or NSV format depending on the "table" parameter.
+<<>>=
+s <- getSequences(db, rank="id", name="1250", table="sequences")
+s
+@
+
+
 We can obtain the classification hierarchy used in 
 the database with \func{getClassification}.     
 <<>>=
@@ -669,8 +677,7 @@ list.files("models/phylum")
 
 A model can be loaded using the \func{readRDS}.
 <<>>=
-model <- readRDS("models/phylum/Proteobacteria.rds")
-model
+	
 @
 
 
@@ -680,7 +687,7 @@ the models stored in a directory using \func{scoreSequence}.
 <<>>=
 random_sequences <- getSequences(db, table="NSV", limit=1, random=TRUE)
 random_sequences
-scoreSequence(model, random_sequences[[1]])
+scoreSequence(model, random_sequences[[1]],plus_one=TRUE)
 @
 
 

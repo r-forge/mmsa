@@ -92,7 +92,7 @@ print.GenDB <- function(x, ...) {
 
 getClassification <- function(db) {
     cl <- dbListFields(db$db, "classification")
-    cl <- head(cl, length(cl)-1L)   ### remove data
+    cl <- head(cl, length(cl))   ### remove data
     cl
 }
 
@@ -103,17 +103,29 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
     dbGetQuery(db$db, 
 	    statement = paste("SELECT DISTINCT classification.",cols,
 		    " FROM classification ", 
-		    .getWhere(db, whereRank, whereName)))
+		    .getWhere(db, whereRank, whereName), " ORDER BY ",cols))
 }
 
-getHierarchy <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
+getAllRanks <- function(db, rank=NULL, whereRank=NULL, whereName=NULL) {
     fields <- getClassification(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
     dbGetQuery(db$db, 
 	    statement = paste("SELECT  classification.",cols,
 		    " FROM classification ", 
-		    .getWhere(db, whereRank, whereName)))
+		    .getWhere(db, whereRank, whereName), " ORDER BY ",cols))
+}
+
+getHierarchy <- function(db, rank, name)
+{
+	hierarchy<- GenClass16S_Greengenes()
+	rankNum<- which(tolower(names(hierarchy))==tolower(.pmatchRank(db,rank)))
+	for(i in 1:(rankNum))
+		{
+			hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
+		}
+	#hierarchy[rankNum] <- .pmatchRank(db,rank)
+	return(hierarchy)
 }
 
 nSequences <- function(db, rank=NULL, name=NULL) {
@@ -124,13 +136,18 @@ nSequences <- function(db, rank=NULL, name=NULL) {
 }
 
 
-getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE, start=1, length=100000000) {
+getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1, random=FALSE, start=1, length=Inf) {
 
     if(limit[1]<0) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
     
 	if(random)  
     	limit <- paste(" ORDER BY RANDOM() ",limit)
+	#make length SQL compatible
+	if (length==Inf)
+		lengthFilter= "data"
+	else
+		lengthFilter = paste("substr(data,",start,",",length,")",sep="")
 
 	if (!is.null(rank)) {    
 		fullRank<-.pmatchRank(db,rank)
@@ -139,29 +156,49 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	}
 	else
 		fullRankSQL <-"-1"
-	res <- dbGetQuery(db$db, 
-		statement = paste("SELECT substr(data,",start,",",length,") AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
-		" INNER JOIN classification ON classification.id = ",
-		table, ".id ", 
-		.getWhere(db, rank, name), limit)
-	    )
-
-    if (table !="sequences") {
-	ret <- lapply(res$data,decodeSequence)
-	#get metadata about the table
-	meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
-	x<-unlist(strsplit(meta,";"))	
-	attr(ret,"window")<-sub("window=","",x[3])
-	attr(ret,"overlap") <- sub("overlap=","",x[4])
-	attr(ret,"word")<-sub("word=","",x[5])
-	attr(ret,"last_window")<-sub("last_window=","",x[6])	
-	if(!is.null(rank)) {
-	    attr(ret,"rank")<-fullRank
-	    #this returns the values of the fullRank i.e. rankName from the db
-		attr(ret,"name")<-res$fullRank
+	
+	#different route for NSV segments
+	#get Sequences in memory and convert to NSV using in-memory function createNSVSet
+	if(table!="sequences" && length!=Inf) {
+		res <- dbGetQuery(db$db, 
+			statement = paste("SELECT ", lengthFilter ," AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM sequences ", 
+			" INNER JOIN classification ON classification.id = sequences.id ",
+			.getWhere(db, rank, name), limit)
+	    	)
 	}
-	attr(ret,"id")<-res$id
-	class(ret) <- "NSVSet"
+	else {		
+		res <- dbGetQuery(db$db, 
+			statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
+			" INNER JOIN classification ON classification.id = ",
+			table, ".id ", 
+			.getWhere(db, rank, name), limit)
+	    	)
+	}
+    
+	if (table !="sequences") {
+		#get metadata about the table
+		meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
+		x<-unlist(strsplit(meta,";"))	
+		window <-as.numeric(sub("window=","",x[3]))
+		overlap <- as.numeric(sub("overlap=","",x[4]))
+		word <-as.numeric(sub("word=","",x[5]))
+		last_window <-sub("last_window=","",x[6])
+		#need to convert DNA sequences into NSV in-memory
+		if(length!=Inf)
+			ret <- createNSVSet(res$data, window=window, overlap=overlap, word=word, last_window=last_window) 	
+		else	
+			ret <- lapply(res$data,decodeSequence)
+		attr(ret,"window")<- window
+		attr(ret,"overlap") <- overlap
+		attr(ret,"word")<- word
+		attr(ret,"last_window")<- last_window
+		if(!is.null(rank)) {
+	    	attr(ret,"rank")<-fullRank
+	    	#this returns the values of the fullRank i.e. rankName from the db
+			attr(ret,"name")<-res$fullRank
+		}
+		attr(ret,"id")<-res$id
+		class(ret) <- "NSVSet"
     }else{
 	ret <- DNAStringSet(res$data)
 	names(ret) <- res$id
