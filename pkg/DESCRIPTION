@@ -3,8 +3,8 @@ Type: Package
 Title: Markov Models in Sequence Analysis
 Version: 0.0-3
 Date: 20xx-xx-xx
-Author:  Andy Nagar and Michael Hahsler
-Maintainer: Michael Hahsler <michael@hahsler.net>, Andy Nagar <andynagar@yahoo.edu>
+Author:  Anurag Nagar and Michael Hahsler
+Maintainer: Michael Hahsler <michael@hahsler.net>, Anurag Nagar <andynagar@yahoo.edu>
 Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, comparison, and classification. The package can read NCBI and Greengenes format fasta files and parse them into relational databases for further analysis. This work is supported by grant R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
 Depends: rEMM (>= 1.0-5), DBI, RSQLite, caTools, Biostrings
