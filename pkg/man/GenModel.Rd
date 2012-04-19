@@ -8,6 +8,8 @@
 \alias{recluster}
 \alias{getClusteringDetails}
 \alias{getClusteringSequences}
+\alias{plot.NSVSet}
+\alias{plotSeqLogo}
 \title{
 Manage Gene Sequence Models
 }

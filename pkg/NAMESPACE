@@ -21,7 +21,6 @@ export(
 	createNSVSet,
 	createNSVTable,
 	dropNSVTable,
-
 	genModel,
 	genModelDB,
 	processSequences,
@@ -29,9 +28,10 @@ export(
 	classify,
 	validateModels,
 	scoreSequence,
-
 	clustal,
-	simRank
+	simRank,
+	plot.NSVSet,
+	plotSeqLogo
 )
 
 

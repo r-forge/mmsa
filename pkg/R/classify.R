@@ -46,12 +46,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		x <- x[-train]
 		#get which indices are to be used for testing
 		test <- sample(x,test)
-		#selList<-sample(c(rep(1,train),rep(0,test)))
-		#sel contains the sequences which have been selected for training
-		#sel<-which(selList==1)
-		#notsel contains the test sequences
-		#notsel<-which(selList==0)
-		#create model using the training set
 		emm<-genModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them

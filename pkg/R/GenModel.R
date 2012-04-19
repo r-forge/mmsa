@@ -37,13 +37,6 @@ genModelDB <- function(db, rank=NULL, name=NULL, table,
     emm <- EMM(measure=measure,threshold=threshold)
     
     nSequences<-nSequences(db,rank,name)
-	#hierarchy<- GenClass16S_Greengenes()
-	#rankNum<- which(names(hierarchy)==.pmatchRank(db,rank))
-	#for(i in 1:(rankNum-1))
-	#	{
-	#		hierarchy[i]<-getRank(db,rank=names(hierarchy)[i],whereRank=rank,whereName=name)
-	#	}
-	#hierarchy[rankNum] <- .pmatchRank(db,rank)
 	hierarchy <- getHierarchy(db,rank,name)
 
 	if (limit != -1) nSequences <- min(nSequences,limit)
@@ -117,10 +110,16 @@ getClusteringDetails <- function(model, modelState=-1)
 			#check whether we should add a new index or append to an existing states index
 			#if the state is not new, append to its list
 			if(length(states) >= state)
-				states[[state]][length(states[[state]])+1] <- paste(sequence,j,sep=":")
-			#if state is new create a new index
+				{
+					#states[[state]][length(states[[state]])+1] <- paste(sequence,j,sep=":")
+					states[[state]] <- rbind(states[[state]],c(sequence,j))
+				}	
+			#if state is new create a new matrix
 			else
-				states[[state]]<-paste(sequence,j,sep=":")
+				{
+				#states[[state]]<-paste(sequence,j,sep=":")
+					states[[state]]<-matrix(c(sequence,j),ncol=2,dimnames=list(NULL,c("sequence","segment")))
+				}
 		}
 	}
 	if (modelState==-1)
@@ -128,10 +127,10 @@ getClusteringDetails <- function(model, modelState=-1)
 	else
 	{
 		state<- states[[modelState]]
-		stateIds <- vector()
-		for(i in 1:length(state))
-			stateIds[i] <- state[i]
-		return(stateIds)
+		#stateIds <- vector()
+		#for(i in 1:length(state))
+		#	stateIds[i] <- state[i]
+		return(state)
 	}
 }
 
@@ -148,12 +147,14 @@ getClusteringSequences <- function(db, model, modelState, table="sequences")
 		else
 			stateSequences <- list()
 		#loop through all the ids that are part of the modelstate		
-		for(i in 1:length(ids))
+		for(i in 1:nrow(ids))
 			{
-				id <- ids[i]
+				id <- ids[i,]
 				#split the sequence on ":" and get sequenceid and segment
-				sequence <- unlist(strsplit(id,split=":"))[1]
-				segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
+				#sequence <- unlist(strsplit(id,split=":"))[1]
+				sequence <- as.numeric(id["sequence"])
+				#segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
+				segment <- as.numeric(id["segment"])
 				#get window size from the model
 				window <- as.numeric(model$window)
 				#get the start position of the segment eg:1, 101, 201 etc
@@ -166,6 +167,47 @@ getClusteringSequences <- function(db, model, modelState, table="sequences")
 
 		return(stateSequences)
 }
+
+#plots a barplot with error bars
+plot.NSVSet <- function(x, ...)
+{
+	mean <- rowSums(sapply(x,colSums))/length(x)
+	minVal <- apply(sapply(x,colMeans),MARGIN=1,min)
+	maxVal <- apply(sapply(x,colMeans),MARGIN=1,max)
+	bp <- barplot(mean, ylim=c(min(minVal),max(maxVal)))
+	errbar(bp, mean, maxVal, minVal, add=T)
+
+}
+
+#plot a sequence logo
+plotSeqLogo <- function(dnastringset, start=1, end=Inf)
+{
+	if(class(dnastringset)!="DNAStringSet") stop("Input is not of class DNAStringSet")
+	dnastringset <- as.matrix(dnastringset)
+	countList <- list()
+	for(i in 1:ncol(dnastringset))
+		countList[[i]] <- table(dnastringset[,i])
+	#countList <-apply(dnastringset,2,FUN=function(x){table(x)})
+	countMatrix <- matrix(nrow=4,ncol=length(countList))
+	for(i in 1:length(countList))
+	{
+		x <- vector()
+		x[1] <- countList[[i]]["A"]
+		x[2] <- countList[[i]]["C"]
+		x[3] <- countList[[i]]["T"]
+		x[4] <- countList[[i]]["G"]
+		x[is.na(x)]<-0
+		sum<-sum(x)
+		x<- sapply(x,FUN=function(x){x/sum})
+		countMatrix[,i] <- x
+	}
+	if(end==Inf)
+		end <- ncol(countMatrix)
+	countMatrix <- countMatrix[,start:end]
+	pwm <- makePWM(countMatrix)
+	seqLogo(pwm)
+}
+
 
 
 #takes a model and returns the clusterInfo i.e. how many states and which sequence goes to which cluster
@@ -182,8 +224,6 @@ getClusteringSequences <- function(db, model, modelState, table="sequences")
 			else
 				end<-startStates[j+1]-1
 			clusterInfo[[offset+j]]<-last_clustering[start:end]
-			#clusterInfo <- c(clusterInfo,last_clustering[start:end])
-			#clusterInfo <- c(clusterInfo,last_clustering[start:end])
 		}
 		return(clusterInfo) 
 }
@@ -195,8 +235,7 @@ getClusteringSequences <- function(db, model, modelState, table="sequences")
 ### print basic info about a model
 print.GenModel <- function(x, ...) {
     cat("Object of class GenModel with", x$nSequences, "sequences\n")
-    cat(x$rank,": ", x$name, "\n", sep="")
-
+	cat(x$rank,": ");cat(x$name,sep=", ");cat("\n")
     cat("\nModel:\n")
     print(x$model)
 }
