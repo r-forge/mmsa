@@ -179,33 +179,47 @@ plot.NSVSet <- function(x, ...)
 
 }
 
-#plot a sequence logo
-plotSeqLogo <- function(dnastringset, start=1, end=Inf)
+#plot.DNAStringSet <- function(x, ...)
+#{
+#	print("hello")
+#}
+
+#setGeneric("seqLogo", function(x, ...) print("Default"))
+#setMethod("seqLogo",signature(x="DNAStringSet"), function(x, start=1, end=Inf) {
+seqLogo.default <- function(x,start=1, end=Inf, ...)
 {
-	if(class(dnastringset)!="DNAStringSet") stop("Input is not of class DNAStringSet")
-	dnastringset <- as.matrix(dnastringset)
+	if (isS4(x)) seqLogo.DNAStringSet(x,start, end, ...)
+	else
+		print("Default")
+}
+
+seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
+{
+	if(class(x)!="DNAStringSet") stop("Input is not of class DNAStringSet")
+	x <- as.matrix(x)
+	class(x) <- "matrix"
 	countList <- list()
-	for(i in 1:ncol(dnastringset))
-		countList[[i]] <- table(dnastringset[,i])
-	#countList <-apply(dnastringset,2,FUN=function(x){table(x)})
+	for(i in 1:ncol(x))
+		countList[[i]] <- table(x[,i])
+	#countList <-apply(x,2,FUN=function(x){table(x)})
 	countMatrix <- matrix(nrow=4,ncol=length(countList))
 	for(i in 1:length(countList))
 	{
-		x <- vector()
-		x[1] <- countList[[i]]["A"]
-		x[2] <- countList[[i]]["C"]
-		x[3] <- countList[[i]]["T"]
-		x[4] <- countList[[i]]["G"]
-		x[is.na(x)]<-0
-		sum<-sum(x)
-		x<- sapply(x,FUN=function(x){x/sum})
-		countMatrix[,i] <- x
+		v <- vector()
+		v[1] <- countList[[i]]["A"]
+		v[2] <- countList[[i]]["C"]
+		v[3] <- countList[[i]]["T"]
+		v[4] <- countList[[i]]["G"]
+		v[is.na(v)]<-0
+		sum<-sum(v)
+		v<- sapply(v,FUN=function(v){v/sum})
+		countMatrix[,i] <- v
 	}
 	if(end==Inf)
 		end <- ncol(countMatrix)
-	countMatrix <- countMatrix[,start:end]
+	countMatrix <- as.matrix(countMatrix[,start:end])
 	pwm <- makePWM(countMatrix)
-	seqLogo(pwm)
+	seqLogo::seqLogo(pwm)
 }
 
 

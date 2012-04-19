@@ -31,7 +31,10 @@ export(
 	clustal,
 	simRank,
 	plot.NSVSet,
-	plotSeqLogo
+	seqLogo.default,
+	seqLogo.DNAStringSet
+	#plot.DNAStringSet
+	#plotSeqLogo
 )
 
 
