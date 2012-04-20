@@ -179,13 +179,6 @@ plot.NSVSet <- function(x, ...)
 
 }
 
-#plot.DNAStringSet <- function(x, ...)
-#{
-#	print("hello")
-#}
-
-#setGeneric("seqLogo", function(x, ...) print("Default"))
-#setMethod("seqLogo",signature(x="DNAStringSet"), function(x, start=1, end=Inf) {
 seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
 {
 	s <- Biostrings::as.matrix(x)
