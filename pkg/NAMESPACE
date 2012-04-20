@@ -1,10 +1,8 @@
 
 export( 
 	GenClass16S,
-
 	GenClass16S_Greengenes,
 	addSequencesGreengenes,
-
 	createGenDB,
 	openGenDB,
 	closeGenDB,
@@ -31,15 +29,16 @@ export(
 	clustal,
 	simRank,
 	plot.NSVSet,
-	seqLogo.default,
+	#seqLogo
+	#seqLogo.default,
 	seqLogo.DNAStringSet
 	#plot.DNAStringSet
-	#plotSeqLogo
 )
-
+import(
+	Biostrings
+)
 
 S3method(print, GenDB)
 S3method(print, NSVSet)
 S3method(print, GenModel)
 S3method(plot, GenModel)
-

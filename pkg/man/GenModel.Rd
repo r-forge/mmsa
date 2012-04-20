@@ -9,7 +9,7 @@
 \alias{getClusteringDetails}
 \alias{getClusteringSequences}
 \alias{plot.NSVSet}
-\alias{plotSeqLogo}
+\alias{seqLogo.DNAStringSet}
 \title{
 Manage Gene Sequence Models
 }

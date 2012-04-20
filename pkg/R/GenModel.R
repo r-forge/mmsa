@@ -186,22 +186,15 @@ plot.NSVSet <- function(x, ...)
 
 #setGeneric("seqLogo", function(x, ...) print("Default"))
 #setMethod("seqLogo",signature(x="DNAStringSet"), function(x, start=1, end=Inf) {
-seqLogo.default <- function(x,start=1, end=Inf, ...)
-{
-	if (isS4(x)) seqLogo.DNAStringSet(x,start, end, ...)
-	else
-		print("Default")
-}
-
 seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
 {
+	s <- Biostrings::as.matrix(x)
 	if(class(x)!="DNAStringSet") stop("Input is not of class DNAStringSet")
 	x <- as.matrix(x)
-	class(x) <- "matrix"
+	#class(x) <- "matrix"
 	countList <- list()
-	for(i in 1:ncol(x))
-		countList[[i]] <- table(x[,i])
-	#countList <-apply(x,2,FUN=function(x){table(x)})
+	for(i in 1:ncol(s))
+		countList[[i]] <- table(s[,i])
 	countMatrix <- matrix(nrow=4,ncol=length(countList))
 	for(i in 1:length(countList))
 	{
