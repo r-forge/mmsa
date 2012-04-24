@@ -175,6 +175,7 @@ getSequences <- function(db,  rank=NULL, name=NULL, table="sequences", limit=-1,
 	    	)
 	}
     
+	if (nrow(res) == 0) stop("No rows found in the database")
 	if (table !="sequences") {
 		#get metadata about the table
 		meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])

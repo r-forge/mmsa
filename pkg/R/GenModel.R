@@ -181,31 +181,15 @@ plot.NSVSet <- function(x, ...)
 
 seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
 {
-	s <- Biostrings::as.matrix(x)
-	if(class(x)!="DNAStringSet") stop("Input is not of class DNAStringSet")
-	x <- as.matrix(x)
-	#class(x) <- "matrix"
-	countList <- list()
-	for(i in 1:ncol(s))
-		countList[[i]] <- table(s[,i])
-	countMatrix <- matrix(nrow=4,ncol=length(countList))
-	for(i in 1:length(countList))
-	{
-		v <- vector()
-		v[1] <- countList[[i]]["A"]
-		v[2] <- countList[[i]]["C"]
-		v[3] <- countList[[i]]["T"]
-		v[4] <- countList[[i]]["G"]
-		v[is.na(v)]<-0
-		sum<-sum(v)
-		v<- sapply(v,FUN=function(v){v/sum})
-		countMatrix[,i] <- v
-	}
-	if(end==Inf)
-		end <- ncol(countMatrix)
-	countMatrix <- as.matrix(countMatrix[,start:end])
-	pwm <- makePWM(countMatrix)
+	cm <- consensusMatrix(s,baseOnly=TRUE)
+	if (end == Inf)
+		end <- ncol(cm)
+	cm <- cm[,start:end]
+	for(i in 1:ncol(cm))
+		cm[,i] <- cm[,i]/colSums(cm)[i]
+	pwm <- makePWM(cm)
 	seqLogo::seqLogo(pwm)
+	
 }
 
 
