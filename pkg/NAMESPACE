@@ -28,7 +28,7 @@ export(
 	scoreSequence,
 	clustal,
 	simRank,
-	#plot.NSVSet,
+	plot.NSVSet,
 	seqLogo.DNAStringSet,
 	modelStatesPlot,
 	compareSequences,
