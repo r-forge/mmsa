@@ -106,7 +106,7 @@ getClusteringDetails <- function(model, modelState=-1)
 		#loop over all models that the sequence goes through
 		for(j in 1:length(model$clusterInfo[[i]]))
 		{
-			state <- model$clusterInfo[[i]][j]
+			state <- as.numeric(model$clusterInfo[[i]][j])
 			#check whether we should add a new index or append to an existing states index
 			#if the state is not new, append to its list
 			if(length(states) >= state)
@@ -126,7 +126,7 @@ getClusteringDetails <- function(model, modelState=-1)
 		return(states)
 	else
 	{
-		state<- states[[modelState]]
+		state<- states[[as.numeric(modelState)]]
 		#stateIds <- vector()
 		#for(i in 1:length(state))
 		#	stateIds[i] <- state[i]
@@ -174,7 +174,7 @@ plot.NSVSet <- function(x, ...)
 	mean <- rowSums(sapply(x,colSums))/length(x)
 	minVal <- apply(sapply(x,colMeans),MARGIN=1,min)
 	maxVal <- apply(sapply(x,colMeans),MARGIN=1,max)
-	bp <- barplot(mean, ylim=c(min(minVal),max(maxVal)))
+	bp <- barplot(mean, ylim=c(min(minVal),max(maxVal)), las=2)
 	errbar(bp, mean, maxVal, minVal, add=T)
 
 }
@@ -184,11 +184,11 @@ seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
 	cm <- consensusMatrix(s,baseOnly=TRUE)
 	if (end == Inf)
 		end <- ncol(cm)
-	cm <- cm[,start:end]
+	cm <- cm[1:4,start:end]
 	for(i in 1:ncol(cm))
 		cm[,i] <- cm[,i]/colSums(cm)[i]
 	pwm <- makePWM(cm)
-	seqLogo::seqLogo(pwm)
+	seqLogo::seqLogo(pwm, ic.scale=FALSE, ...)
 	
 }
 

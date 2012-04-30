@@ -1,0 +1,119 @@
+modelStatesPlot <- function (model, states)
+{
+		#xrange is the max number of windows from all the sequences
+		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))
+		#yrange is the number of sequences
+		yrange <- model$nSequences
+		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
+		#labels for x axis
+		axis(1, at=1:xrange, lab=c(1:xrange))
+		axis(2, at=1:yrange, lab=names(model$clusterInfo))
+		abline(h=c(1:yrange), col="grey")
+	
+	for(modelState in states)
+	{
+		#get meta info from clustering details of the model
+		cd <- getClusteringDetails(model, modelState)
+		#get the sequences which are part of the state 
+		sequences <- cd[,1]
+		#get the indexes of the sequences
+		sequenceInd <- which(names(model$clusterInfo) %in% sequences)
+		#get the segments
+		segments <- cd[,2]
+		lines(as.numeric(segments),sequenceInd, col="blue", lwd=2)
+		lines(as.numeric(segments)+1,sequenceInd, col="blue", lwd=2)
+		for(i in 1:length(sequenceInd))
+			lines(c(as.numeric(segments[i]),as.numeric(segments[i])+1),c(sequenceInd[i],sequenceInd[i]), col="red", lwd=2)
+	}
+
+}
+
+compareSequences <- function(model, sequences)
+{
+		#xrange is the max number of windows from all the sequences
+		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))
+		#yrange is the number of sequences
+		yrange <- model$nSequences
+		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
+		#labels for x axis
+		axis(1, at=1:xrange, lab=c(1:xrange))
+		axis(2, at=1:yrange, lab=names(model$clusterInfo))
+		abline(h=c(1:yrange), col="grey")
+
+		if (length(sequences) < 2) stop("Need to compare at least 2 sequences")
+	
+		ci <- model$clusterInfo
+		common <- intersect( ci[[sequences[1]]], ci[[sequences[2]]] )
+		
+		if(length(sequences) >= 3)
+			for(i in seq(3,length(sequences))) common <- intersect(common, ci[[sequences[i]]])	
+		
+		if (length(common)==0) print("No common states found between those sequences")
+		for(modelState in common)
+		{
+			#get meta info from clustering details of the model
+			cd <- getClusteringDetails(model, modelState)
+			#get the sequences 
+			modelSequences <- cd[,1]
+			#get the indexes of the sequences in the model
+			sequenceInd <- which(names(model$clusterInfo) %in% modelSequences)
+			#find missing indexes
+			missing <- which(!(sequenceInd %in% sequences))	
+			#filter down to just the required
+			sequenceInd <- intersect(sequenceInd, sequences)
+			#get the segments
+			segments <- as.numeric(cd[,2])
+			if (length(missing) > 0 )
+				segments <- segments[-missing]
+			lines(segments,sequenceInd, col="blue", lwd=2)
+			lines(segments+1,sequenceInd, col="blue", lwd=2)
+			for(i in 1:length(sequenceInd))
+					lines(c(segments[i],segments[i]+1),c(sequenceInd[i],sequenceInd[i]), col="red", lwd=2)
+		}
+
+
+}
+
+findLargestCommon <- function(model, limit=NA)
+{
+	largestCommon <- list()
+	ci <- model$clusterInfo
+	if(!is.na(limit)) 
+		limit <-min(limit,model$nSequences-1)
+	else
+		limit <- model$nSequences-1
+
+	for(r in seq(2,limit))
+	#for(r in 4:4)
+	{
+		#take 
+		comb <- combn(names(ci), r)
+		maxCommon <- 0
+		maxList <-vector()
+		for(i in 1:ncol(comb))
+		{
+			#take 2 at a time
+			common <- intersect(unlist(ci[comb[1,i]]),unlist(ci[comb[2,i]]))
+			if (nrow(comb) >= 3)
+			{
+				for(j in 3:nrow(comb))
+				{	
+					common <- intersect(common, unlist(ci[comb[j,i]]))
+				}
+			}
+			
+			if (length(common) > maxCommon) 
+				{
+					maxCommon <- length(common)
+					maxList <- as.vector(comb[,i])
+				}
+
+		}
+			#cat("size = ",r," has max common = ",maxCommon,"\n")
+			#print(maxList)			
+			largestCommon[[r]]<-which(names(ci) %in% maxList)
+			
+	}
+	return(largestCommon)
+}
+

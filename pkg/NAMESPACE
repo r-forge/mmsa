@@ -28,11 +28,11 @@ export(
 	scoreSequence,
 	clustal,
 	simRank,
-	plot.NSVSet,
-	#seqLogo
-	#seqLogo.default,
-	seqLogo.DNAStringSet
-	#plot.DNAStringSet
+	#plot.NSVSet,
+	seqLogo.DNAStringSet,
+	modelStatesPlot,
+	compareSequences,
+	findLargestCommon
 )
 import(
 	Biostrings
