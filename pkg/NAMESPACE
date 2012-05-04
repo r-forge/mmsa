@@ -28,8 +28,8 @@ export(
 	scoreSequence,
 	clustal,
 	simRank,
-	plot.NSVSet,
-	seqLogo.DNAStringSet,
+	plot.DNAStringSet,
+	#seqLogo.DNAStringSet,
 	modelStatesPlot,
 	compareSequences,
 	findLargestCommon
@@ -40,5 +40,6 @@ import(
 
 S3method(print, GenDB)
 S3method(print, NSVSet)
+S3method(plot, NSVSet)
 S3method(print, GenModel)
 S3method(plot, GenModel)

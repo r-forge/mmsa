@@ -179,20 +179,20 @@ plot.NSVSet <- function(x, ...)
 
 }
 
-seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
+.seqLogo.DNAStringSet <- function(x, start=1, end=NULL, ic.scale=FALSE, ...)
 {
-	cm <- consensusMatrix(s,baseOnly=TRUE)
-	if (end == Inf)
+	cm <- consensusMatrix(x,baseOnly=TRUE)
+	if (is.null(end))
 		end <- ncol(cm)
 	cm <- cm[1:4,start:end]
 	for(i in 1:ncol(cm))
 		cm[,i] <- cm[,i]/colSums(cm)[i]
 	pwm <- makePWM(cm)
-	seqLogo::seqLogo(pwm, ic.scale=FALSE, ...)
+	seqLogo::seqLogo(pwm, ic.scale,  ...)
 	
 }
 
-
+plot.DNAStringSet <- function(x, start=1, end=NULL, ...) .seqLogo.DNAStringSet(x, start, end, ...)
 
 #takes a model and returns the clusterInfo i.e. how many states and which sequence goes to which cluster
 .getClusterInfo <- function(clusterInfo, last_clustering, offset)
@@ -207,7 +207,7 @@ seqLogo.DNAStringSet <- function(x, start=1, end=Inf, ...)
 				end<-length(last_clustering)
 			else
 				end<-startStates[j+1]-1
-			clusterInfo[[offset+j]]<-last_clustering[start:end]
+			clusterInfo[[offset+j]]<-as.integer(last_clustering[start:end])
 		}
 		return(clusterInfo) 
 }

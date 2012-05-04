@@ -121,20 +121,20 @@ set.seed(1234)
 @
 
 \section{Introduction}
-Metagenomics~\citep{sequence:Handelsman:1998} 
-and the Human Microbiome~\citep{sequence:Turnbaugh:2007, sequence:Volker:2010}
+Metagenomics~\cite{sequence:Handelsman:1998} 
+and the Human Microbiome~\cite{sequence:Turnbaugh:2007, sequence:Volker:2010}
 provide a complex landscape for dealing with a
 multitude of genomes all at once. One of the many challenges in this field is
 classification of the genomes present in the sample. Effective metagenomic
 classification and diversity analysis require complex representations of taxa.
 
 A common characteristic of most sequence-based classification techniques (e.g.,
-BAlibase~\citep{sequence:Smith:1981},
-BLAST~\citep{sequence:Altschul:1990}, 
-T-Coffee~\citep{sequence:Notredame:2000},
-MAFFT~\citep{sequence:Katoh:2002}, 
-MUSCLE~\citep{sequence:Edgar:2004,sequence:Edgar:2004b}, 
-Kalign~\citep{sequence:Lassmann:2006} and
+BAlibase~\cite{sequence:Smith:1981},
+BLAST~\cite{sequence:Altschul:1990}, 
+T-Coffee~\cite{sequence:Notredame:2000},
+MAFFT~\cite{sequence:Katoh:2002}, 
+MUSCLE~\cite{sequence:Edgar:2004,sequence:Edgar:2004b}, 
+Kalign~\cite{sequence:Lassmann:2006} and
 ClustalW2 and ClustalX2~\citep{sequence:Larkin:2007}) 
 is the use of computationally very expensive sequence alignment.
 Statistical signatures~\citep{sequence:Vinga:2003} created from 
@@ -143,7 +143,7 @@ frequencies offer an alternative to using classic alignment. These
 alignment-free methods reduce processing time and 
 look promising for whole genome
 phylogenetic analysis where previously used methods do not scale 
-well~\citep{sequence:Thompson:1999}.
+well~\cite{sequence:Thompson:1999}.
 However, pure alignment-free methods typically do not provide the desired
 classification accuracy and do not offer large preprocessed databases which
 makes the comparison of a sequence with a large set of known sequences
@@ -155,9 +155,9 @@ no alignment and scale well for large scale data because it is based on
 high-throughput data stream clustering techniques resulting in so called
 quasi-alignments. Also the growth rate of the size of the learned profile
 models has proven to be sublinear due to the compression achieved by 
-clustering~\citep{hahsler:Kotamarti:2010}.
+clustering~\cite{hahsler:Kotamarti:2010}.
 Note also that the topology of the model is not
-predetermined (as for HMMs~\citep{sequence:Eddy:1998}), but is learned through the associated
+predetermined (as for HMMs~\cite{sequence:Eddy:1998}), but is learned through the associated
 machine learning algorithms.
 
 %%This paper is organized as follows. In Section ...
@@ -726,9 +726,152 @@ table(validation$prediction[,"actual"],
     validation$prediction[,"predicted"])
 @
 
+\subsection{Visualizing Sequences and NSVs}
+One of the unique advantages of MMSA is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.
+In this section, we will show how MMSA can be used to plot sequences and visualize similar portions or segments of sequences. Since we already have clusters and associated sequence details available as metadata information in the model, visualization is extremely fast and rapid. Thus it is a very powerful and efficient alternative to multiple sequence alignment. It can provide a visual clue about similar portions of sequences or areas of a sequence which are highly conserved across species.
+
+Each model has associated metadata which gives a list of sequences. Each list contains a vector of states to which the corresponding segments are classified to.
+Here is an example:
+
+<<>>=
+model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV")
+model$clusterInfo
+@
+
+In certain cases, we are interested in finding details about each state - such as which sequences and segments are part of that state. This can be easily obtained using the \func{getClusteringDetails}.
+
+<<>>=
+getClusteringDetails(model,modelState=17)
+@
+
+The above command gives the sequences and the segments within them that are part of the state 17. The \textit{modelState} parameter can be ommitted to obtain details of all the states. If you would like to see the actual segments that are part of a state, the function \func{getClusteringSequences} comes handy. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
+
+<<>>=
+sequences <- getClusteringSequences(db, model, modelState=17, table="sequences")
+nsv <- getClusteringSequences(db, model, modelState=17, table="NSV")
+nsv[1:2]
+@
+
+A clearer picture about the clustering will emerge when we visualize the sequences and segments and see how they fit into clusters. In this section, we will introduce some of the plots that are commonly used in the Biological sciences such as the Sequence Logo plot.  We will also use the barplot to plot the distribution of NSVs in a cluster of sequences. 
+The following command illustrates how a \textbf{Sequence Logo} plot can be obtained easily using MMSA.
 
 
-\subsection{Conclusion}
+
+<<EMM_4, fig=TRUE, include=FALSE>>=
+plot(sequences,1,10)
+@
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_4}
+\caption{Sequence Logo plot of the first 10 sequences}
+\label{fig:Sequence_Logo}
+\end{figure}
+
+In the Figure \ref{fig:Sequence_Logo}, only the first 10 sequences have been shown. The \textit{start} and \textit{end} parameters can be varied to obtain sequence logos for different segments of the sequences. Sequence logos provide a powerful way to visualize the consensus sequences at each position. Consensus sequences can also be obtained using the function \func{consensusString}.
+<<>>=
+consensus <- consensusString(sequences)
+substring(consensus, 1, 10)
+@
+
+Similarly, consensus matrix can also be created using all the combinations or just the DNA bases.
+<<>>=
+consensusMat <- consensusMatrix(sequences)
+consensusMat[1:5,1:10]
+consensusMat <- consensusMatrix(sequences, baseOnly=TRUE)
+consensusMat[1:5,1:10]
+@
+
+In certain cases, we might want to visually see which sequences and segments are classified together. For that, the function \func{modelStatesPlot} comes handy. It can take one or more sequences and visually show which sequences are part of it.
+
+<<EMM_5, fig=TRUE, include=FALSE>>=
+modelStatesPlot(model,17)
+@
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_5}
+\caption{Plot showing the sequences and segments which are part of state 17}
+\label{fig:modelStatesPlot}
+\end{figure}
+
+We can also visualize more than one states easily.
+
+<<EMM_6, fig=TRUE, include=FALSE>>=
+modelStatesPlot(model,c(3:6))
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_6}
+\caption{Plot showing the sequences and segments which are part of states 3 through 6}
+\label{fig:modelStatesPlotMultiple}
+\end{figure}
+
+One of the more popular approaches in bioinformatics for comparing and analyzing sequences is \textbf{Multiple Sequence Alignment}. It is often a computationally expensive process involving comparing each base one at a time between pairs of sequences. MMSA is based on a rapid clustering approach and is thus able to accomplish rapid clustering and classification of sequences. The function \func{compareSequences} can compare two or more genetic sequences and find areas of similarity between them. It visually depicts segments (or windows) which are clustered together in a state.
+
+<<EMM_7, fig=TRUE, include=FALSE>>=
+compareSequences(model,sequences=c(2,3))
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_7}
+\caption{Comparing Sequences of the model to visually analyze similar areas.}
+\label{fig:compareSequences}
+\end{figure}
+
+Figure \ref{fig:compareSequences} shows a comparison of sequences 2 and 3. It can be thought of as similar to Sequence Alignment, but we deal with similar windows (or segments of sequences) rather than individual bases. The labels on the windows show the state to which they are classified to. This approach is computationally more efficient than the approach taken by sequence alignment. Similarly, we can easily compare more than two sequences. Figure \ref{fig:compareSequencesMultiple} shows how we can compare more than two sequences by modifying the \textit{sequences} parameter in the \func{compareSequences} function. Note that the \textit{sequences} parameter takes the index of the number of the sequences.
+
+<<EMM_8, fig=TRUE, include=FALSE>>=
+compareSequences(model,sequences=c(2:4))
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_8}
+\caption{Comparing Multiple Sequences of the model to visually analyze similar areas.}
+\label{fig:compareSequencesMultiple}
+\end{figure}
+
+\subsection{Finding conserved segments across sequences}
+
+One of the problems in bioinformatics is finding sequences or segments across sequences that are highly similar. This is especially useful in functional and phylogenetic analysis of species and sequences. As a preliminary step, MMSA includes a function \func{findLargestCommon} which searches for two or more sequences in a model that have the largest common portions. The common areas are identified by getting a count of common segments and then finding those sequences that share the maximum number of common segments.
+
+<<>>=
+common <- findLargestCommon(model,limit=5)
+common
+@
+
+In the above code, the function \func{findLargestCommon} outputs a list containing sequences which share the maximum number of states. For example, the \textbf{second} element of the list would give the \textbf{two} sequences which share the maximum number of states and so on. It is possible to find the two most similar sequences by  the following command:
+
+<<EMM_9, fig=TRUE, include=FALSE>>=
+compareSequences(model,common[[2]])
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_9}
+\caption{The function \func{findLargestCommon} can be used to find the most common sequences. In this figure, we check for the 2 most similar sequences.}
+\label{fig:TwoMostSimilar}
+\end{figure}
+
+The output in Figure \ref{fig:TwoMostSimilar} shows that the sequences 13685 (index=1) and 13690 (index=5) share the most number of states and are likely very similar in functions and origin. In a similar way, we can find out  the three most similar sequences. Figure \ref{fig:ThreeMostSimilar} shows the results.
+
+<<EMM_10, fig=TRUE, include=FALSE>>=
+compareSequences(model,common[[3]])
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{MMSA-EMM_10}
+\caption{The function \func{findLargestCommon} can be used to find the most common sequences. In this figure, we check for the 3 most similar sequences.}
+\label{fig:ThreeMostSimilar}
+\end{figure}
+
+
+
+%%\subsection{Conclusion}
 %%...
 
 \section*{Acknowledgments}
