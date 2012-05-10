@@ -39,6 +39,8 @@ sequences
 ### run clustalW
 al <- clustal(sequences)
 al
+
+detail(al)
 }
 }
-\keyword{manip}
+\keyword{model}

@@ -13,7 +13,7 @@
 \usage{
 	nSequences(db, rank=NULL, name=NULL)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=-1, random=FALSE, start=1, length=Inf)
+	    limit=-1, random=FALSE, start=1, length=NULL)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -23,11 +23,11 @@
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
 	\item{random}{Get sequences in randomized order.} 
 	\item{start}{Start position for the subsequence.} 
-	\item{length}{Length of the subsequence.} 
+	\item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
 	
 }
 \value{
-	\code{getSequences()} returns a list of sequences.
+	\code{getSequences()} returns an object containing the sequences.
 }
 \details{
 	The function \code{getSequences()} returns a list of sequences satisfying a search criteria specified by the optional rank and name parameters.
@@ -44,8 +44,8 @@ db
 nSequences(db,"class","Clostridia")
 	
 ### get the first (limit=1) sequence
-getSequences(db,"class","Clostridia",table="sequences", limit=1)
+getSequences(db,"class","Clostridia",table="sequences", limit=2)
 	
 closeGenDB(db)
 }
-\keyword{manip}
+\keyword{database}

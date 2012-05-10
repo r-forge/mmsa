@@ -440,8 +440,8 @@ work is in progress to develop more readers for NCBI format FASTA files.
 The command below uses a FASTA file provided by the package, hence we use
 \func{system.file} instead of just a string with the file name.
 <<>>= 
-addSequencesGreengenes(db,
-system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
+addSequences(db,
+  system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
 @
 
 After inserting the sequences, various querying and limiting functions can be
@@ -466,41 +466,47 @@ Sequences in the database can also be filtered using classification
 information. For example, we can get all sequences of the genus name 
 ``Desulfosporomusa'' by specifying rank and name.
 <<>>=
-s <- getSequences(db, rank="genus", name="Desulfosporomusa")
+s <- getSequences(db, rank="Genus", name="Desulfosporomusa")
 s
 @
 
-To obtain unique sequences, getSequences can be used with rank equal to "id" and supplying the sequence's greengenes ID as the name.
-This will return one sequence which can be either in a DNA Sequence format or NSV format depending on the "table" parameter.
+To obtain a single sequence, getSequences can be used with rank equal to "id" and supplying the sequence's greengenes ID as the name.
 <<>>=
-s <- getSequences(db, rank="id", name="1250", table="sequences")
+s <- getSequences(db, rank="id", name="1250")
 s
 @
 
-
+The database also stores a classification hierarchy.
 We can obtain the classification hierarchy used in 
 the database with \func{getClassification}.     
 <<>>=
 getClassification(db)
 @
 
-
 To obtain all unique names stored in the database 
 for a given rank we can use \func{getRank}.     
 <<>>=
-getRank(db, rank="class")
+getRank(db, rank="Order")
 @
 
 The \Sexpr{nSequences(db)}~sequences 
 in our example data base contain
 organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
+We can obtain the rank name for each sequence individually by using
+\code{all=TRUE}. The folowing code counts how many sequences we have 
+for each order.
+<<>>=
+table(getRank(db, rank="Order", all=TRUE))
+@
 
 Filtering also works for \func{getRank}.
 For example, we can find the genera within the order
 ``Thermoanaerobacterales''.
 <<>>=
-getRank(db, rank="genus", whereRank="order", whereName="Thermo")
+getRank(db, rank="Genus", 
+    whereRank="Order", whereName="Thermo")
 @
+
 Note that partial matching is performed from ``Thermo'' to 
 ``Thermoanaerobacterales.'' Partial matching is available for ranks and 
 names in most operations in \pkg{MMSA}.
@@ -553,6 +559,7 @@ using \func{getSequences} in the same way as regular sequences.
 NSVs <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
 NSVs
 length(NSVs)
+names(NSVs)
 @
 
 The code above selects the NSVs for the genus ``Desulfosporomusa'' in
@@ -600,7 +607,7 @@ The NSVs created in the previous section can be used for model generation. The
 models can be created at for all 
 sequences in the database or for any set of sequences selected using filters.
 <<>>=
-model <- genModelDB(db, rank="Genus", name="Desulfosporomusa", table="NSV",
+model <- GenModelDB(db, rank="Genus", name="Desulfosporomusa", table="NSV",
     measure="Manhattan", threshold =30)
 model
 @
@@ -677,23 +684,22 @@ list.files("models/phylum")
 
 A model can be loaded using the \func{readRDS}.
 <<>>=
-	
+model <- readRDS("models/phylum/Firmicutes.rds")	
+model
 @
 
 
 Once all models have been constructed, they can be used to score and classify
-new sequences. We can compare the new sequence against just one model or all
+new sequences. We can compare the new sequences against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
 <<>>=
-random_sequences <- getSequences(db, table="NSV", limit=1, random=TRUE)
+random_sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
 random_sequences
-scoreSequence(model, random_sequences[[1]],plus_one=TRUE)
+scoreSequence(model, random_sequences)
 @
 
 
 {\bf FIXME: can we get the classification etc from the id attribute in random\_sequence?}
-
-{\bf FIXME: maybe scoreSequence could handle more sequences at a time!}
 
 The function \func{classify} can be used to classify sequences in NSV format 
 against all
@@ -707,7 +713,7 @@ table(classification$prediction[,"actual"],
     classification$prediction[,"predicted"])
 @
 
-{\bf FIXME: Better way to get the actual class!}
+{\bf FIXME: Better way to get the actual class! No need to specify the rank in getSequences.}
 
 \subsection{Assessing classification accuracy}
 
@@ -718,8 +724,7 @@ function \func{validateModels}.
 The parameter pctTest is used to specify
 the fraction of sequences to be used for test dataset. 
 <<>>=
-validation <- validateModels(db, modelDir="models", rank="phylum", 
-    table="NSV", pctTest=.1)
+validation <- validateModels(db, modelDir="models", rank="phylum", pctTest=.1)
 head(validation$scores)
 head(validation$prediction)
 table(validation$prediction[,"actual"], 
@@ -734,21 +739,26 @@ Each model has associated metadata which gives a list of sequences. Each list co
 Here is an example:
 
 <<>>=
-model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV")
+model <- GenModelDB(db, rank="Gen", name="Syntro")
 model$clusterInfo
 @
 
-In certain cases, we are interested in finding details about each state - such as which sequences and segments are part of that state. This can be easily obtained using the \func{getClusteringDetails}.
+In certain cases, we are interested in finding details about which 
+sequences and segments are part of a state. 
+This can be easily obtained using the \func{getClusteringDetails}.
 
 <<>>=
-getClusteringDetails(model,modelState=17)
+getClusteringDetails(model, state=17)
 @
 
-The above command gives the sequences and the segments within them that are part of the state 17. The \textit{modelState} parameter can be ommitted to obtain details of all the states. If you would like to see the actual segments that are part of a state, the function \func{getClusteringSequences} comes handy. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
+The above command gives the sequences and the segments within them that are part of the state 17. The \textit{state} parameter can be ommitted to obtain details of all the states. If you would like to see the actual segments that are part of a state, the function \func{getClusteringSequences} comes handy. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
 
 <<>>=
-sequences <- getClusteringSequences(db, model, modelState=17, table="sequences")
-nsv <- getClusteringSequences(db, model, modelState=17, table="NSV")
+sequences <- getClusteringSequences(db, model, state=17, table="sequences")
+sequences
+@
+<<>>=
+nsv <- getClusteringSequences(db, model, state=17, table="NSV")
 nsv[1:2]
 @
 
@@ -758,7 +768,7 @@ The following command illustrates how a \textbf{Sequence Logo} plot can be obtai
 
 
 <<EMM_4, fig=TRUE, include=FALSE>>=
-plot(sequences,1,10)
+plot(sequences,1,20)
 @
 
 \begin{figure}[p]
@@ -771,15 +781,13 @@ plot(sequences,1,10)
 In the Figure \ref{fig:Sequence_Logo}, only the first 10 sequences have been shown. The \textit{start} and \textit{end} parameters can be varied to obtain sequence logos for different segments of the sequences. Sequence logos provide a powerful way to visualize the consensus sequences at each position. Consensus sequences can also be obtained using the function \func{consensusString}.
 <<>>=
 consensus <- consensusString(sequences)
-substring(consensus, 1, 10)
+substring(consensus, 1, 20)
 @
 
 Similarly, consensus matrix can also be created using all the combinations or just the DNA bases.
 <<>>=
-consensusMat <- consensusMatrix(sequences)
-consensusMat[1:5,1:10]
 consensusMat <- consensusMatrix(sequences, baseOnly=TRUE)
-consensusMat[1:5,1:10]
+consensusMat[,1:10]
 @
 
 In certain cases, we might want to visually see which sequences and segments are classified together. For that, the function \func{modelStatesPlot} comes handy. It can take one or more sequences and visually show which sequences are part of it.

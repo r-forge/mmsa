@@ -1,42 +1,50 @@
 
 export( 
 	GenClass16S,
-	GenClass16S_Greengenes,
-	addSequencesGreengenes,
+	addSequences,
 	createGenDB,
 	openGenDB,
 	closeGenDB,
 	listGenDB,
 	metaGenDB,
+	
 	getClassification,
 	getRank,
-	getAllRanks,
 	getHierarchy,
+	
 	nSequences,
 	getSequences,
-    getClusteringDetails,
+	
+	getClusteringDetails,
 	getClusteringSequences,
+	
 	createNSVSet,
 	createNSVTable,
 	dropNSVTable,
-	genModel,
-	genModelDB,
+	
+	GenModel,
+	GenModelDB,
 	processSequences,
 	createModels,
 	classify,
 	validateModels,
 	scoreSequence,
+	
 	clustal,
 	simRank,
+	
 	plot.DNAStringSet,
 	#seqLogo.DNAStringSet,
 	modelStatesPlot,
 	compareSequences,
-	findLargestCommon
+	findLargestCommon,
+	
+	### Greengenes
+	GenClass16S_Greengenes,
+	GreengenesMetaDataReader
 )
-import(
-	Biostrings
-)
+
+import(Biostrings)
 
 S3method(print, GenDB)
 S3method(print, NSVSet)

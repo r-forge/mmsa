@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, similarityMethod="product", limit=Inf)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -32,7 +32,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
 		#how many sequences should we use
-		limit <- min(n,limit)
+		if(is.null(limit)) limit <- n
+		else limit <- min(n,limit)
 		#create selection vector for this rank
 		#train is the number of training cases
 		train<-as.integer(pctTrain*limit)
@@ -46,7 +47,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		x <- x[-train]
 		#get which indices are to be used for testing
 		test <- sample(x,test)
-		emm<-genModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
+		emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
@@ -63,13 +64,13 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     rm(db)
     attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
-	if (length(similarityMethod) == 1)
-    	return(classify(modelDir, testList, rank=rank, similarityMethod=similarityMethod))
-	else if (length(similarityMethod) > 1)
+	if (length(method) == 1)
+    	return(classify(modelDir, testList, rank=rank, method=method))
+	else if (length(method) > 1)
 	{
 		ret<-list()
-		for(i in 1:length(similarityMethod))
-				ret[[i]]<-classify(modelDir, testList, rank=rank, similarityMethod=similarityMethod[i])
+		for(i in 1:length(method))
+				ret[[i]]<-classify(modelDir, testList, rank=rank, method=method[i])
 		return(ret)
 	}
 }
@@ -78,7 +79,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 # containing NSV with a rank attribute and a "name" attribute which is a list
 # of rankNames output is a data.frame containing the similarity scores,
 # predicted value and the actual value
-classify<-function(modelDir, NSVList, rank, similarityMethod="product")
+classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 {
 
     rankDir<-file.path(modelDir, tolower(rank))
@@ -98,7 +99,7 @@ classify<-function(modelDir, NSVList, rank, similarityMethod="product")
 	model<-readRDS(modelFiles[i])
 
 	classificationScores[,i] <- sapply(NSVList, FUN =
-		function(x) scoreSequence(model, x, method=similarityMethod, plus_one=TRUE))
+		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
     
     winner <- apply(classificationScores, MARGIN=1, which.max)

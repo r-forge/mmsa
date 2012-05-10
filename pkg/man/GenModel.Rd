@@ -1,7 +1,6 @@
 \name{GenModel}
 \alias{GenModel}
-\alias{genModel}
-\alias{genModelDB}
+\alias{GenModelDB}
 \alias{plot.GenModel}
 \alias{print.GenModel}
 \alias{prune.GenModel}
@@ -9,17 +8,19 @@
 \alias{getClusteringDetails}
 \alias{getClusteringSequences}
 \title{
-Manage Gene Sequence Models
+Create Models
 }
 \description{
-Functions to generate a model.
+Functions to create and handle models.
 }
 \usage{
-genModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
-genModelDB(db, rank=NULL, name=NULL, table, measure="Manhattan", 
+GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
+
+GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
     threshold=30, selection=NULL, limit=-1, showClusterInfo=TRUE)
-getClusteringDetails(model, modelState=-1)
-getClusteringSequences(db, model, modelState, table="sequences")
+
+getClusteringDetails(model, state=NULL)
+getClusteringSequences(db, model, state, table="sequences")
 }
 \arguments{
 	\item{x}{An object of class NSVSet.}
@@ -31,36 +32,44 @@ getClusteringSequences(db, model, modelState, table="sequences")
 	\item{threshold}{Numeric dissimilarity threshold used by the clustering algorithm for assigning a new observation to existing clusters.}
 	\item{selection}{Numeric vector indicating which sequences to take while creating the model. By default, all sequences are taken when constructing the model.} 
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account.} 
-	\item{model}{genModel object returned by the genModel and genModelDB classes.} 
-	\item{modelState}{genModel state about which details are required.} 
+	\item{model}{GenModel object returned by the GenModel and GenModelDB classes.} 
+	\item{state}{state in the model about which details are required.} 
 	\item{showClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
 
 }
 \value{
-	{\code{genModel()} and \code{genModelDB()} return an object of class genModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
+	{\code{GenModel()} and \code{GenModelDB()} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
 	{\code{getClusteringDetails()} returns a list of states with the id of sequences in each state \code{getClusteringSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
 
 }
 \details{
-	genModel group of functions are  used after a gene sequence has been converted to NSV format.
-	After creating the model, \code{getClusteringDetails} and \code{getClusteringSequences} can be used to obtain meta information. 
+	genModel group of functions are  used after a gene sequence has been
+	converted to NSV format.  After creating the model,
+	\code{getClusteringDetails} and \code{getClusteringSequences} can be
+	used to obtain meta information. 
 }
 
 \examples{
-	db<-createGenDB("example.sqlite")
-	processSequences(system.file("examples/phylums", package="MMSA"), db)
-	model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV") 
-	model
-	getClusteringDetails(model)
-	getClusteringSequences(db, model, modelState = 1)
-	#score sequence against the model
-	random_sequence <- getSequences(db, table="NSV", limit=1, random=TRUE)[[1]]
-	scoreSequence(model,random_sequence)
+db<-createGenDB("example.sqlite")
+processSequences(system.file("examples/phylums", package="MMSA"), db)
 
-	plot(model)
-	closeGenDB(db)
-	
-	### clean up
-	unlink("example.sqlite")
+### create a model for Genus Syntrophomonas
+model <- GenModelDB(db, rank="Genus", name="Syntrophomonas") 
+model
+
+### look at sequence segments clusterd in state 1
+getClusteringDetails(model, 1)
+getClusteringSequences(db, model, state = 1)
+
+### score 5 random sequence against the model
+random_sequence <- getSequences(db, table="NSV", limit=5, random=TRUE)
+scoreSequence(model, random_sequence)
+
+### visualize the model as a graph
+plot(model)
+
+### clean up
+closeGenDB(db)
+unlink("example.sqlite")
 }
 \keyword{model}

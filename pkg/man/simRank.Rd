@@ -40,4 +40,4 @@ simil <- simRank(sequences)
 hc <- hclust(pr_simil2dist(simil))
 plot(hc)
 }
-\keyword{manip}
+\keyword{model}
