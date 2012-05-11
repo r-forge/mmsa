@@ -38,8 +38,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     emm <- EMM(measure=measure,threshold=threshold)
 
-    nSequences<-nSequences(db,rank,name)
-    hierarchy <- getHierarchy(db,rank,name)
+    nSequences <- nSequences(db, rank, name)
+    hierarchy <- getHierarchy(db, rank, name)
 
     if (limit != -1) nSequences <- min(nSequences,limit)
 
@@ -86,7 +86,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     }
 
     rank <- .pmatchRank(db, rank)
-    rankName <- hierarchy[[rank]]
+    rankName <- hierarchy[rank]
 
     genModel <- list(name=rankName, rank=rank, 
 	    nSequences=nSequences, model=emm, 
@@ -155,32 +155,6 @@ getClusteringSequences <- function(db, model, state, table="sequences")
 
     return(stateSequences)
 }
-
-#plots a barplot with error bars
-plot.NSVSet <- function(x, ...)
-{
-    mean <- rowSums(sapply(x,colSums))/length(x)
-    minVal <- apply(sapply(x,colMeans),MARGIN=1,min)
-    maxVal <- apply(sapply(x,colMeans),MARGIN=1,max)
-    bp <- barplot(mean, ylim=c(min(minVal),max(maxVal)), las=2)
-    errbar(bp, mean, maxVal, minVal, add=T)
-
-}
-
-.seqLogo.DNAStringSet <- function(x, start=1, end=NULL, ic.scale=FALSE, ...)
-{
-    cm <- consensusMatrix(x,baseOnly=TRUE)
-    if (is.null(end))
-	end <- ncol(cm)
-    cm <- cm[1:4,start:end]
-    for(i in 1:ncol(cm))
-	cm[,i] <- cm[,i]/colSums(cm)[i]
-    pwm <- makePWM(cm)
-    seqLogo::seqLogo(pwm, ic.scale,  ...)
-
-}
-
-plot.DNAStringSet <- function(x, start=1, end=NULL, ...) .seqLogo.DNAStringSet(x, start, end, ...)
 
 #takes a model and returns the clusterInfo i.e. how many states and which sequence goes to which cluster
 .getClusterInfo <- function(clusterInfo, last_clustering, offset)

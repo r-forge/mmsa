@@ -12,9 +12,10 @@ classification table.  If no rank is provided, it defaults to the top-most
 level i.e. kingdom.
   }
 \usage{
-getRank(db, rank, whereRank=NULL, whereName=NULL, all=FALSE)
 getClassification(db)
-getHierarchy(db, rank, name)
+getHierarchy(db, rank, name, drop=TRUE, partialMatch=TRUE)
+getRank(db, rank = NULL, whereRank=NULL, whereName=NULL, 
+    all=FALSE, partialMatch=TRUE)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -22,7 +23,9 @@ getHierarchy(db, rank, name)
 	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
 	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
 	\item{all}{logical; List the rank for each sequence separately?}
+	\item{partialMatch}{logical; use partial matching on names.}
 	\item{name}{Name of the rank at which the hierarchy object is required.}
+	\item{drop}{logical; drop a classification for a single element to a vector (from matrix).}
 }
 \details{
 	The \code{getRank()} function lists the distinct number of values at a
@@ -46,15 +49,27 @@ getHierarchy(db, rank, name)
 db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
 db
 
-### lists the distinct genuses
+### get used classification hierarchy
+getClassification(db)
+
+### lists and plot the distinct genuses
 getRank(db, "genus")
 table(getRank(db, "genus", all=TRUE))
 
-### get the hierarchy object
+oldpar <- par(mar=c(12,5,5,5))
+barplot(sort(table(getRank(db, "genus", all=TRUE)), decreasing=TRUE), 
+    las=2, log="y", main="Genus Abundance")
+par(oldpar)
+
+
+### get the hierarchy for genus Syntrophomonas
 getHierarchy(db, rank="genus", name="Syntrophomonas")
 
-### get used classification hierarchy
-getClassification(db)
+### get the hierarchy for all Genera starting with S
+getHierarchy(db, rank="genus", name="S")
+
+### get the hierarchy for all Genera starting with Se and Sy
+getHierarchy(db, rank="genus", name=c("Se", "Sy"))
 
 closeGenDB(db)
 }

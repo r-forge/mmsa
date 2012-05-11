@@ -2,8 +2,30 @@
 print.NSVSet <- function(x, ...) {
     cat("Object of class NSVSet for", length(x), "sequences")
     cat(" (", log(length(colnames(x[[1]])),4) ,"-mers)\n", sep="")
-    cat("number of segments (range):", range(sapply(x, nrow)), "\n")
+    cat("Number of segments (table with counts):") 
+    print(table(sapply(x, nrow)))
 }
+
+### subset
+`[.NSVSet` <- function(x, i, j, ..., drop = TRUE) { 
+    r <- unclass(x)
+    if(!missing(i)) r <- r[i] 
+    if(!missing(j)) r <- lapply(r, "[", j, ,drop=FALSE) 
+    class(r) <- "NSVSet"
+    r
+}
+
+#plots a barplot with whiskers
+plot.NSVSet <- function(x, ..., whiskers=TRUE)
+{
+    mean <- rowMeans(sapply(x, colMeans))
+    minVal <- apply(sapply(x, apply, MARGIN=2, min), MARGIN=1, min)
+    maxVal <- apply(sapply(x, apply, MARGIN=2, max), MARGIN=1, max)
+    bp <- barplot(mean, ylim=c(0,max(maxVal)), las=2, ...)
+    if(whiskers) errbar(bp, mean, maxVal, minVal, cap=0.005, add=T, pch=NA)
+    invisible(bp)
+}
+
 
 ### convert to NSVs
 createNSVSet <- function(x, window=100, overlap=0, word=3, 
@@ -17,23 +39,23 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 }
 
 
-createNSVTable <- function(db, tableName, 
+createNSVTable <- function(db, table=NSV, 
 	rank=NULL, name=NULL, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 
-    if(length(grep(" ", tableName))) stop("tableName cannot contain spaces!")
-    if (length(which(tableName==listGenDB(db))) > 0)
+    if(length(grep(" ", table))) stop("table cannot contain spaces!")
+    if (length(which(table==listGenDB(db))) > 0)
 	stop("A table with this name already exists in the db")
 
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
 	    dbSendQuery(db$db, 
-		    statement = paste("CREATE TABLE ", tableName ,
+		    statement = paste("CREATE TABLE ", table,
 			    "(",  NSV,  ")", sep='')
 		    )
 	    )
     # insert into metadata
-    meta<-paste("'", tableName , "','NSV','rank=", rank, ";name=",
+    meta<-paste("'", table, "','NSV','rank=", rank, ";name=",
 	    name , ";window=", window, ";overlap=", overlap,
 	    ";word=", word, ";last_window=", last_window , ";'", sep='')
     try(
@@ -76,7 +98,7 @@ createNSVTable <- function(db, tableName,
 
 	    tr<- try(
 		    dbSendQuery(db$db,          
-			    statement = paste("INSERT INTO ", tableName,
+			    statement = paste("INSERT INTO ", table,
 				    " VALUES (", dat, ")", sep=''))
 		    )
 
@@ -105,12 +127,10 @@ createNSVTable <- function(db, tableName,
 
 }
 
-#end
 
-
-dropNSVTable <-  function(db, tableName) {
+dropNSVTable <-  function(db, table) {
     dbSendQuery(db$db,
-	    statement = paste("DROP TABLE ", tableName, sep='')
+	    statement = paste("DROP TABLE ", table, sep='')
 	    )
     dbCommit(db$db)
     invisible()

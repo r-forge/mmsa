@@ -17,7 +17,7 @@ an object of class DNAStringSet with the sequences to be aligned.
 }
 }
 \details{
-The clustalw software has to be installed an be in the search path.
+The clustalw software has to be installed and has to be in the search path.
 }
 \value{
 An object of class DNAMultipleAlignment (see \pkg{BioStrings}).

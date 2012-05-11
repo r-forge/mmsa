@@ -7,11 +7,10 @@
 \alias{recluster}
 \alias{getClusteringDetails}
 \alias{getClusteringSequences}
-\title{
-Create Models
-}
+\title{Genetic Sequences Models}
 \description{
-Functions to create and handle models.
+GenModel models sequences by clusters of similar NSVs and the transition
+information between the clusters.
 }
 \usage{
 GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
@@ -47,6 +46,9 @@ getClusteringSequences(db, model, state, table="sequences")
 	converted to NSV format.  After creating the model,
 	\code{getClusteringDetails} and \code{getClusteringSequences} can be
 	used to obtain meta information. 
+
+	Also a plot function is provided for GenModel. Additional parameters
+	are passed on to plot in package \pkg{rEMM}.
 }
 
 \examples{
@@ -57,9 +59,16 @@ processSequences(system.file("examples/phylums", package="MMSA"), db)
 model <- GenModelDB(db, rank="Genus", name="Syntrophomonas") 
 model
 
-### look at sequence segments clusterd in state 1
+### look at sequence segments clustered in state 1
 getClusteringDetails(model, 1)
-getClusteringSequences(db, model, state = 1)
+s <- getClusteringSequences(db, model, state = 1)
+s
+plot(s)
+
+nsv <- getClusteringSequences(db, model, state = 1, table="NSV")
+nsv
+plot(nsv)
+
 
 ### score 5 random sequence against the model
 random_sequence <- getSequences(db, table="NSV", limit=5, random=TRUE)

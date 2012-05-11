@@ -6,11 +6,10 @@
 \alias{listGenDB}
 \alias{metaGenDB}
 \alias{print.GenDB}
-\title{
-	Manage Gene Sequence databases
-}
+\title{Gene Sequence databases}
 \description{
-	Functions to create, open, close, and list tables from a  gene sequence database on a local server. 
+	Functions to create, open, close, and list tables from a 
+	gene sequence database. 
 }
 \usage{
 	createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL)

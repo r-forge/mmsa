@@ -82,7 +82,7 @@ The available scoring functions for these models are
     }
 
 
-    \item{"supported_transitions"}{Fraction of transitions in the new sequence \eqn{x} supported (present) in the model after assigning each data point in eqn{x} to a state in
+    \item{"supported_transitions"}{Fraction of transitions in the new sequence \eqn{x} supported (present) in the model after assigning each data point in \eqn{x} to a state in
 	the model.
 	    \deqn{S_\mathrm{supported\_transitions} = \frac{1}{l-1} \sum_{i=1}^{l-1}{\mathrm{I}(a_{s(i),s(i+1)})}}{
 		S_\mathrm{supported\_transitions} = 1/(l-1) sum(I(a_s(i),s(i+1)))}

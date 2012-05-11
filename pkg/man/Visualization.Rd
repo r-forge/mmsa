@@ -1,6 +1,4 @@
 \name{Visualization}
-\alias{plot.NSVSet}
-\alias{plot.DNAStringSet}
 \alias{modelStatesPlot}
 \alias{compareSequences}
 \alias{findLargestCommon}
@@ -37,16 +35,9 @@ findLargestCommon(model, limit=NULL)
 \examples{
 db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="MMSA"), db)
-model <- genModelDB(db, rank="Gen", name="Syntro", table="NSV") 
+model <- GenModelDB(db, rank="Gen", name="Syntro", table="NSV") 
 model
-#get sequences in DNA format
-s <-getClusteringSequences(db,model,modelState=17,table="sequences")
-#create a sequence logo plot
-plot(s)
-#get sequences in NSV format
-nsv <-getClusteringSequences(db,model,modelState=17,table="NSV")
-#plot NSV as a barplot
-plot(nsv)
+
 #create a model states plot for multiple states
 modelStatesPlot(model,c(17,18,19))
 #visually compare sequences to find common areas

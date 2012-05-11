@@ -1,23 +1,31 @@
 \name{NSVSet}
+\alias{NSVSet}
 \alias{createNSVTable}
 \alias{createNSVSet}
 \alias{dropNSVTable}
-\title{Create and Manage Sequences in NSV Format}
+\alias{plot.NSVSet}
+\alias{[.NSVSet}
+\title{Sequences in NSV Format}
 \description{
-Functions to create, manage and store sequences in NSV (numerical sumarization vector) format. A NSV is a set of p-mer counts for a sequence cut into segments.
+Sequences 
+can be represented in NSV (numerical sumarization vector) format. 
+A NSV is a set of p-mer counts for a sequence cut into segments.
 
+NSVSets can be created from DNAStringSet with \code{createNSVSet}
+or directly from data stored in a GenDB with \code{createNSVTable}.
 }
 \usage{
 	createNSVSet(x, 
 	    window=100, overlap=0, word=3, last_window=FALSE)
-	createNSVTable(db, tableName, rank=NULL, name=NULL, 
+	
+	createNSVTable(db, table="NSV", rank=NULL, name=NULL, 
 	    window=100, overlap=0, word=3, last_window=FALSE)
-	dropNSVTable(db, tableName)
+	dropNSVTable(db, table)
 }
 \arguments{
 	\item{x}{An object of class DNAStringSet.} 
 	\item{db}{Handle of the GenDB.} 
-	\item{tableName}{Name of the new NSV table which will store the NSV format sequences.}
+	\item{table}{Name of the new NSV table which will store the NSV format sequences.}
 	\item{rank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
 	\item{name}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
 	\item{window}{Value of window size.}
@@ -26,7 +34,7 @@ Functions to create, manage and store sequences in NSV (numerical sumarization v
 	\item{last_window}{Value of boolean last_window parameter.}
 }
 \details{
-	\code{createNSVSet()} creates NSVs from the sequences stored in a
+	\code{createNSVSet()} creates NSVs from the sequences represented as a
 	DNAStringSet.
 	
 	\code{createNSVTable()} converts 
@@ -37,20 +45,39 @@ Functions to create, manage and store sequences in NSV (numerical sumarization v
 
 	\code{dropNSVTable()} function drops the specified table 
 	from the database whose handle is provided as the first argument.	
+
+	NSVSets stored in a GenDB can be retrieved in the same way as
+	regular sequences using \code{getSequences} where table is
+	the name of the table used in \code{createNSVTable}.
+
+	\code{plot} creates a barplot with the average p-mer counts
+	in the NSVSet.
 }
-%\seealso{
-%}
+\seealso{
+   \code{\link{getSequences}} 
+}
 \examples{
 db<-createGenDB("example.sqlite")
 addSequences(db, 
     system.file("examples/phylums/Proteobacteria.fasta", package="MMSA"))
 
-### add the table with the counts to the db
-createNSVTable(db, "NSV")
+### add the table with the counts for all sequences in the GenDB
+createNSVTable(db, table="NSV")
 db
 
 ### get NSVs for the first sequence
-getSequences(db, table="NSV")[1]
+s <- getSequences(db, table="NSV")
+s
+
+### select the first element (sequence)
+s[1]
+
+### select the first segment in all sequences
+s[, 1]
+
+### plot the p-mer distribution for the first segments
+### (average counts with whiskers show the min/max counts)
+plot(s[, 1])
 
 ### remove the table from the db
 dropNSVTable(db,"NSV")
