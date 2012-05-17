@@ -561,8 +561,6 @@ createNSVTable(db, table = "NSV_genus_Thermosinus",
 db
 @
 
-{\bf FIXME: rename window to segment?}
-
 
 The above command converts only the sequences that belong to the 
 genus ``Thermosinus'' and stores them in a separate NSV table called NSV\_genus\_Thermosinus.
@@ -666,7 +664,7 @@ table that belong to the genus ``Desulfosporomusa''. For creating the model, we
 use Manhattan distance with a threshold of 30 for clustering NSVs. 
 For more
 details about model creation, please see the reference manual of the rEMM
-package \citep{MMSA:rEMM:2012}. In addition a limit parameter 
+package \cite{MMSA:rEMM:2012}. In addition a limit parameter 
 can be used to restrict the maximum number
 of sequences to be used in model creation. 
 
@@ -800,7 +798,7 @@ This can be easily obtained using the \func{getClusteringDetails}.
 getClusteringDetails(model, state=17)
 @
 
-The above command gives the sequences and the segments within them that are part of the state 17. The \textit{state} parameter can be ommitted to obtain details of all the states. If you would like to see the actual segments that are part of a state, the function \func{getClusteringSequences} comes handy. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
+The above command gives the sequences and the segments within them that are part of state 17. The \textit{state} parameter can be ommitted to obtain details of all the states.  To see the actual segments that are part of a state, the function \func{getClusteringSequences} can be used. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
 
 <<>>=
 sequences <- getClusteringSequences(db, model, state=17, table="sequences")
@@ -808,11 +806,11 @@ sequences
 @
 <<>>=
 nsv <- getClusteringSequences(db, model, state=17, table="NSV")
-nsv[1:2]
+nsv[[1]]
 @
 
 A clearer picture about the clustering will emerge when we visualize the sequences and segments and see how they fit into clusters. In this section, we will introduce some of the plots that are commonly used in the Biological sciences such as the Sequence Logo plot.  We will also use the barplot to plot the distribution of NSVs in a cluster of sequences. 
-The following command illustrates how a \textbf{Sequence Logo} plot can be obtained easily using MMSA.
+The following command illustrates how a Sequence Logo plot can be obtained easily using MMSA.
 
 
 
@@ -842,7 +840,7 @@ consensusMat[,1:10]
 In certain cases, we might want to visually see which sequences and segments are classified together. For that, the function \func{modelStatesPlot} comes handy. It can take one or more sequences and visually show which sequences are part of it.
 
 <<EMM_5, fig=TRUE, include=FALSE>>=
-modelStatesPlot(model,17)
+modelStatesPlot(model,states=17)
 @
 
 \begin{figure}[h]
@@ -855,7 +853,7 @@ modelStatesPlot(model,17)
 We can also visualize more than one states easily.
 
 <<EMM_6, fig=TRUE, include=FALSE>>=
-modelStatesPlot(model,c(3:6))
+modelStatesPlot(model,states=3:6)
 @
 
 \begin{figure}

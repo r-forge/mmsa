@@ -131,27 +131,27 @@ getClusteringSequences <- function(db, model, state, table="sequences")
 
     #create different lists based on whether sequence or NSV table
     if (table =="sequences")
-	stateSequences <- DNAStringSet()
+		stateSequences <- DNAStringSet()
     else
-	stateSequences <- list()
+		stateSequences <- list()
     #loop through all the ids that are part of the modelstate		
     for(i in 1:nrow(ids))
     {
-	id <- ids[i,]
-	#split the sequence on ":" and get sequenceid and segment
-	#sequence <- unlist(strsplit(id,split=":"))[1]
-	sequence <- as.numeric(id["sequence"])
-	#segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
-	segment <- as.numeric(id["segment"])
-	#get window size from the model
-	window <- as.numeric(model$window)
-	#get the start position of the segment eg:1, 101, 201 etc
-	start <- (segment - 1) * window + 1
-	#get sequences and append to the list
-	stateSequences <- c(stateSequences,getSequences(db, rank="id",name=sequence, table, start = start, length=window))
+		id <- ids[i,]
+		#split the sequence on ":" and get sequenceid and segment
+		#sequence <- unlist(strsplit(id,split=":"))[1]
+		sequence <- as.numeric(id["sequence"])
+		#segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
+		segment <- as.numeric(id["segment"])
+		#get window size from the model
+		window <- as.numeric(model$window)
+		#get the start position of the segment eg:1, 101, 201 etc
+		start <- (segment - 1) * window + 1
+		#get sequences and append to the list
+		stateSequences <- c(stateSequences,getSequences(db, rank="id",name=sequence, table, start = start, length=window))
     }
     if(table!="sequences")
-	class(stateSequences)<-"NSVSet"
+		class(stateSequences)<-"NSVSet"
 
     return(stateSequences)
 }
