@@ -6,11 +6,12 @@ modelStatesPlot <- function (model, states)
 		yrange <- model$nSequences
 		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
 		#labels for x axis
-		axis(1, at=1:xrange, labels=c(1:xrange))
-		axis(2, at=1:yrange, labels=names(model$clusterInfo), las=0)
+		axis(1, at=(1:xrange)+0.5 , labels=c(1:xrange))
+		#axis(2, at=1:yrange, labels=names(model$clusterInfo), las=2, at=NULL)
+		axis(2, las=2, at=NULL)
 		abline(h=c(1:yrange), col="grey", lty="dotted")
 		colors <- c("red")
-		vertColors <- c("black")
+		vertColors <- c("blue")
 		colorIdx <- 0	
 	for(modelState in states)
 	{
@@ -26,8 +27,9 @@ modelStatesPlot <- function (model, states)
 		#color <- colors[(colorIdx+1)%%2 + 1 ]
 		#vertColor <- vertColors[(colorIdx+1)%%2 + 1]
 		#vertical lines	
-		lines(as.numeric(segments),sequenceInd, col=vertColors, lwd=2)
-		lines(as.numeric(segments)+1,sequenceInd, col=vertColors, lwd=2)
+		#lines(as.numeric(segments),sequenceInd, col=vertColors, lwd=2)
+		#lines(as.numeric(segments)+1,sequenceInd, col=vertColors, lwd=2)
+		lines(as.numeric(segments)+0.5,sequenceInd, lty=2)
 		#horizontal lines
 		for(i in 1:length(sequenceInd))
 			lines(c(as.numeric(segments[i]),as.numeric(segments[i])+1),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
@@ -62,7 +64,7 @@ compareSequences <- function(model, sequences)
 		if (length(common)==0) print("No common states found between those sequences")
 		
 		colors <- c("red")
-		vertColors <- c("black")
+		vertColors <- c("blue")
 		colorIdx <- 0	
 		for(modelState in common)
 		{
@@ -84,8 +86,9 @@ compareSequences <- function(model, sequences)
 			color <- colors[(colorIdx+1)%%2 + 1 ]
 			vertColor <- vertColors[(colorIdx+1)%%2 + 1]
 			#vertical blue lines
-			lines(segments,sequenceInd, col=vertColors, lwd=2)
-			lines(segments+1,sequenceInd, col=vertColors, lwd=2)
+			#lines(segments,sequenceInd, col=vertColors, lwd=2)
+			#lines(segments+1,sequenceInd, col=vertColors, lwd=2)
+			lines(segments+0.5,sequenceInd, lty=2)
 			#horizontal lines
 			for(i in 1:length(sequenceInd))
 					lines(c(segments[i],segments[i]+1),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
