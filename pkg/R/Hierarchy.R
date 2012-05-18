@@ -32,16 +32,16 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     hierarchy <- getClassification(db)
     
     .getHierarchy <- function(db, rank, name) {
-	rankNum <- which(tolower(hierarchy)==tolower(.pmatchRank(db,rank)))
+		#convert rank to number, eg: kingdom=1, phylum=2
+		rankNum <- which(tolower(hierarchy)==tolower(.pmatchRank(db,rank)))
+		
+		cl <- sapply(1:rankNum, FUN=function(i) 
+			getRank(db, rank=hierarchy[i], whereRank=rank, whereName=name,
+				partialMatch=FALSE))
 
-	cl <- sapply(1:rankNum, FUN=function(i) 
-		getRank(db, rank=hierarchy[i], whereRank=rank, whereName=name,
-			partialMatch=FALSE))
-
-	m <- matrix(NA, nrow=1, ncol=length(hierarchy))
-	m[1:rankNum] <- unlist(cl)
-	
-	m
+		m <- matrix(NA, nrow=1, ncol=length(hierarchy))
+		m[1:rankNum] <- unlist(cl)[1:rankNum]
+		m
     }
 
     ### find all matching names

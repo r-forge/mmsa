@@ -140,9 +140,9 @@ getClusteringSequences <- function(db, model, state, table="sequences")
 		id <- ids[i,]
 		#split the sequence on ":" and get sequenceid and segment
 		#sequence <- unlist(strsplit(id,split=":"))[1]
-		sequence <- as.numeric(id["sequence"])
+		sequence <- as.numeric(as.character(id$sequence))
 		#segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
-		segment <- as.numeric(id["segment"])
+		segment <- as.numeric(as.character(id$segment))
 		#get window size from the model
 		window <- as.numeric(model$window)
 		#get the start position of the segment eg:1, 101, 201 etc

@@ -7,10 +7,10 @@ modelStatesPlot <- function (model, states)
 		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
 		#labels for x axis
 		axis(1, at=1:xrange, labels=c(1:xrange))
-		axis(2, at=1:yrange, labels=names(model$clusterInfo))
+		axis(2, at=1:yrange, labels=names(model$clusterInfo), las=0)
 		abline(h=c(1:yrange), col="grey", lty="dotted")
-		colors <- c("red","green")
-		vertColors <- c("blue","black")
+		colors <- c("red")
+		vertColors <- c("black")
 		colorIdx <- 0	
 	for(modelState in states)
 	{
@@ -22,20 +22,17 @@ modelStatesPlot <- function (model, states)
 		sequenceInd <- which(names(model$clusterInfo) %in% sequences)
 		#get the segments
 		segments <- cd[,2]
-		colorIdx <- colorIdx + 1
-		color <- colors[(colorIdx+1)%%2 + 1 ]
-		vertColor <- vertColors[(colorIdx+1)%%2 + 1]
+		#colorIdx <- colorIdx + 1
+		#color <- colors[(colorIdx+1)%%2 + 1 ]
+		#vertColor <- vertColors[(colorIdx+1)%%2 + 1]
 		#vertical lines	
-		lines(as.numeric(segments),sequenceInd, col=vertColor, lwd=2)
-		lines(as.numeric(segments)+1,sequenceInd, col=vertColor, lwd=2)
+		lines(as.numeric(segments),sequenceInd, col=vertColors, lwd=2)
+		lines(as.numeric(segments)+1,sequenceInd, col=vertColors, lwd=2)
 		#horizontal lines
 		for(i in 1:length(sequenceInd))
-			lines(c(as.numeric(segments[i]),as.numeric(segments[i])+1),c(sequenceInd[i],sequenceInd[i]), col=color, lwd=2)
+			lines(c(as.numeric(segments[i]),as.numeric(segments[i])+1),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
 		#put the text for the state number at the top
-		if( (max(sequenceInd) != 1) )	
-			text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))-0.10,modelState, col="black")
-		else if (max(sequenceInd) == 1)
-			text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))+0.10,modelState, col="black")
+		text(as.numeric(segments[length(segments)])+0.5, as.numeric(max(sequenceInd)),modelState, pos=3, adj=c(0,0), xpd=TRUE, col="black")
 	}
 
 }
@@ -64,8 +61,8 @@ compareSequences <- function(model, sequences)
 		
 		if (length(common)==0) print("No common states found between those sequences")
 		
-		colors <- c("red","green")
-		vertColors <- c("blue","black")
+		colors <- c("red")
+		vertColors <- c("black")
 		colorIdx <- 0	
 		for(modelState in common)
 		{
@@ -87,16 +84,17 @@ compareSequences <- function(model, sequences)
 			color <- colors[(colorIdx+1)%%2 + 1 ]
 			vertColor <- vertColors[(colorIdx+1)%%2 + 1]
 			#vertical blue lines
-			lines(segments,sequenceInd, col=vertColor, lwd=2)
-			lines(segments+1,sequenceInd, col=vertColor, lwd=2)
+			lines(segments,sequenceInd, col=vertColors, lwd=2)
+			lines(segments+1,sequenceInd, col=vertColors, lwd=2)
 			#horizontal lines
 			for(i in 1:length(sequenceInd))
-					lines(c(segments[i],segments[i]+1),c(sequenceInd[i],sequenceInd[i]), col=color, lwd=2)
+					lines(c(segments[i],segments[i]+1),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
 			#put the text for the state number at the top
-			if( (max(sequenceInd) != 1) )	
-				text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))-0.10,modelState, col="black")
-			else if (max(sequenceInd) == 1)
-				text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))+0.10,modelState, col="black")
+			text(as.numeric(segments[length(segments)])+0.5 ,as.numeric(max(sequenceInd)), modelState, pos=3, xpd=TRUE, col="black")
+			#if( (max(sequenceInd) != 1) )	
+			#	text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))-0.10,modelState, col="black")
+			#else if (max(sequenceInd) == 1)
+			#	text(as.numeric(segments[length(segments)])+0.35,as.numeric(max(sequenceInd))+0.10,modelState, col="black")
 		}
 
 
