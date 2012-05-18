@@ -31,10 +31,10 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     #get metadata about the table
     meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
     x<-unlist(strsplit(meta,";"))	
-    window <-sub("window=","",x[3])
-    overlap <- sub("overlap=","",x[4])
-    word <-sub("word=","",x[5])
-    last_window <-sub("last_window=","",x[6])	
+    window <-as.integer(sub("window=","",x[3]))
+    overlap <- as.integer(sub("overlap=","",x[4]))
+    word <- as.integer(sub("word=","",x[5]))
+    last_window <- as.logical(sub("last_window=","",x[6]))	
 
     emm <- EMM(measure=measure,threshold=threshold)
 
@@ -111,7 +111,7 @@ getClusteringDetails <- function(model, state=NULL)
 	occ <- lapply(model$clusterInfo, FUN=function(x) which(x==state))
 	occ[sapply(occ, length) <1] <- NULL     
 	return(data.frame(sequence=names(occ), segment=unlist(occ), 
-			row.names=NULL))
+			row.names=NULL, stringsAsFactors=FALSE))
     }
     
     l <- lapply(clusters(model$model), FUN=function(x) 
@@ -129,29 +129,23 @@ getClusteringSequences <- function(db, model, state, table="sequences")
     #get the ids that are part of the model state as a list
     ids<-getClusteringDetails(model, state)
 
-    #create different lists based on whether sequence or NSV table
-    if (table =="sequences")
-		stateSequences <- DNAStringSet()
-    else
-		stateSequences <- list()
-    #loop through all the ids that are part of the modelstate		
-    for(i in 1:nrow(ids))
-    {
-		id <- ids[i,]
-		#split the sequence on ":" and get sequenceid and segment
-		#sequence <- unlist(strsplit(id,split=":"))[1]
-		sequence <- as.numeric(as.character(id$sequence))
-		#segment <- as.numeric(unlist(strsplit(id,split=":"))[2])
-		segment <- as.numeric(as.character(id$segment))
-		#get window size from the model
-		window <- as.numeric(model$window)
-		#get the start position of the segment eg:1, 101, 201 etc
-		start <- (segment - 1) * window + 1
-		#get sequences and append to the list
-		stateSequences <- c(stateSequences,getSequences(db, rank="id",name=sequence, table, start = start, length=window))
+    stateSequences <- list()
+    
+    for(i in 1:nrow(ids)){
+	id <- ids[i,]
+	sequence <- id["sequence"]
+	segment <- id["segment"]
+	window <- model$window
+	start <- (segment - 1L) * window + 1L
+	
+	stateSequences <- c(stateSequences,
+		getSequences(db, rank="id",name=sequence, 
+			table, start = start, length=window))
     }
-    if(table!="sequences")
-		class(stateSequences)<-"NSVSet"
+    
+    if(table == "sequences") 
+	stateSequences <- do.call(c, stateSequences)
+    else class(stateSequences) <- "NSVSet"
 
     return(stateSequences)
 }
@@ -194,8 +188,8 @@ plot.GenModel <- function(x, ...) {
 
 
 prune.GenModel <- function(x, ...) {
-    prune(x$model, ...)
-
+    x$model <- prune(x$model, ...)
+    x
 }
 
 recluster <- function(x, method=recluster_kmeans, ...) {

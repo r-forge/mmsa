@@ -1,6 +1,9 @@
 ### Sequences are DNAStringSet
 
 ### plot as a Sequence Logo
+plot.DNAMultipleAlignment <- function(x, start=1, end=NULL, ic.scale=FALSE, ...) plot(as(x, "DNAStringSet"), start, end, ic.scale, ...) 
+
+
 plot.DNAStringSet <- function(x, start=1, end=NULL, ic.scale=FALSE, ...) 
 {
     cm <- consensusMatrix(x,baseOnly=TRUE)

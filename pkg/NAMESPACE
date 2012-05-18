@@ -34,7 +34,7 @@ export(
 	simRank,
 	
 	plot.DNAStringSet,
-	#seqLogo.DNAStringSet,
+	plot.DNAMultipleAlignment,
 	modelStatesPlot,
 	compareSequences,
 	findLargestCommon,
