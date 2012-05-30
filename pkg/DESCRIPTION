@@ -1,6 +1,6 @@
-Package: MMSA
+Package: QuasiAlign
 Type: Package
-Title: Markov Models in Sequence Analysis
+Title: Infrastructure for Quasi-Alignment of Genetic Sequences
 Version: 0.0-3
 Date: 20xx-xx-xx
 Author:  Anurag Nagar and Michael Hahsler

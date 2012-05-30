@@ -80,7 +80,7 @@ See NSVSet for more information.
 db <- createGenDB("example.sqlite")
 addSequences(db,
     system.file("examples/phylums/Firmicutes.fasta",
-        package="MMSA"))
+        package="QuasiAlign"))
 
 
 nSequences(db)

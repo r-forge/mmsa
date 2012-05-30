@@ -21,7 +21,7 @@ GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan",
 getClusteringDetails(model, state=NULL)
 getClusteringSequences(db, model, state, table="sequences")
 
-prune(x, ...)
+\S4method{prune}{GenModel}(x, ...)
 }
 \arguments{
 	\item{x}{An object of class NSVSet.}
@@ -59,19 +59,24 @@ prune(x, ...)
 \seealso{\code{\link[rEMM]{prune}} in package \pkg{rEMM}}
 \examples{
 db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="MMSA"), db)
+processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 
 ### create a model for Genus Syntrophomonas
 model <- GenModelDB(db, rank="Genus", name="Syntrophomonas") 
 model
 
-### look at sequence segments clustered in state 1
-getClusteringDetails(model, 1)
-s <- getClusteringSequences(db, model, state = 1)
-s
-plot(s)
+plot(model)
 
-nsv <- getClusteringSequences(db, model, state = 1, table="NSV")
+
+### look at sequence segments clustered in state 17
+getClusteringDetails(model, 17)
+s <- getClusteringSequences(db, model, state = 17)
+s
+
+### plot a sequence logo for the first 20 positions
+plot(s, 1, 20)
+
+nsv <- getClusteringSequences(db, model, state = 17, table="NSV")
 nsv
 plot(nsv)
 
@@ -80,8 +85,6 @@ plot(nsv)
 random_sequence <- getSequences(db, table="NSV", limit=5, random=TRUE)
 scoreSequence(model, random_sequence)
 
-### visualize the model as a graph
-plot(model)
 
 ### clean up
 closeGenDB(db)

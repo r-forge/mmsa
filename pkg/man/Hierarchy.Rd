@@ -46,7 +46,7 @@ getRank(db, rank = NULL, whereRank=NULL, whereName=NULL,
 %\seealso{
 %}
 \examples{
-db <- openGenDB(system.file("examples/16S.sqlite",package="MMSA"))
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 db
 
 ### get used classification hierarchy

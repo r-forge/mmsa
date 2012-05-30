@@ -37,15 +37,15 @@
 %\setlength{\parindent}{0mm}
 %\setlength{\parskip}{3mm plus2mm minus2mm}
 
-%% \VignetteIndexEntry{MMSA: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
+%% \VignetteIndexEntry{QuasiAlign: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
 
 
 \author{Anurag Nagar\\Southern Methodist University \And
     Michael Hahsler\\Southern Methodist University}
-\title{\pkg{MMSA}: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
+\title{\pkg{QuasiAlign}: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Anurag Nagar, Michael Hahsler} %% comma-separated
-\Plaintitle{MMSA: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation} %% without formatting
+\Plaintitle{QuasiAlign: Position Sensitive P-Mer Frequency Clustering with Applications to Genomic Classification and Differentiation} %% without formatting
 \Shorttitle{Position Sensitive P-Mer Frequency Clustering} %% a short title (if necessary)
 
 %% an abstract and keywords
@@ -311,8 +311,8 @@ this approach for taxonomic classification in~\citep{hahsler:Kotamarti:2010}.
 
 
 %%end
-\section{MMSA Package}
-\pkg{MMSA} builds on the packages 
+\section{QuasiAlign Package}
+\pkg{QuasiAlign} builds on the packages 
 \pkg{seqinr} for biological sequence analysis,
 \pkg{RSQLite} and \pkg{DBI} for storage and data management 
 functionality, \pkg{caTools} for
@@ -329,7 +329,7 @@ The main components of the package are:
 \end{itemize}
 
 \subsection{GenDB: Data storage an management}
-At the heart of the \pkg{MMSA} package 
+At the heart of the \pkg{QuasiAlign} package 
 are genetic databases (GenDB) which are used
 for efficient storage and retrieval. By default we use s light-weight 
 SQLite databases,
@@ -397,13 +397,13 @@ created by chance?}
 \section{Examples}
 
 In the following we will demonstrate the key features of 
-\pkg{MMSA} using several examples.
+\pkg{QuasiAlign} using several examples.
 
 \subsection{Setting up a GenDB}
 
 First, we load the library into the R environment.
 <<>>=
-library(MMSA)
+library(QuasiAlign)
 @
 
 To start we need to create an empty GenDB to store and organize
@@ -432,7 +432,7 @@ The command below uses a FASTA file provided by the package, hence we use
 \func{system.file} instead of just a string with the file name.
 <<>>= 
 addSequences(db,
-  system.file("examples/phylums/Firmicutes.fasta", package="MMSA"))
+  system.file("examples/phylums/Firmicutes.fasta", package="QuasiAlign"))
 @
 
 After inserting the sequences, various querying and limiting functions can be
@@ -503,7 +503,7 @@ par(oldpar)
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-abundanceplot}
+\includegraphics[width=.8\linewidth]{QuasiAlign-abundanceplot}
 \caption{Abundance of different orders in the database.}
 \label{fig:abundanceplot}
 \end{figure}
@@ -519,7 +519,7 @@ getRank(db, rank="Genus",
 
 Note that partial matching is performed from ``Thermo'' to 
 ``Thermoanaerobacterales.'' Partial matching is available for ranks and 
-names in most operations in \pkg{MMSA}.
+names in most operations in \pkg{QuasiAlign}.
 
 We can also get the complete classification hierarchy for different ranks 
 down to individual sequences. In the following we get the classification
@@ -542,7 +542,7 @@ getHierarchy(db, rank="id", name="1250")
 
 \subsection{Converting Sequences to NSV}
 In order to create position sensitive $p$-mer clustering models, we need to
-first create Numerical Summarization Vectors (NSVs).  The \pkg{MMSA} package can
+first create Numerical Summarization Vectors (NSVs).  The \pkg{QuasiAlign} package can
 easily convert large number of sequences in the database to NSV format and 
 store them in the same database. The following command will convert all
 the sequences to NSV format  and store them in a table called NSV.
@@ -614,7 +614,7 @@ plot(NSVs[1:5,1])
 
 \begin{figure}
 \centering
-\includegraphics[width=\linewidth]{MMSA-NSVplot}
+\includegraphics[width=\linewidth]{QuasiAlign-NSVplot}
 \caption{$p$-mer frequency plot.}
 \label{fig:-NSVplot}
 \end{figure}
@@ -642,7 +642,7 @@ files from a directory into the database and then converts them into NSVs.
 
 <<>>=
 db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="MMSA"), db)
+processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 @
 
 Additional parameters (e.g., window or word) will be passed on to creating 
@@ -685,21 +685,21 @@ plot(model, method="graph")
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_1}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_1}
 \caption{Default plot of a model as a graph using a standard graph-layout algorithm.}
 \label{fig:EMM_Plot}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_2}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_2}
 \caption{Plot of the model using MDS do display more similar clusters closer together.}
 \label{fig:EMM_Plot_MDS}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_3}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_3}
 \caption{Plot of the model using Graphviz .}
 \label{fig:EMM_Plot_Graphviz}
 \end{figure}
@@ -779,8 +779,8 @@ table(validation$prediction[,"actual"],
 @
 
 \subsection{Visualizing Sequences and NSVs}
-One of the unique advantages of MMSA is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.
-In this section, we will show how MMSA can be used to plot sequences and visualize similar portions or segments of sequences. Since we already have clusters and associated sequence details available as metadata information in the model, visualization is extremely fast and rapid. Thus it is a very powerful and efficient alternative to multiple sequence alignment. It can provide a visual clue about similar portions of sequences or areas of a sequence which are highly conserved across species.
+One of the unique advantages of QuasiAlign is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.
+In this section, we will show how QuasiAlign can be used to plot sequences and visualize similar portions or segments of sequences. Since we already have clusters and associated sequence details available as metadata information in the model, visualization is extremely fast and rapid. Thus it is a very powerful and efficient alternative to multiple sequence alignment. It can provide a visual clue about similar portions of sequences or areas of a sequence which are highly conserved across species.
 
 Each model has associated metadata which gives a list of sequences. Each list contains a vector of states to which the corresponding segments are classified to.
 Here is an example:
@@ -810,7 +810,7 @@ nsv[[1]]
 @
 
 A clearer picture about the clustering will emerge when we visualize the sequences and segments and see how they fit into clusters. In this section, we will introduce some of the plots that are commonly used in the Biological sciences such as the Sequence Logo plot.  We will also use the barplot to plot the distribution of NSVs in a cluster of sequences. 
-The following command illustrates how a Sequence Logo plot can be obtained easily using MMSA.
+The following command illustrates how a Sequence Logo plot can be obtained easily using QuasiAlign
 
 
 
@@ -820,7 +820,7 @@ plot(sequences,1,20)
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_4}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_4}
 \caption{Sequence Logo plot of the first 10 sequences}
 \label{fig:Sequence_Logo}
 \end{figure}
@@ -845,7 +845,7 @@ modelStatesPlot(model,states=17)
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_5}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_5}
 \caption{Plot showing the sequences and segments which are part of state 17}
 \label{fig:modelStatesPlot}
 \end{figure}
@@ -858,12 +858,12 @@ modelStatesPlot(model,states=3:6)
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_6}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_6}
 \caption{Plot showing the sequences and segments which are part of states 3 through 6}
 \label{fig:modelStatesPlotMultiple}
 \end{figure}
 
-One of the more popular approaches in bioinformatics for comparing and analyzing sequences is \textbf{Multiple Sequence Alignment}. It is often a computationally expensive process involving comparing each base one at a time between pairs of sequences. MMSA is based on a rapid clustering approach and is thus able to accomplish rapid clustering and classification of sequences. The function \func{compareSequences} can compare two or more genetic sequences and find areas of similarity between them. It visually depicts segments (or windows) which are clustered together in a state.
+One of the more popular approaches in bioinformatics for comparing and analyzing sequences is \textbf{Multiple Sequence Alignment}. It is often a computationally expensive process involving comparing each base one at a time between pairs of sequences. QuasiAlign is based on a rapid clustering approach and is thus able to accomplish rapid clustering and classification of sequences. The function \func{compareSequences} can compare two or more genetic sequences and find areas of similarity between them. It visually depicts segments (or windows) which are clustered together in a state.
 
 <<EMM_7, fig=TRUE, include=FALSE>>=
 compareSequences(model,sequences=c(2,3))
@@ -871,7 +871,7 @@ compareSequences(model,sequences=c(2,3))
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_7}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_7}
 \caption{Comparing Sequences of the model to visually analyze similar areas.}
 \label{fig:compareSequences}
 \end{figure}
@@ -884,14 +884,14 @@ compareSequences(model,sequences=c(2:4))
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_8}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_8}
 \caption{Comparing Multiple Sequences of the model to visually analyze similar areas.}
 \label{fig:compareSequencesMultiple}
 \end{figure}
 
 \subsection{Finding conserved segments across sequences}
 
-One of the problems in bioinformatics is finding sequences or segments across sequences that are highly similar. This is especially useful in functional and phylogenetic analysis of species and sequences. As a preliminary step, MMSA includes a function \func{findLargestCommon} which searches for two or more sequences in a model that have the largest common portions. The common areas are identified by getting a count of common segments and then finding those sequences that share the maximum number of common segments.
+One of the problems in bioinformatics is finding sequences or segments across sequences that are highly similar. This is especially useful in functional and phylogenetic analysis of species and sequences. As a preliminary step, QuasiAlign includes a function \func{findLargestCommon} which searches for two or more sequences in a model that have the largest common portions. The common areas are identified by getting a count of common segments and then finding those sequences that share the maximum number of common segments.
 
 <<>>=
 common <- findLargestCommon(model,limit=5)
@@ -906,7 +906,7 @@ compareSequences(model,common[[2]])
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_9}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_9}
 \caption{The function \func{findLargestCommon} can be used to find the most common sequences. In this figure, we check for the 2 most similar sequences.}
 \label{fig:TwoMostSimilar}
 \end{figure}
@@ -919,7 +919,7 @@ compareSequences(model,common[[3]])
 
 \begin{figure}
 \centering
-\includegraphics[width=.8\linewidth]{MMSA-EMM_10}
+\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_10}
 \caption{The function \func{findLargestCommon} can be used to find the most common sequences. In this figure, we check for the 3 most similar sequences.}
 \label{fig:ThreeMostSimilar}
 \end{figure}
@@ -938,9 +938,9 @@ system("rm -rf models/")
 @
 
 %\bibliographystyle{abbrvnat}
-%\bibliography{MMSA}
+%\bibliography{QuasiAlign}
 
-\bibliography{MMSA,sequence}
+\bibliography{QuasiAlign,sequence}
 
 
 \end{document}

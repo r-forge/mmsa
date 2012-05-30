@@ -34,7 +34,7 @@ version 2.0, Bioinformatics 2007 23(21):2947-29
 ### load 5 sequences
 sequences <- read.DNAStringSet(
     system.file("examples/phylums/Proteobacteria.fasta",
-            package="MMSA"),
+            package="QuasiAlign"),
     nrec=5)
 sequences
 

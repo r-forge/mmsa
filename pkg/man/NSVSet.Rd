@@ -59,7 +59,7 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 \examples{
 db<-createGenDB("example.sqlite")
 addSequences(db, 
-    system.file("examples/phylums/Proteobacteria.fasta", package="MMSA"))
+    system.file("examples/phylums/Proteobacteria.fasta", package="QuasiAlign"))
 
 ### add the table with the counts for all sequences in the GenDB
 createNSVTable(db, table="NSV")

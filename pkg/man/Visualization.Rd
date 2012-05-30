@@ -34,7 +34,7 @@ findLargestCommon(model, limit=NULL)
 
 \examples{
 db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="MMSA"), db)
+processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 model <- GenModelDB(db, rank="Gen", name="Syntro", table="NSV") 
 model
 

@@ -66,7 +66,7 @@ validateModels(db, modelDir, rank="phylum", table="NSV",
 }
 \examples{
 db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums",package="MMSA"), db)
+processSequences(system.file("examples/phylums",package="QuasiAlign"), db)
 
 ### create a directory for the models
 modelDir <- "exampleModels"

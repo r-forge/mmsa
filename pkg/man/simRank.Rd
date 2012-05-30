@@ -30,7 +30,7 @@ search tool, BMC Ecology 2011, 11:11
 ### load sequences
 sequences <- read.DNAStringSet(
     system.file("examples/phylums/Proteobacteria.fasta", 
-	package="MMSA"))
+	package="QuasiAlign"))
 sequences
 
 ### compute similarity

@@ -111,7 +111,7 @@ where
  }
 \examples{
 db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="MMSA"), db)
+processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 
 ### create a model for Genus Syntrophomonas
 model <- GenModelDB(db, rank="Genus", name="Syntrophomonas", table="NSV")
