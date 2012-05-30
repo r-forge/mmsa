@@ -3,7 +3,7 @@
 \alias{GenModelDB}
 \alias{plot.GenModel}
 \alias{print.GenModel}
-\alias{prune.GenModel}
+\alias{prune,GenModel-method}
 \alias{recluster}
 \alias{getClusteringDetails}
 \alias{getClusteringSequences}
@@ -20,6 +20,8 @@ GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan",
 
 getClusteringDetails(model, state=NULL)
 getClusteringSequences(db, model, state, table="sequences")
+
+prune(x, ...)
 }
 \arguments{
 	\item{x}{An object of class NSVSet.}
@@ -35,9 +37,13 @@ getClusteringSequences(db, model, state, table="sequences")
 	\item{state}{state in the model about which details are required.} 
 	\item{showClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
 
+	\item{...}{arguments passed on to the next method. For \code{prune}
+	the arguments are passed on to \code{prune} in package \pkg{rEMM}. 
+	The most important parameter is \code{count_threshold}. All
+	clusters with a count of less or equal the threshold are pruned.}
 }
 \value{
-	{\code{GenModel()} and \code{GenModelDB()} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
+	{\code{GenModel()}, \code{GenModelDB()} and \code{prune} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
 	{\code{getClusteringDetails()} returns a list of states with the id of sequences in each state \code{getClusteringSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
 
 }
@@ -50,7 +56,7 @@ getClusteringSequences(db, model, state, table="sequences")
 	Also a plot function is provided for GenModel. Additional parameters
 	are passed on to plot in package \pkg{rEMM}.
 }
-
+\seealso{\code{\link[rEMM]{prune}} in package \pkg{rEMM}}
 \examples{
 db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="MMSA"), db)

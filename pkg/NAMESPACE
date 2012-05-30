@@ -1,3 +1,4 @@
+importFrom("rEMM", "prune")
 
 export( 
 	GenClass16S,
@@ -29,7 +30,7 @@ export(
 	classify,
 	validateModels,
 	scoreSequence,
-	
+
 	clustal,
 	simRank,
 	

@@ -186,11 +186,13 @@ plot.GenModel <- function(x, ...) {
 }
 
 
-
-prune.GenModel <- function(x, ...) {
-    x$model <- prune(x$model, ...)
-    x
-}
+### prune is a S4 generic 
+setOldClass("GenModel")
+setMethod("prune", signature(x = "GenModel"),
+	function(x, ...) {
+	    x$model <- prune(x$model, ...)
+	    x
+	})
 
 recluster <- function(x, method=recluster_kmeans, ...) {
     new_model <- method(x$model, ...)

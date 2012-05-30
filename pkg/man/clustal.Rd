@@ -17,7 +17,9 @@ an object of class DNAStringSet with the sequences to be aligned.
 }
 }
 \details{
-The clustalw software has to be installed and has to be in the search path.
+The clustalw software has to be installed and 
+be executable by the system. Try \code{Sys.which("clustalw")} to 
+see if the program is properly installed.
 }
 \value{
 An object of class DNAMultipleAlignment (see \pkg{BioStrings}).
@@ -41,6 +43,9 @@ al <- clustal(sequences)
 al
 
 detail(al)
+
+### plot a sequence logo for the first 20 pisitions
+plot(al, 1, 20)
 }
 }
 \keyword{model}

@@ -13,7 +13,7 @@ clustal <- function(x) {
     write.XStringSet(x, temp_file, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
-    system(paste("clustalw", temp_file))
+    system(paste(Sys.which("clustalw"), temp_file))
 
     read.DNAMultipleAlignment(paste(temp_file, ".aln", sep=""), 
 	    format="clustal")

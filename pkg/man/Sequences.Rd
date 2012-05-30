@@ -4,6 +4,7 @@
 \alias{addSequences}
 \alias{nSequences}
 \alias{plot.DNAStringSet}
+\alias{plot.DNAMultipleAlignment}
 \title{Genetic Sequences}
 \description{
 Genetic sequences are stored in a GenDB (as character strings with meta
