@@ -110,13 +110,16 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 getModelDetails <- function(model, state=NULL)
 {	
     
-### FIXME: this does not work if a sequence has the same state twice!
-
     if(!is.null(state)) {
 	occ <- lapply(model$clusterInfo, FUN=function(x) which(x==state))
 	occ[sapply(occ, length) <1] <- NULL     
-	return(data.frame(sequence=names(occ), segment=unlist(occ), 
-			row.names=NULL, stringsAsFactors=FALSE))
+	
+	return(
+		data.frame(sequence=	
+			rep(names(occ), times=sapply(occ, length)),
+			segment=unlist(occ),
+			row.names=NULL, stringsAsFactors=FALSE)
+		)
     }
     
     l <- lapply(clusters(model$model), FUN=function(x) 
