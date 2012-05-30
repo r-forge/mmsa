@@ -1,14 +1,16 @@
-modelStatesPlot <- function (model, states)
+modelStatesPlot <- function (model, states, ...)
 {
+		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
-		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))
+		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))*window
 		#yrange is the number of sequences
 		yrange <- model$nSequences
-		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
+		plot(NA, xlim=c(0,xrange),ylim=c(1,yrange+5), axes=FALSE, xlab="nucleotide positions", ylab="sequences", bty="l", las=1, ...)
+		#bty="l"
 		#labels for x axis
-		axis(1, at=(1:xrange)+0.5 , labels=c(1:xrange))
+		axis(1, at=seq(0,xrange,by=window), labels=seq(0,xrange,by=window), las=2)
 		#axis(2, at=1:yrange, labels=names(model$clusterInfo), las=2, at=NULL)
-		axis(2, las=2, at=NULL)
+		axis(2, at=seq(0,yrange,by=5),labels =seq(0,yrange,by=5),las=1)
 		abline(h=c(1:yrange), col="grey", lty="dotted")
 		colors <- c("red")
 		vertColors <- c("blue")
@@ -16,7 +18,7 @@ modelStatesPlot <- function (model, states)
 	for(modelState in states)
 	{
 		#get meta info from clustering details of the model
-		cd <- getClusteringDetails(model, modelState)
+		cd <- getModelDetails(model, modelState)
 		#get the sequences which are part of the state 
 		sequences <- cd[,1]
 		#get the indexes of the sequences
@@ -29,23 +31,48 @@ modelStatesPlot <- function (model, states)
 		#vertical lines	
 		#lines(as.numeric(segments),sequenceInd, col=vertColors, lwd=2)
 		#lines(as.numeric(segments)+1,sequenceInd, col=vertColors, lwd=2)
-		lines(as.numeric(segments)+0.5,sequenceInd, lty=2)
+		#lines(as.numeric(segments)+0.5,sequenceInd, lty=2)
+		lines(((segments-1)*window+1)+window/2,sequenceInd, lty=2)
 		#horizontal lines
 		for(i in 1:length(sequenceInd))
-			lines(c(as.numeric(segments[i]),as.numeric(segments[i])+1),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
+				lines(.segmentToSequenceNumbers(model, segments[i]),c(sequenceInd[i],sequenceInd[i]), col=colors, lwd=2)
 		#put the text for the state number at the top
-		text(as.numeric(segments[length(segments)])+0.5, as.numeric(max(sequenceInd)),modelState, pos=3, adj=c(0,0), xpd=TRUE, col="black")
+		text(((segments[length(segments)]-1)*window+1)+window/2, as.numeric(max(sequenceInd)),modelState, pos=3, adj=c(0,0), xpd=TRUE, col="black")
+	}
+	hyper<-list(c(69,99), c(137,242), c(433,497), c(576,682), c(822,879), c(986,1043), c(1117,1173), c(1243,1294),c(1435,1465))
+	for(i in 1:length(hyper))
+	{	
+		#lines(hyper[[i]],c(max(sequenceInd)+1,max(sequenceInd)+1),col="blue",lwd=2)
+		lines(hyper[[i]],c(yrange+5,yrange+5),col="blue",lwd=2)
+		hyperRegion <- paste("V",i,sep="")
+		#text(mean(hyper[[i]]),max(sequenceInd)+1, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+		text(mean(hyper[[i]]),yrange+5, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+			
 	}
 
 }
 
-compareSequences <- function(model, sequences)
+.segmentToSequenceNumbers<- function(model, segment)
+{
+	window <- as.integer(model$window)	
+	start <- (segment-1)*window + 1
+	end <- start + 100 -1 
+	#snum <- list()
+	#for(i in 1:length(start)) {
+	#	snum[[i]] <- c(start[i],end[i])
+	#}
+	snum <- c(start,end)
+	names(snum) <- c("start","end")
+	return(snum)	
+}
+
+compareSequences <- function(model, sequences, ...)
 {
 		#xrange is the max number of windows from all the sequences
 		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))
 		#yrange is the number of sequences
 		yrange <- model$nSequences
-		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences")
+		plot(NA, xlim=c(1,xrange), ylim=c(1,yrange), axes=FALSE, xlab="segments", ylab="sequences", ...)
 		#labels for x axis
 		axis(1, at=1:xrange, labels=c(1:xrange))
 		#labels for y axis
@@ -69,7 +96,7 @@ compareSequences <- function(model, sequences)
 		for(modelState in common)
 		{
 			#get meta info from clustering details of the model
-			cd <- getClusteringDetails(model, modelState)
+			cd <- getModelDetails(model, modelState)
 			#get the sequences 
 			modelSequences <- cd[,1]
 			#get the indexes of the sequences in the model

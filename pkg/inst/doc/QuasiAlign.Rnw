@@ -121,29 +121,29 @@ set.seed(1234)
 @
 
 \section{Introduction}
-Metagenomics~\cite{sequence:Handelsman:1998} 
-and the Human Microbiome~\cite{sequence:Turnbaugh:2007, sequence:Volker:2010}
+Metagenomics \citep{sequence:Handelsman:1998} 
+and the Human Microbiome \cite{sequence:Turnbaugh:2007, sequence:Volker:2010}
 provide a complex landscape for dealing with a
 multitude of genomes all at once. One of the many challenges in this field is
 classification of the genomes present in the sample. Effective metagenomic
 classification and diversity analysis require complex representations of taxa.
 
 A common characteristic of most sequence-based classification techniques (e.g.,
-BAlibase~\cite{sequence:Smith:1981},
-BLAST~\cite{sequence:Altschul:1990}, 
-T-Coffee~\cite{sequence:Notredame:2000},
-MAFFT~\cite{sequence:Katoh:2002}, 
-MUSCLE~\cite{sequence:Edgar:2004,sequence:Edgar:2004b}, 
-Kalign~\cite{sequence:Lassmann:2006} and
-ClustalW2 and ClustalX2~\citep{sequence:Larkin:2007}) 
+BAlibase \citep{sequence:Smith:1981},
+BLAST  \citep{sequence:Altschul:1990}, 
+T-Coffee \citep{sequence:Notredame:2000},
+MAFFT \citep{sequence:Katoh:2002}, 
+MUSCLE \citep{sequence:Edgar:2004,sequence:Edgar:2004b}, 
+Kalign \citep{sequence:Lassmann:2006} and
+ClustalW2 and ClustalX2 \citep{sequence:Larkin:2007}) 
 is the use of computationally very expensive sequence alignment.
-Statistical signatures~\citep{sequence:Vinga:2003} created from 
+Statistical signatures \citep{sequence:Vinga:2003} created from 
 base composition
 frequencies offer an alternative to using classic alignment. These 
 alignment-free methods reduce processing time and 
 look promising for whole genome
 phylogenetic analysis where previously used methods do not scale 
-well~\cite{sequence:Thompson:1999}.
+well \citep{sequence:Thompson:1999}.
 However, pure alignment-free methods typically do not provide the desired
 classification accuracy and do not offer large preprocessed databases which
 makes the comparison of a sequence with a large set of known sequences
@@ -155,9 +155,9 @@ no alignment and scale well for large scale data because it is based on
 high-throughput data stream clustering techniques resulting in so called
 quasi-alignments. Also the growth rate of the size of the learned profile
 models has proven to be sublinear due to the compression achieved by 
-clustering~\cite{hahsler:Kotamarti:2010}.
+clustering \citep{hahsler:Kotamarti:2010}.
 Note also that the topology of the model is not
-predetermined (as for HMMs~\cite{sequence:Eddy:1998}), but is learned through the associated
+predetermined (as for HMMs \citep{sequence:Eddy:1998}), but is learned through the associated
 machine learning algorithms.
 
 %%This paper is organized as follows. In Section ...
@@ -165,12 +165,12 @@ machine learning algorithms.
 
 %Markov Models in Sequence Analysis (MMSA) project used Markov Models for identification, organization, and classification of various species
 %based on their genetic sequences. More specifically, we use sequences for 16S rRNA gene, which is known to be conserved across species and is widely used
-%for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project ~\citep{MMSA:2012:Greengenes}.
+%for identification and classification. Sequences for the 16S rRNA gene can be freely downloaded from the website of the Greengenes project  \citep{MMSA:2012:Greengenes}.
 
 \section{Using TRACDS for Genomic Applications}
 %The Extensible Markov Model (EMM) can be understood as an evolving Markov Chain (MC) model which is updated when new data is arrived. It has
 %everal benefits over traditional Markov Models and can be used to create compact and space efficient models for data streams and other time-varying data.
-%The  R package rEMM \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
+%The  R package rEMM  \citep{MMSA:rEMM:2012}  implements a robust and stable implementation of EMM.
 
 %%start
 Sequence clustering using position sensitive $p$-mer clustering is based 
@@ -178,7 +178,7 @@ on the idea of computing distances between sequences using
 $p$-mer frequency counts instead of 
 computationally expensive alignment between the original sequences. 
 This idea is at the core of so-called alignment-free 
-methods~\citep{sequence:Vinga:2003}. 
+methods \citep{sequence:Vinga:2003}. 
 However, in contrast to these methods we count $p$-mer frequencies 
 position specific (i.e., for different segments of the sequence) and then use
 high-throughput data stream clustering to group similar segments. 
@@ -260,17 +260,17 @@ in the literature
 to compare sequences based on $p$-mer counts (alignment-free methods)
 include Euclidean distance, squared Euclidean distance,
 Kullback-Leibler discrepancy and Mahalanobis
-distance~\citep{sequence:Vinga:2003}.
-Recently, for Simrank~\citep{sequence:DeSantis:2011} an even simpler similarity
+distance \citep{sequence:Vinga:2003}.
+Recently, for Simrank \citep{sequence:DeSantis:2011} an even simpler similarity
 measure, the number of matching $p$-mers (typically with $p=7$), was proposed
 for efficient search of very large database.
 In the area of approximate string matching Ukkonen proposed the 
 approximate the expensive computation of the edit 
-distance~\citep{sequence:Levenshtein:1966} between two strings
+distance \citep{sequence:Levenshtein:1966} between two strings
 by using $q$-grams (analog to $p$-mers in sequences). First
 $q$-gram profiles are computed
 and then the distance between the profiles is calculated using
-Manhattan distance~\citep{sequence:Ukkonen:1992}.
+Manhattan distance \citep{sequence:Ukkonen:1992}.
 The Manhattan distance between
 two $p$-mer NSVs $x$ and $y$ is defined as:
 
@@ -287,7 +287,7 @@ This relationship is easy to proof since each insertion/deletion/substitution
 in a sequences destroys at the most $p$ $p$-grams and introduces
 at most $p$ new $p$-grams.
 Although, we can construct two completely different sequences with exactly
-the same NSVs (see \cite{sequence:Ukkonen:1992} for a method for regular 
+the same NSVs (see  \citep{sequence:Ukkonen:1992} for a method for regular 
 strings), we are typically
 interested in sequences of high similarity in which case 
 $d_\mathrm{Manhattan}(x,y)/(2p)$ gets closer to the edit distance.
@@ -307,7 +307,7 @@ a cluster model for a whole family of sequences by simply adding the NSVs
 of all sequences to a single model following the procedure in Figure~\ref{emm}.
 This will lead to even more compression since many sequences within a family
 will share NSVs stemming from similar sequence segments. We explored
-this approach for taxonomic classification in~\citep{hahsler:Kotamarti:2010}. 
+this approach for taxonomic classification in \citep{hahsler:Kotamarti:2010}. 
 
 
 %%end
@@ -353,7 +353,7 @@ which will share the classification table.
 
 \subsection{Classification}
 The classification score evaluates how likely
-it is that a sequence was generated by a given model~\citep{MMSA:rEMM:2012}.
+it is that a sequence was generated by a given model \citep{MMSA:rEMM:2012}.
 It is calculated by the length-normalized product or sum of probabilities on
 the path along the new sequence.  The scores for a new sequence of length $l$
 are defined as:
@@ -469,9 +469,9 @@ s
 
 The database also stores a classification hierarchy.
 We can obtain the classification hierarchy used in 
-the database with \func{getClassification}.     
+the database with \func{getTaxonomyNames}.     
 <<>>=
-getClassification(db)
+getTaxonomyNames(db)
 @
 
 To obtain all unique names stored in the database 
@@ -664,7 +664,7 @@ table that belong to the genus ``Desulfosporomusa''. For creating the model, we
 use Manhattan distance with a threshold of 30 for clustering NSVs. 
 For more
 details about model creation, please see the reference manual of the rEMM
-package \cite{MMSA:rEMM:2012}. In addition a limit parameter 
+package  \citep{MMSA:rEMM:2012}. In addition a limit parameter 
 can be used to restrict the maximum number
 of sequences to be used in model creation. 
 
@@ -792,20 +792,20 @@ model$clusterInfo
 
 In certain cases, we are interested in finding details about which 
 sequences and segments are part of a state. 
-This can be easily obtained using the \func{getClusteringDetails}.
+This can be easily obtained using the \func{getModelDetails}.
 
 <<>>=
-getClusteringDetails(model, state=17)
+getModelDetails(model, state=17)
 @
 
-The above command gives the sequences and the segments within them that are part of state 17. The \textit{state} parameter can be ommitted to obtain details of all the states.  To see the actual segments that are part of a state, the function \func{getClusteringSequences} can be used. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
+The above command gives the sequences and the segments within them that are part of state 17. The \textit{state} parameter can be ommitted to obtain details of all the states.  To see the actual segments that are part of a state, the function \func{getModelSequences} can be used. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 
 
 <<>>=
-sequences <- getClusteringSequences(db, model, state=17, table="sequences")
+sequences <- getModelSequences(db, model, state=17, table="sequences")
 sequences
 @
 <<>>=
-nsv <- getClusteringSequences(db, model, state=17, table="NSV")
+nsv <- getModelSequences(db, model, state=17, table="NSV")
 nsv[[1]]
 @
 

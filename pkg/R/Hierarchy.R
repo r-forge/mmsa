@@ -8,7 +8,7 @@ GenClass16S <- function(domain=NA, phylum=NA, class=NA, order=NA,
 }
 
 ### get classification info
-getClassification <- function(db) {
+getTaxonomyNames <- function(db) {
     cl <- dbListFields(db$db, "classification")
     cl <- head(cl, length(cl))   ### remove data
     cl
@@ -16,7 +16,7 @@ getClassification <- function(db) {
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
 	all=FALSE, partialMatch = TRUE) {
-    fields <- getClassification(db)
+    fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
 
@@ -29,7 +29,7 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
-    hierarchy <- getClassification(db)
+    hierarchy <- getTaxonomyNames(db)
     
     .getHierarchy <- function(db, rank, name) {
 		#convert rank to number, eg: kingdom=1, phylum=2
@@ -46,7 +46,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 
     ### find all matching names
     name <- unlist(lapply(name, FUN=function(n) 
-		    getRank(db, rank=rank, whereRank=rank, whereName=n, 
+		    	getRank(db, rank=rank, whereRank=rank, whereName=n, 
 			    partialMatch=partialMatch)))
     
 
@@ -55,7 +55,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     ### handle multiple names
     m <- t(sapply(name, FUN=function(x) 
 		    .getHierarchy(db, rank, x)))
-    colnames(m) <- getClassification(db)
+    colnames(m) <- getTaxonomyNames(db)
     rownames(m) <- NULL
 
     if(drop) m <- drop(m)

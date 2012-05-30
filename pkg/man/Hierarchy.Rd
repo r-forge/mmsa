@@ -1,6 +1,6 @@
 \name{Hierarchy}
 \alias{getRank}
-\alias{getClassification}
+\alias{getTaxonomyNames}
 \alias{getAllRanks}
 \alias{getHierarchy}
 \title{Classification Hierarchy for Sequences}
@@ -12,7 +12,7 @@ classification table.  If no rank is provided, it defaults to the top-most
 level i.e. kingdom.
   }
 \usage{
-getClassification(db)
+getTaxonomyNames(db)
 getHierarchy(db, rank, name, drop=TRUE, partialMatch=TRUE)
 getRank(db, rank = NULL, whereRank=NULL, whereName=NULL, 
     all=FALSE, partialMatch=TRUE)
@@ -35,7 +35,7 @@ getRank(db, rank = NULL, whereRank=NULL, whereName=NULL,
 	can use this function as:
 	\code{getRank(db,"phylum","kingdom","bacteria")}.
 
-	The \code{getClassification()} function lists the fields present in the
+	The \code{getTaxonomyNames()} function lists the fields present in the
 	classification table and can be used to find out the classification
 	hierarchy.
 	
@@ -50,7 +50,7 @@ db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 db
 
 ### get used classification hierarchy
-getClassification(db)
+getTaxonomyNames(db)
 
 ### lists and plot the distinct genuses
 getRank(db, "genus")

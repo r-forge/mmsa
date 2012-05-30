@@ -1,15 +1,20 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
-	measure="Manhattan", threshold=30) {
+	measure="Manhattan", threshold=30, showClusterInfo=TRUE) {
     
     d <- .make_stream(x)
+	id <- attr(x,"id")
     if(measure=="Kullback") d <- d + 1
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
     emm
+	l<-last_clustering(emm)
+	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+	names(clusterInfo) <- ids
 
-    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
+    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm, )
     
+    if (showClusterInfo) genModel$clusterInfo <- clusterInfo
     class(genModel) <- "GenModel"	
     genModel		
 }
@@ -17,7 +22,7 @@ GenModel <- function(x, rank=NULL, name = NULL,
 # creates an model from sequences in the db 
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
 	measure="Manhattan", threshold=30, 
-	selection=NULL, limit=-1, showClusterInfo=TRUE) {
+	selection=NULL, limit=NULL, showClusterInfo=TRUE) {
 
     #check if table exists in db
     if (length(which(table==listGenDB(db))) == 0)
@@ -41,7 +46,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     nSequences <- nSequences(db, rank, name)
     hierarchy <- getHierarchy(db, rank, name)
 
-    if (limit != -1) nSequences <- min(nSequences,limit)
+    if (!is.null(limit)) nSequences <- min(nSequences,limit)
 
     #clusterinfo stores the last_clustering details
     clusterInfo<-list(nSequences)
@@ -70,19 +75,19 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    i<-min(i+100,nSequences)
 	    cat("GenModel: Processed",i,"sequences\n")
 	}
-    } else if (!is.null(selection)){
-	d<-getSequences(db, rank, name, table, limit=limit)
-	ids <- attr(d,"id")[selection]
-	d<-d[selection]
-	if (length(d)==0) stop("GenModel called with 0 sequences")
-	d <- .make_stream(d)
-	build(emm, d)
-	l<-last_clustering(emm)
-	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-	names(clusterInfo) <- ids
-	reset(emm)
-	nSequences <- length(selection)
-	cat("GenModel: Processed ",nSequences ," sequences\n")
+    } else if (!is.null(selection)) {
+		d<-getSequences(db, rank, name, table, limit=limit)
+		ids <- attr(d,"id")[selection]
+		d<-d[selection]
+		if (length(d)==0) stop("GenModel called with 0 sequences")
+		d <- .make_stream(d)
+		build(emm, d)
+		l<-last_clustering(emm)
+		clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+		names(clusterInfo) <- ids
+		reset(emm)
+		nSequences <- length(selection)
+		cat("GenModel: Processed ",nSequences ," sequences\n")
     }
 
     rank <- .pmatchRank(db, rank)
@@ -102,7 +107,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
 #	Returns the model states and the ID and the segment number of the sequences that are part of that state in format id:segment.
 #	By default, returns all states as a list, if a modelState is specified. returns only the sequences that are part of that state
-getClusteringDetails <- function(model, state=NULL)
+getModelDetails <- function(model, state=NULL)
 {	
     
 ### FIXME: this does not work if a sequence has the same state twice!
@@ -115,7 +120,7 @@ getClusteringDetails <- function(model, state=NULL)
     }
     
     l <- lapply(clusters(model$model), FUN=function(x) 
-	    getClusteringDetails(model, state=x))
+	    getModelDetails(model, state=x))
 
     names(l) <- clusters(model$model)
     l
@@ -124,19 +129,19 @@ getClusteringDetails <- function(model, state=NULL)
 
 #	Returns the sequences that are part of a given model state as list of DNA or NSV sequence objects
 #
-getClusteringSequences <- function(db, model, state, table="sequences")
+getModelSequences <- function(db, model, state, table="sequences")
 {	
     #get the ids that are part of the model state as a list
-    ids<-getClusteringDetails(model, state)
+    ids<-getModelDetails(model, state)
 
     stateSequences <- list()
     
     for(i in 1:nrow(ids)){
 	id <- ids[i,]
 	sequence <- id["sequence"]
-	segment <- id["segment"]
-	window <- model$window
-	start <- (segment - 1L) * window + 1L
+	segment <- as.integer(as.character(id["segment"]))
+	window <- as.numeric(model$window)
+	start <- (segment - 1) * window + 1
 	
 	stateSequences <- c(stateSequences,
 		getSequences(db, rank="id",name=sequence, 
@@ -221,7 +226,7 @@ processSequences <- function(dir, db, metaDataReader=GreengenesMetaDataReader,
 # Creates models in modelDir directory for all names in rank.  If selection is
 # specified, then it uses only those sequences for creating the model
 createModels <- function(modelDir, rank = "Phylum", db, selection=NULL, 
-	limit=-1, ...) 
+	limit=NULL, ...) 
 {
 
     ### make sure the directory is always lower case

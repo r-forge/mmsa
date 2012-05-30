@@ -5,21 +5,21 @@
 \alias{print.GenModel}
 \alias{prune,GenModel-method}
 \alias{recluster}
-\alias{getClusteringDetails}
-\alias{getClusteringSequences}
+\alias{getModelDetails}
+\alias{getModelSequences}
 \title{Genetic Sequences Models}
 \description{
 GenModel models sequences by clusters of similar NSVs and the transition
 information between the clusters.
 }
 \usage{
-GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
+GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, showClusterInfo=TRUE)
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
     threshold=30, selection=NULL, limit=-1, showClusterInfo=TRUE)
 
-getClusteringDetails(model, state=NULL)
-getClusteringSequences(db, model, state, table="sequences")
+getModelDetails(model, state=NULL)
+getModelSequences(db, model, state, table="sequences")
 
 \S4method{prune}{GenModel}(x, ...)
 }
@@ -44,13 +44,13 @@ getClusteringSequences(db, model, state, table="sequences")
 }
 \value{
 	{\code{GenModel()}, \code{GenModelDB()} and \code{prune} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
-	{\code{getClusteringDetails()} returns a list of states with the id of sequences in each state \code{getClusteringSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
+	{\code{getModelDetails()} returns a list of states with the id of sequences in each state \code{getModelSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
 
 }
 \details{
 	genModel group of functions are  used after a gene sequence has been
 	converted to NSV format.  After creating the model,
-	\code{getClusteringDetails} and \code{getClusteringSequences} can be
+	\code{getModelDetails} and \code{getModelSequences} can be
 	used to obtain meta information. 
 
 	Also a plot function is provided for GenModel. Additional parameters

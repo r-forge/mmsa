@@ -39,7 +39,7 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 }
 
 
-createNSVTable <- function(db, table=NSV, 
+createNSVTable <- function(db, table="NSV", 
 	rank=NULL, name=NULL, window=100,
 	overlap=0, word=3, last_window=FALSE) {
 

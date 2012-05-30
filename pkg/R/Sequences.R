@@ -28,14 +28,14 @@ nSequences <- function(db, rank=NULL, name=NULL) {
 
 
 getSequences <- function(db,  rank=NULL, name=NULL, 
-	table="sequences", limit=-1, random=FALSE, start=1, length=NULL,
+	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
 	partialMatch=TRUE) {
 
-    if(limit[1]<0) limit <- "" 
+    if(is.null(limit)) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
 
 	if(random)  
-	limit <- paste(" ORDER BY RANDOM() ",limit)
+		limit <- paste(" ORDER BY RANDOM() ",limit)
     #make length SQL compatible
     if (is.null(length)) lengthFilter= "data"
     else

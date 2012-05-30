@@ -9,15 +9,15 @@ export(
 	listGenDB,
 	metaGenDB,
 	
-	getClassification,
+	getTaxonomyNames,
 	getRank,
 	getHierarchy,
 	
 	nSequences,
 	getSequences,
 	
-	getClusteringDetails,
-	getClusteringSequences,
+	getModelDetails,
+	getModelSequences,
 	
 	createNSVSet,
 	createNSVTable,
