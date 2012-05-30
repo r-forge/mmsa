@@ -9,7 +9,7 @@ Visualize and compare sequences from EMM models.
 Groups of functions to visualize, and compare sequences and NSVs from EMM models.
 }
 \usage{
-modelStatesPlot(model, states)
+modelStatesPlot(model, states, ylab=TRUE)
 compareSequences(model, sequences)
 findLargestCommon(model, limit=NULL)
 }
@@ -18,6 +18,7 @@ findLargestCommon(model, limit=NULL)
 	\item{states}{genModel states which are to be investigated.} 
 	\item{sequences}{Gene sequences which are to be compared.}
 	\item{limit}{Upper limit of number of sequences to be compared for common states.}
+	\item{ylab}{Whether Y axis labels should be displayed.}
 
 }
 \value{

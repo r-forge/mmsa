@@ -1,4 +1,4 @@
-modelStatesPlot <- function (model, states, ...)
+modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 {
 		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
@@ -9,8 +9,11 @@ modelStatesPlot <- function (model, states, ...)
 		#bty="l"
 		#labels for x axis
 		axis(1, at=seq(0,xrange,by=window), labels=seq(0,xrange,by=window), las=2)
-		#axis(2, at=1:yrange, labels=names(model$clusterInfo), las=2, at=NULL)
-		axis(2, at=seq(0,yrange,by=5),labels =seq(0,yrange,by=5),las=1)
+		if(ylab)
+			axis(2, at=seq(0,yrange,by=5),labels =seq(0,yrange,by=5),las=1)
+		else
+			axis(2, at=seq(0,yrange,by=5),las=1)
+		
 		abline(h=c(1:yrange), col="grey", lty="dotted")
 		colors <- c("red")
 		vertColors <- c("blue")
@@ -56,7 +59,7 @@ modelStatesPlot <- function (model, states, ...)
 {
 	window <- as.integer(model$window)	
 	start <- (segment-1)*window + 1
-	end <- start + 100 -1 
+	end <- start + window -1 
 	#snum <- list()
 	#for(i in 1:length(start)) {
 	#	snum[[i]] <- c(start[i],end[i])

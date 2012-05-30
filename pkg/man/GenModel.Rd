@@ -69,7 +69,7 @@ plot(model)
 
 
 ### look at sequence segments clustered in state 17
-getClusteringDetails(model, 17)
+getModelDetails(model, 17)
 s <- getClusteringSequences(db, model, state = 17)
 s
 
