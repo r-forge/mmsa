@@ -5,15 +5,17 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))*window
 		#yrange is the number of sequences
 		yrange <- model$nSequences
-		plot(NA, xlim=c(0,xrange),ylim=c(1,yrange+5), axes=FALSE, xlab="nucleotide positions", ylab="sequences", bty="l", las=1, ...)
+		plot(NA, xlim=c(0,xrange),ylim=c(1,max(1.05*yrange,2)), axes=FALSE, xlab="nucleotide positions", ylab="sequences", bty="l", las=1, ...)
 		#bty="l"
 		#labels for x axis
 		axis(1, at=seq(0,xrange,by=window), labels=seq(0,xrange,by=window), las=2)
 		if(ylab)
 			axis(2, at=seq(0,yrange,by=5),labels =seq(0,yrange,by=5),las=1)
 		else
-			axis(2, at=seq(0,yrange,by=5),las=1)
-		
+			{
+			print("point 1")	
+			axis(2,las=1)
+			}
 		abline(h=c(1:yrange), col="grey", lty="dotted")
 		colors <- c("red")
 		vertColors <- c("blue")
@@ -46,10 +48,10 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 	for(i in 1:length(hyper))
 	{	
 		#lines(hyper[[i]],c(max(sequenceInd)+1,max(sequenceInd)+1),col="blue",lwd=2)
-		lines(hyper[[i]],c(yrange+5,yrange+5),col="blue",lwd=2)
+		lines(hyper[[i]],c(max(1.05*yrange,2),max(1.05*yrange,2)),col="blue",lwd=2)
 		hyperRegion <- paste("V",i,sep="")
 		#text(mean(hyper[[i]]),max(sequenceInd)+1, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
-		text(mean(hyper[[i]]),yrange+5, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+		text(mean(hyper[[i]]),max(1.05*yrange,2), hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
 			
 	}
 

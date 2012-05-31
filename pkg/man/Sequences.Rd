@@ -19,7 +19,7 @@ See NSVSet for more information.
 	addSequences(db, file,
 	    metaDataReader=GreengenesMetaDataReader, verbose=FALSE)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=-1, random=FALSE, start=1, length=NULL,
+	    limit=NULL, random=FALSE, start=1, length=NULL,
 	    partialMatch=TRUE)
 	
 	nSequences(db, rank=NULL, name=NULL)

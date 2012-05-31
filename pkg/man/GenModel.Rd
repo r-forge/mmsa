@@ -16,7 +16,7 @@ information between the clusters.
 GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, showClusterInfo=TRUE)
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
-    threshold=30, selection=NULL, limit=-1, showClusterInfo=TRUE)
+    threshold=30, selection=NULL, limit=NULL, showClusterInfo=TRUE)
 
 getModelDetails(model, state=NULL)
 getModelSequences(db, model, state, table="sequences")
@@ -70,13 +70,13 @@ plot(model)
 
 ### look at sequence segments clustered in state 17
 getModelDetails(model, 17)
-s <- getClusteringSequences(db, model, state = 17)
+s <- getModelSequences(db, model, state = 17)
 s
 
 ### plot a sequence logo for the first 20 positions
 plot(s, 1, 20)
 
-nsv <- getClusteringSequences(db, model, state = 17, table="NSV")
+nsv <- getModelSequences(db, model, state = 17, table="NSV")
 nsv
 plot(nsv)
 

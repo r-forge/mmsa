@@ -11,7 +11,7 @@ new sequences.
 }
 \usage{
 processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
-createModels(modelDir, rank, db, selection, limit=-1, ...)
+createModels(modelDir, rank="Phylum", db, selection=NULL, limit=NULL, ...)
 classify(modelDir, NSVList, rank, method="supported_transitions")
 validateModels(db, modelDir, rank="phylum", table="NSV", 
     pctTest=0.1, method="supported_transitions", limit=NULL)
