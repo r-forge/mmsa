@@ -1,20 +1,20 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
 	measure="Manhattan", threshold=30, showClusterInfo=TRUE) {
-    
+
     d <- .make_stream(x)
-	id <- attr(x,"id")
     if(measure=="Kullback") d <- d + 1
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
-    emm
-	l<-last_clustering(emm)
-	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-	names(clusterInfo) <- ids
-
-    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm, )
     
+    l <- last_clustering(emm)
+    clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+    names(clusterInfo) <- attr(x,"id")
+
+    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
+
     if (showClusterInfo) genModel$clusterInfo <- clusterInfo
+    
     class(genModel) <- "GenModel"	
     genModel		
 }
