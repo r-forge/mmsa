@@ -27,7 +27,9 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 		#get the sequences which are part of the state 
 		sequences <- cd[,1]
 		#get the indexes of the sequences
-		sequenceInd <- which(names(model$clusterInfo) %in% sequences)
+		#sequenceInd <- which(names(model$clusterInfo) %in% sequences)
+		sequenceInd <- vector()
+		for(i in 1:length(sequences)) { sequenceInd[i] <- which(names(model$clusterInfo)==sequences[i]) }
 		#get the segments
 		segments <- cd[,2]
 		#colorIdx <- colorIdx + 1

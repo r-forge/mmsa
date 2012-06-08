@@ -6,10 +6,10 @@ GenModel <- function(x, rank=NULL, name = NULL,
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
-    
-    l <- last_clustering(emm)
-    clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-    names(clusterInfo) <- attr(x,"id")
+    emm
+	l<-last_clustering(emm)
+	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+	names(clusterInfo) <- id
 
     genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
 
@@ -22,7 +22,7 @@ GenModel <- function(x, rank=NULL, name = NULL,
 # creates an model from sequences in the db 
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
 	measure="Manhattan", threshold=30, 
-	selection=NULL, limit=NULL, showClusterInfo=TRUE) {
+	selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE) {
 
     #check if table exists in db
     if (length(which(table==listGenDB(db))) == 0)
@@ -32,7 +32,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
     index<-which(meta$name==table)  #find index of table
     if (meta$type[index]!="NSV")
-	stop("Not an NSV table")
+		stop("Not an NSV table")
     #get metadata about the table
     meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
     x<-unlist(strsplit(meta,";"))	
@@ -45,9 +45,15 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     nSequences <- nSequences(db, rank, name)
     hierarchy <- getHierarchy(db, rank, name)
-
+	
     if (!is.null(limit)) nSequences <- min(nSequences,limit)
-
+	#check for random and if so get random 'limit' random sequences from the DB
+	if (random) 
+		{	#get the IDs
+			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)
+			#if(is.null(limit)) limit <- nSequences
+			selection <- sample(as.vector(ids[,1]),nSequences)
+		}
     #clusterinfo stores the last_clustering details
     clusterInfo<-list(nSequences)
     ### Kullback can not handle 0 counts!
@@ -76,8 +82,18 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    cat("GenModel: Processed",i,"sequences\n")
 	}
     } else if (!is.null(selection)) {
-		d<-getSequences(db, rank, name, table, limit=limit)
-		ids <- attr(d,"id")[selection]
+		if(random ==FALSE)
+		{
+			print("point 1")
+			d<-getSequences(db, rank, name, table, limit=limit)
+			ids <- names(d)[selection]
+			print(ids)
+		}
+		else if (random)
+		{
+			d<-getSequences(db, rank, name, table)
+			selection <- which(names(d) %in% selection)
+		}	
 		d<-d[selection]
 		if (length(d)==0) stop("GenModel called with 0 sequences")
 		d <- .make_stream(d)

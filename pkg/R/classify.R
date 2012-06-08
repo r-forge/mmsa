@@ -16,8 +16,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     }
     else
     {
-	dir.create(modelDir)
-	dir.create(rankDir)
+		dir.create(modelDir)
+		dir.create(rankDir)
     }
     pctTrain = 1 - pctTest
     #create a list with a vector of selection for EACH rank
@@ -42,11 +42,13 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#create an array of all sequences indices
 		x <- 1:n
 		#get which indices are to be used for training
+		if (train <= 0) next;
 		train <- sample(x,train)
 		#remove these from the x indices
 		x <- x[-train]
 		#get which indices are to be used for testing
 		test <- sample(x,test)
+		cat("train =",train,"\n")
 		emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
@@ -55,13 +57,14 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get all sequences and filter it to just test sequences
 		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list
-		testList<-c(testList,d[test])
-		testNames<-c(testNames,attr(d,"name")[test])
+		cat("test=",test,"\n")
+		testList <- c(testList,d[test])
+		testNames <- c(testNames, attr(d,"name")[test])	
     }
     if(length(testList)==0)
-	stop("Insufficient sequences have been selected for testing")
+		stop("Insufficient sequences have been selected for testing")
     #add attributes to test
-    rm(db)
+    #rm(db)
     attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
 	if (length(method) == 1)
@@ -97,7 +100,7 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 	### FIXME: use the rank and name stored in the model file here!
 	cat("classify: Creating score matrix for", modelNames[i],"\n")
 	model<-readRDS(modelFiles[i])
-
+	
 	classificationScores[,i] <- sapply(NSVList, FUN =
 		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
