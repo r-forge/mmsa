@@ -20,12 +20,12 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
 
-    if(all) distinct <- "" else  distinct <- "DISTINCT"
+    #if(all) distinct <- "" else  distinct <- "DISTINCT"
 
     dbGetQuery(db$db, 
-	    statement = paste("SELECT", distinct, "classification.",cols,
-		    " FROM classification ", 
-		    .getWhere(db, whereRank, whereName, partialMatch), " ORDER BY ",cols))
+	    statement = paste("SELECT classification.",cols,
+		    " , count(", cols, ") FROM classification ", 
+		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" ))
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
@@ -37,7 +37,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 		
 		cl <- sapply(1:rankNum, FUN=function(i) 
 			getRank(db, rank=hierarchy[i], whereRank=rank, whereName=name,
-				partialMatch=FALSE))
+				partialMatch=FALSE)[,1])
 
 		m <- matrix(NA, nrow=1, ncol=length(hierarchy))
 		m[1:rankNum] <- unlist(cl)[1:rankNum]
@@ -47,7 +47,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     ### find all matching names
     name <- unlist(lapply(name, FUN=function(n) 
 		    	getRank(db, rank=rank, whereRank=rank, whereName=n, 
-			    partialMatch=partialMatch)))
+			    partialMatch=partialMatch)[,1]))
     
 
     if(length(name) < 1) stop("No match found!")

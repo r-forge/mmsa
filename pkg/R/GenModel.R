@@ -50,7 +50,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	#check for random and if so get random 'limit' random sequences from the DB
 	if (random) 
 		{	#get the IDs
-			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)
+			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)[,1]
 			#if(is.null(limit)) limit <- nSequences
 			selection <- sample(as.vector(ids[,1]),nSequences)
 		}
