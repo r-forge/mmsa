@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, limitNames=NULL)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -26,6 +26,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testNames<-vector()
     #get all the  rankNames for the given rank
     rankNames <- getRank(db, rank)
+	if (!is.null(limitNames))
+		rankNames <- head(rankNames, limitNames)
 
     for (i in 1:length(rankNames[,1]))
     {
@@ -48,7 +50,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		x <- x[-train]
 		#get which indices are to be used for testing
 		test <- sample(x,test)
-		cat("train =",train,"\n")
 		emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
@@ -57,7 +58,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get all sequences and filter it to just test sequences
 		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list
-		cat("test=",test,"\n")
 		testList <- c(testList,d[test])
 		testNames <- c(testNames, attr(d,"name")[test])	
     }

@@ -84,10 +84,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     } else if (!is.null(selection)) {
 		if(random ==FALSE)
 		{
-			print("point 1")
 			d<-getSequences(db, rank, name, table, limit=limit)
 			ids <- names(d)[selection]
-			print(ids)
 		}
 		else if (random)
 		{

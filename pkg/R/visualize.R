@@ -12,10 +12,7 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 		if(ylab)
 			axis(2, at=seq(0,yrange,by=5),labels =seq(0,yrange,by=5),las=1)
 		else
-			{
-			print("point 1")	
 			axis(2,las=1)
-			}
 		abline(h=c(1:yrange), col="grey", lty="dotted")
 		colors <- c("red")
 		vertColors <- c("blue")
