@@ -9,6 +9,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     #pctTrain => percentage of each rank to be used for creating the training model
     #pctTest => percentage of each rank to be used for testing the model
     #db=> database where sequences are to be stored	
+    #listNames=> number of names of each rank to consider , for example just the top 5 phylums, etc
     rankDir<-file.path(modelDir,rank)
     if (file.exists(modelDir))
     {
@@ -42,14 +43,15 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#test is the number of test cases
 		test<-as.integer(pctTest*limit)
 		#create an array of all sequences indices
-		x <- 1:n
+		ids <- getRank(db,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
 		#get which indices are to be used for training
 		if (train <= 0) next;
-		train <- sample(x,train)
+		sampleIds <- sample(ids,limit)
+		train <- sample(sampleIds,train)
 		#remove these from the x indices
-		x <- x[-train]
+		sampleIds <- setdiff(sampleIds,train)
 		#get which indices are to be used for testing
-		test <- sample(x,test)
+		test <- sample(sampleIds,test)
 		emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them

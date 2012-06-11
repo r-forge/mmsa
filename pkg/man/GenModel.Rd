@@ -16,7 +16,7 @@ information between the clusters.
 GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, showClusterInfo=TRUE)
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
-    threshold=30, selection=NULL, limit=NULL, showClusterInfo=TRUE)
+    threshold=30, selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE)
 
 getModelDetails(model, state=NULL)
 getModelSequences(db, model, state, table="sequences")
@@ -36,6 +36,7 @@ getModelSequences(db, model, state, table="sequences")
 	\item{model}{GenModel object returned by the GenModel and GenModelDB classes.} 
 	\item{state}{state in the model about which details are required.} 
 	\item{showClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
+	\item{random}{Used to select a random sample from the DB. Should be used for small selections.} 
 
 	\item{...}{arguments passed on to the next method. For \code{prune}
 	the arguments are passed on to \code{prune} in package \pkg{rEMM}. 

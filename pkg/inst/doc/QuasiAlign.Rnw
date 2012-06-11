@@ -313,7 +313,7 @@ this approach for taxonomic classification in \citep{hahsler:Kotamarti:2010}.
 %%end
 \section{QuasiAlign Package}
 \pkg{QuasiAlign} builds on the packages 
-\pkg{seqinr} for biological sequence analysis,
+\pkg{Biostrings} for biological sequence analysis,
 \pkg{RSQLite} and \pkg{DBI} for storage and data management 
 functionality, \pkg{caTools} for
 Base64 encoding of models, and \pkg{rEMM} for model

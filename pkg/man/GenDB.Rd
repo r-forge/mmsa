@@ -5,6 +5,7 @@
 \alias{closeGenDB}
 \alias{listGenDB}
 \alias{metaGenDB}
+\alias{randomizeGenDB}
 \alias{print.GenDB}
 \title{Gene Sequence databases}
 \description{

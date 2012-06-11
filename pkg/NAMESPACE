@@ -42,7 +42,8 @@ export(
 	
 	### Greengenes
 	GenClass16S_Greengenes,
-	GreengenesMetaDataReader
+	GreengenesMetaDataReader,
+	randomizeGenDB
 )
 
 import(Biostrings)

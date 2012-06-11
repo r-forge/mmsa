@@ -87,4 +87,15 @@ print.GenDB <- function(x, ...) {
     cat(paste(dbListTables(x$db), collapse=", "), "\n")
 }
 
+randomizeGenDB <- function(db)
+{
+    tables <- listGenDB(db)
+    for(i in 1:length(tables))
+    {
+        dbSendQuery(db$db,statement= paste("CREATE TABLE temp AS SELECT * FROM ",tables[i]," ORDER BY random()",sep=''))
+        dbSendQuery(db$db,statement= paste("DROP TABLE ",tables[i],sep=''))
+        dbSendQuery(db$db,statement= paste("ALTER TABLE temp RENAME TO  ",tables[i],sep=''))
+    }
+    dbCommit(db$db)
+}
 

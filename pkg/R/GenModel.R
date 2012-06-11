@@ -47,7 +47,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     hierarchy <- getHierarchy(db, rank, name)
 	
     if (!is.null(limit)) nSequences <- min(nSequences,limit)
-	#check for random and if so get random 'limit' random sequences from the DB
+	#check for random and if so get random 'limit' sequences from the DB
 	if (random) 
 		{	#get the IDs
 			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)[,1]
@@ -60,7 +60,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     if(measure=="Kullback") d <- d + 1
 
     cat("GenModel: Creating model for ",rank,": ",name,"\n",sep="")
-
+	
+	#this should be used for the entire db and not a selection
     if (is.null(selection)){
 	i<-0
 	total<-0
@@ -82,17 +83,9 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    cat("GenModel: Processed",i,"sequences\n")
 	}
     } else if (!is.null(selection)) {
-		if(random ==FALSE)
-		{
-			d<-getSequences(db, rank, name, table, limit=limit)
-			ids <- names(d)[selection]
-		}
-		else if (random)
-		{
-			d<-getSequences(db, rank, name, table)
-			selection <- which(names(d) %in% selection)
-		}	
-		d<-d[selection]
+		d<-getSequences(db, rank="id", name=selection, table, limit=limit)
+		ids <- names(d)[selection]
+				#d<-d[selection]
 		if (length(d)==0) stop("GenModel called with 0 sequences")
 		d <- .make_stream(d)
 		build(emm, d)

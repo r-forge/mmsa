@@ -79,9 +79,13 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     if(partialMatch) exact <- "%" else exact <- ""
 
     if(is.null(rank) && is.null(name)) where <- ""
-    else where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+    else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' LIKE '", name, exact, "'", sep='')
-    where
+	#more than one names are provided
+	else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+		"' IN (", paste(name,collapse=","), ")", sep='')
+	
+	where
 }
 
 
