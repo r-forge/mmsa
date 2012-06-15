@@ -14,7 +14,7 @@ processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
 createModels(modelDir, rank="Phylum", db, selection=NULL, limit=NULL, ...)
 classify(modelDir, NSVList, rank, method="supported_transitions")
 validateModels(db, modelDir, rank="phylum", table="NSV", 
-    pctTest=0.1, method="supported_transitions", limit=NULL)
+    pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL)
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -25,7 +25,8 @@ validateModels(db, modelDir, rank="phylum", table="NSV",
 	\item{rank}{Name of the rank (for example, phylum, class) at which the model is to be built.}
 	\item{table}{Table in the database db which contains the NSV that are to be used for creating the model.}
 	\item{selection}{Numeric vector indicating which sequences to be used for creating the model. By default, all sequences are used for model creation.}
-	\item{limit}{Number of sequences to consider while creating a genmodel. By default, all sequences are considered and value is -1.}
+	\item{limit}{Number of sequences to consider while creating a genmodel. By default, all sequences are considered.}
+	\item{numRanks}{Number of ranks to consider while running validateModels, for example run validateSequences on top 5 most abundant genera.}
 	\item{pctTest}{Fraction of sequences within each rank to be used for testing.}
 	\item{method}{Method used to compute the similarity score between
 	the model and a new sequence (see \code{score} in \pkg{rEMM} for available scoring methods).}

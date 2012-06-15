@@ -54,10 +54,10 @@ getTaxonomyNames(db)
 
 ### lists and plot the distinct genuses
 getRank(db, "genus")
-table(getRank(db, "genus", all=TRUE))
+table(getRank(db, "genus", all=TRUE)[,1])
 
 oldpar <- par(mar=c(12,5,5,5))
-barplot(sort(table(getRank(db, "genus", all=TRUE)), decreasing=TRUE), 
+barplot(sort(table(getRank(db, "genus", all=TRUE)[,1]), decreasing=TRUE), 
     las=2, log="y", main="Genus Abundance")
 par(oldpar)
 

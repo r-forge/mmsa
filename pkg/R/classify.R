@@ -2,14 +2,14 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, limitNames=NULL)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
     #pctTrain => percentage of each rank to be used for creating the training model
     #pctTest => percentage of each rank to be used for testing the model
     #db=> database where sequences are to be stored	
-    #listNames=> number of names of each rank to consider , for example just the top 5 phylums, etc
+    #numRanks=> number of names of each rank to consider , for example just the top 5 phylums, etc
     rankDir<-file.path(modelDir,rank)
     if (file.exists(modelDir))
     {
@@ -27,8 +27,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testNames<-vector()
     #get all the  rankNames for the given rank
     rankNames <- getRank(db, rank)
-	if (!is.null(limitNames))
-		rankNames <- head(rankNames, limitNames)
+	if (!is.null(numRanks))
+		rankNames <- head(rankNames, numRanks)
 
     for (i in 1:length(rankNames[,1]))
     {

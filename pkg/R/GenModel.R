@@ -9,7 +9,7 @@ GenModel <- function(x, rank=NULL, name = NULL,
     emm
 	l<-last_clustering(emm)
 	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-	names(clusterInfo) <- id
+	#names(clusterInfo) <- id
 
     genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
 
