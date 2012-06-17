@@ -29,8 +29,9 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     rankNames <- getRank(db, rank)
 	if (!is.null(numRanks))
 		rankNames <- head(rankNames, numRanks)
-
-    for (i in 1:length(rankNames[,1]))
+	#library(doMC)
+	#registerDoMC()
+    for (i in 1:length(rankNames[,1])) #%dopar%
     {
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
