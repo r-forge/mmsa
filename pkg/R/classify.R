@@ -13,7 +13,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     rankDir<-file.path(modelDir,rank)
     if (file.exists(modelDir))
     {
-	if(!file.exists(rankDir)) dir.create(rankDir)
+		if(!file.exists(rankDir)) dir.create(rankDir)
     }
     else
     {
@@ -31,7 +31,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		rankNames <- head(rankNames, numRanks)
 	#library(doMC)
 	#registerDoMC()
-    for (i in 1:length(rankNames[,1])) #%dopar%
+    testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
@@ -53,23 +53,28 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		sampleIds <- setdiff(sampleIds,train)
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
-		emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
+		if (length(train) > 0)
+			emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		if (length(test) > 0)
+			test
 		#get all sequences and filter it to just test sequences
-		d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
+		#d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list
-		testList <- c(testList,d[test])
-		testNames <- c(testNames, attr(d,"name")[test])	
+		#testList <- c(testList,d[test])
+		#testNames <- c(testNames, attr(d,"name")[test])	
     }
-    if(length(testList)==0)
-		stop("Insufficient sequences have been selected for testing")
+    #if(length(testList)==0)
+	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
-    #rm(db)
     attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
+	print(testIds)
+	testIds <- unlist(testIds)
+	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	if (length(method) == 1)
     	return(classify(modelDir, testList, rank=rank, method=method))
 	else if (length(method) > 1)
@@ -80,6 +85,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		return(ret)
 	}
 }
+
 
 # modelDir is a directory with subfolders for various ranks NSVList is a list
 # containing NSV with a rank attribute and a "name" attribute which is a list
@@ -98,13 +104,15 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 	    nrow=length(NSVList))
     colnames(classificationScores) <- modelNames
 
-    for (i in 1:length(modelFiles)) {
+    classificationScores <- foreach (i =1:length(modelFiles),.combine=cbind) %dopar% {
 	
 	### FIXME: use the rank and name stored in the model file here!
 	cat("classify: Creating score matrix for", modelNames[i],"\n")
 	model<-readRDS(modelFiles[i])
 	
-	classificationScores[,i] <- sapply(NSVList, FUN =
+	#classificationScores[,i] <- sapply(NSVList, FUN =
+	#	function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
+	sapply(NSVList, FUN =
 		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
     

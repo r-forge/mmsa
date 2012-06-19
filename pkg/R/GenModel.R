@@ -70,7 +70,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    d <-getSequences(db,rank,name,table,limit=c(i,100))
 	    n <- length(d)
 	    n <- min(n,100)
-	    ids <- attr(d,"id")[1:n]
+	    ids <- names(d)[1:n]
 	    d <- .make_stream(d)
 	    #get actual number of sequences
 	    build(emm, d)
@@ -84,8 +84,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	}
     } else if (!is.null(selection)) {
 		d<-getSequences(db, rank="id", name=selection, table, limit=limit)
-		ids <- names(d)[selection]
-				#d<-d[selection]
+		ids <- names(d)
+		#d<-d[selection]
 		if (length(d)==0) stop("GenModel called with 0 sequences")
 		d <- .make_stream(d)
 		build(emm, d)
