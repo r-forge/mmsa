@@ -117,6 +117,14 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader, 
 	verbose=FALSE) {
 
+    if(!file.exists(file)) stop("File does not exist!")
+    if(file.info(file)$isdir) {
+	cat("Found directory. Adding whole directory.\n")
+	file <- list.files(file, full.names=TRUE, 
+		recursive=TRUE)
+    }
+
+
     ok <- 0
     fail <- 0
     total <- 0
@@ -131,16 +139,22 @@ addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader,
 		cl <- paste("'",cl,"'", sep='', collapse=', ') 
 		dat<- f[[i]]
 		dat<- tolower(as.character(dat[1:length(dat)]))
-		tr <- try(dbSendQuery(db$db,          
+		try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO classification VALUES(", 
-				cl,  ")", sep='')), silent=FALSE)
+				cl,  ")", sep='')), silent=TRUE)
 		
 		tr <- try(dbSendQuery(db$db,          
 			statement = paste("INSERT INTO sequences VALUES('", 
 				org_name, "','", dat,  "')", sep='')), 
-				silent=FALSE)
-		if(!is(tr, "try-error")) ok <- ok+1
-		else fail <- fail+1
+				silent=TRUE)
+		
+		if(is(tr, "try-error")) { 
+		    if(verbose) cat("Adding", org_name, "failed -",
+			    attr(tr, "condition")$message, "\n")
+		    fail <- fail+1
+		}else ok <- ok+1
+		
+		
 		total <- total+1
 		if(verbose)
 		{	
