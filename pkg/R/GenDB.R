@@ -47,7 +47,7 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 		    )
 	    )
 
-    db <- list(db=db, dbName=dbName)
+    db <- list(db=db, dbName=dbName, drv=drv)
     class(db) <- "GenDB"
     db
 }
@@ -60,16 +60,24 @@ openGenDB <- function(dbName, drv=NULL) {
 
     db<-dbConnect(drv, dbname = dbName);
 
-    db <- list(db=db, dbName=dbName)
+    db <- list(db=db, dbName=dbName, drv=drv)
     class(db) <- "GenDB"
     db
 }
-
 
 closeGenDB <- function(db) {
     dbCommit(db$db)
     ret <- dbDisconnect(db$db)
     return(invisible(ret))
+}
+
+reopenGenDB <- function(db) {
+    db_new<-dbConnect(db$drv, dbname = db$dbName);
+    db <- list(
+	    db=dbConnect(db$drv, dbname = db$dbName), 
+	    dbName=db$dbName, drv=db$drv)
+    class(db) <- "GenDB"
+    db
 }
 
 listGenDB <- function(db) {

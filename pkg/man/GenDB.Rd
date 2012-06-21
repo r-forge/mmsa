@@ -3,6 +3,7 @@
 \alias{openGenDB}
 \alias{createGenDB}
 \alias{closeGenDB}
+\alias{reopenGenDB}
 \alias{listGenDB}
 \alias{metaGenDB}
 \alias{randomizeGenDB}
@@ -15,6 +16,7 @@
 \usage{
 	createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL)
 	openGenDB(dbName, drv=NULL)
+	reopenGenDB(db)
 	closeGenDB(db)
 	listGenDB(db) 
 	metaGenDB(db) 
@@ -30,7 +32,7 @@
 	a Greengenes 16S type classification is used. } 
 }
 \value{
-    \code{createGenDB()} and \code{openGenDB()} returns a handle to the database. 
+    \code{createGenDB()}, \code{openGenDB()} and \code{reopenGenDB()} returns a handle to the database. 
     
     \code{listGenDB()} returns a vector of character strings.
 }
@@ -44,7 +46,8 @@
 	phylum, class, etc with the organism name being the primary key. The
 	metadata table stores data about the tables in the database. 
 	
-	\code{openGenDB()} can be used to open an existing database,
+	\code{openGenDB()} can be used to open an existing database using the database name (filename in SQLite),
+	 \code{openGenDB()} can be used to open an existing database using the DB handle of a previousely closed GenDB,
 	\code{listGenDB()} lists all the tables in an existing database,
 	\code{metaGenDB()} lists the meta data about all the tables stored in
 	the database, and \code{closeGenDB()} closes an open connection to a

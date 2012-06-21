@@ -5,6 +5,7 @@ export(
 	addSequences,
 	createGenDB,
 	openGenDB,
+	reopenGenDB,
 	closeGenDB,
 	listGenDB,
 	metaGenDB,
