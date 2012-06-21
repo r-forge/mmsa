@@ -67,7 +67,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	total<-0
 	while(i<nSequences){
 	    #get 100 sequences at a time
-	    d <-getSequences(db,rank,name,table,limit=c(i,100))
+		d <-getSequences(db,rank,name,table,limit=c(i,100))
 	    n <- length(d)
 	    n <- min(n,100)
 	    ids <- names(d)[1:n]
@@ -81,7 +81,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    #update value of i 
 	    i<-min(i+100,nSequences)
 	    cat("GenModel: Processed",i,"sequences\n")
-	}
+		}
     } else if (!is.null(selection)) {
 		d<-getSequences(db, rank="id", name=selection, table, limit=limit)
 		ids <- names(d)
@@ -107,7 +107,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    last_window=last_window)
 
     if (showClusterInfo) genModel$clusterInfo <- clusterInfo
-
+	rm(db)
     class(genModel) <- "GenModel"	
     genModel		
 }

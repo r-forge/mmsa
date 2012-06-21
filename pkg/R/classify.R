@@ -29,9 +29,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     rankNames <- getRank(db, rank)
 	if (!is.null(numRanks))
 		rankNames <- head(rankNames, numRanks)
-	#library(doMC)
-	#registerDoMC()
-    testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
+    
+	testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
@@ -46,7 +45,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#create an array of all sequences indices
 		ids <- getRank(db,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
 		#get which indices are to be used for training
-		if (train <= 0) next;
+		#if (train <= 0) next;
 		sampleIds <- sample(ids,limit)
 		train <- sample(sampleIds,train)
 		#remove these from the x indices
@@ -61,6 +60,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 		if (length(test) > 0)
 			test
+		
 		#get all sequences and filter it to just test sequences
 		#d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
 		#filter sequences and add to test list

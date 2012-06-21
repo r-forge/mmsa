@@ -15,17 +15,25 @@ getTaxonomyNames <- function(db) {
 }
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
-	all=FALSE, partialMatch = TRUE) {
+	all=FALSE, partialMatch = TRUE, count=FALSE) {
+
     fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
+	
+	if(all) distinct <- "" else  distinct <- "DISTINCT"
 
-    #if(all) distinct <- "" else  distinct <- "DISTINCT"
-
-    dbGetQuery(db$db, 
-	    statement = paste("SELECT classification.",cols,
+	if(count)
+		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " , count(", cols, ") AS count FROM classification ", 
-		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" ))
+		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" )
+	else
+		statement <- paste("SELECT ", distinct, "classification.",cols,
+		    " FROM classification ", 
+		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols )
+	
+    dbGetQuery(db$db, 
+	    statement = statement)
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){

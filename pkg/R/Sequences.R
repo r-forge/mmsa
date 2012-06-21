@@ -108,7 +108,8 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	    attr(ret,"name")<-res$fullRank
 	}
     }
-    ret
+    rm(db)
+	ret
 }
 
 
