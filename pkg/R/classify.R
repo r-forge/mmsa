@@ -32,6 +32,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     
 	testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
+		db_local <- reopenGenDB(db)
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
 		#how many sequences should we use
@@ -43,7 +44,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#test is the number of test cases
 		test<-as.integer(pctTest*limit)
 		#create an array of all sequences indices
-		ids <- getRank(db,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
+		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
 		#get which indices are to be used for training
 		#if (train <= 0) next;
 		sampleIds <- sample(ids,limit)
@@ -53,11 +54,12 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
 		if (length(train) > 0)
-			emm<-GenModelDB(db, table="NSV", rank, name=rankNames[,1][i], selection=train)
+			emm<-GenModelDB(db_local, table="NSV", rank, name=rankNames[,1][i], selection=train)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		closeGenDB(db_local)
 		if (length(test) > 0)
 			test
 		
@@ -70,11 +72,12 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     #if(length(testList)==0)
 	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
-    attr(testList,"rank")<-rank
-    attr(testList,"name")<-testNames
-	print(testIds)
 	testIds <- unlist(testIds)
+	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds)[,1]
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
+	attr(testList,"rank")<-rank
+    attr(testList,"name")<-testNames
+	print(testNames)
 	if (length(method) == 1)
     	return(classify(modelDir, testList, rank=rank, method=method))
 	else if (length(method) > 1)
@@ -116,7 +119,7 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
     
-    winner <- apply(classificationScores, MARGIN=1, which.max)
+	winner <- apply(classificationScores, MARGIN=1, which.max)
     prediction <- modelNames[winner]
 
     actual <-  attr(NSVList, "name")
