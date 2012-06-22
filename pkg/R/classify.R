@@ -77,7 +77,6 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
-	print(testNames)
 	if (length(method) == 1)
     	return(classify(modelDir, testList, rank=rank, method=method))
 	else if (length(method) > 1)
