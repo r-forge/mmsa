@@ -1,13 +1,13 @@
 
 createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
-	 drv=NULL) {
+	 drv=NULL, ...) {
 
     if(file.exists(dbName)) 
 	stop("GenDB already exist. Use openGenDB.\n")
     
     
     if(is.null(drv)) drv<-dbDriver("SQLite");
-    db<-dbConnect(drv, dbname = dbName);
+    db<-dbConnect(drv, dbname = dbName, ...);
 
 
     #first table stores the Classification with org_name as PK
@@ -52,13 +52,13 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
     db
 }
 
-openGenDB <- function(dbName, drv=NULL) {
+openGenDB <- function(dbName, drv=NULL, ...) {
     if(!file.exists(dbName)) 
 	stop("GenDB does not exist. Use createGenDB first.\n")
     
     if(is.null(drv)) drv<-dbDriver("SQLite");
 
-    db<-dbConnect(drv, dbname = dbName);
+    db<-dbConnect(drv, dbname = dbName, ...);
 
     db <- list(db=db, dbName=dbName, drv=drv)
     class(db) <- "GenDB"
@@ -71,8 +71,8 @@ closeGenDB <- function(db) {
     return(invisible(ret))
 }
 
-reopenGenDB <- function(db) {
-    db_new<-dbConnect(db$drv, dbname = db$dbName);
+reopenGenDB <- function(db, ...) {
+    db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
     db <- list(
 	    db=dbConnect(db$drv, dbname = db$dbName), 
 	    dbName=db$dbName, drv=db$drv)
