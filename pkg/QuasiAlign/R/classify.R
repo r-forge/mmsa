@@ -26,13 +26,13 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testList<-list()
     testNames<-vector()
     #get all the  rankNames for the given rank
-    rankNames <- getRank(db, rank)
+    rankNames <- getRank(db, rank, count=TRUE)
 	if (!is.null(numRanks))
 		rankNames <- head(rankNames, numRanks)
     
 	testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
-		db_local <- reopenGenDB(db)
+		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
 		n <- nSequences(db,rank, rankNames[,1][i])
 		#how many sequences should we use
