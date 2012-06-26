@@ -71,23 +71,23 @@ closeGenDB <- function(db) {
     return(invisible(ret))
 }
 
-#reopenGenDB <- function(db, ...) {
-#    db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
-#    db <- list(
-#	    db=dbConnect(db$drv, dbname = db$dbName), 
-#	    dbName=db$dbName, drv=db$drv)
-#    class(db) <- "GenDB"
-#    db
-#}
-
 reopenGenDB <- function(db, ...) {
     db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
     db <- list(
-	    db=db_new, 
+	    db=dbConnect(db$drv, dbname = db$dbName), 
 	    dbName=db$dbName, drv=db$drv)
-    class(db_new) <- "GenDB"
-    db_new
+    class(db) <- "GenDB"
+    db
 }
+
+#reopenGenDB <- function(db, ...) {
+#    db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
+#    db <- list(
+#	    db=db_new, 
+#	    dbName=db$dbName, drv=db$drv)
+#    class(db_new) <- "GenDB"
+#    db_new
+#}
 
 listGenDB <- function(db) {
     dbListTables(db$db)
