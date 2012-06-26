@@ -60,6 +60,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 		closeGenDB(db_local)
+		rm(db_local)
 		if (length(test) > 0)
 			test
 		
