@@ -34,7 +34,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
-		n <- nSequences(db,rank, rankNames[,1][i])
+		n <- nSequences(db_local,rank, rankNames[,1][i])
 		#how many sequences should we use
 		if(is.null(limit)) limit <- n
 		else limit <- min(n,limit)
@@ -60,7 +60,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 		closeGenDB(db_local)
-		#rm(db_local)
+		rm(db_local)
 		if (length(test) > 0)
 			test
 		
