@@ -1,0 +1,20 @@
+import(Biostrings)
+
+export( 
+	clustal,
+	clustal_help,
+#	clustal_profile,
+	
+	kalign,
+	kalign_help,
+
+	
+	simRank,
+	
+	plot.DNAStringSet,
+	plot.DNAMultipleAlignment,
+	plot.RNAStringSet,
+	plot.RNAMultipleAlignment
+)
+
+

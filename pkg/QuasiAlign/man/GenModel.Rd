@@ -74,9 +74,6 @@ getModelDetails(model, 17)
 s <- getModelSequences(db, model, state = 17)
 s
 
-### plot a sequence logo for the first 20 positions
-plot(s, 1, 20)
-
 nsv <- getModelSequences(db, model, state = 17, table="NSV")
 nsv
 plot(nsv)

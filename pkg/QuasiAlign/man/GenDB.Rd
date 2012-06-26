@@ -14,9 +14,9 @@
 	gene sequence database. 
 }
 \usage{
-	createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL)
-	openGenDB(dbName, drv=NULL)
-	reopenGenDB(db)
+	createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL, ...)
+	openGenDB(dbName, drv=NULL, ...)
+	reopenGenDB(db, ...)
 	closeGenDB(db)
 	listGenDB(db) 
 	metaGenDB(db) 
@@ -30,6 +30,7 @@
 	default SQLite driver is used.} 
     \item{classification}{Classification type object. By default, 
 	a Greengenes 16S type classification is used. } 
+    \item{...}{further arguments are passed on to the database driver.} 
 }
 \value{
     \code{createGenDB()}, \code{openGenDB()} and \code{reopenGenDB()} returns a handle to the database. 

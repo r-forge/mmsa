@@ -5,7 +5,7 @@ Compute the SimRank Similarity between Sets of Sequences
 }
 \description{
 Computes the SimRank similarity (number of shared unique k-mers over the 
-smalest number of unique k-mers.)
+smallest number of unique k-mers.)
 }
 \usage{
 simRank(x, k = 7)
@@ -29,8 +29,8 @@ search tool, BMC Ecology 2011, 11:11
 \examples{
 ### load sequences
 sequences <- read.DNAStringSet(
-    system.file("examples/phylums/Proteobacteria.fasta", 
-	package="QuasiAlign"))
+    system.file("examples/DNA_example.fasta", 
+	package="RAlign"))
 sequences
 
 ### compute similarity

@@ -3,8 +3,6 @@
 \alias{getSequences}
 \alias{addSequences}
 \alias{nSequences}
-\alias{plot.DNAStringSet}
-\alias{plot.DNAMultipleAlignment}
 \title{Genetic Sequences}
 \description{
 Genetic sequences are stored in a GenDB (as character strings with meta
@@ -66,8 +64,6 @@ See NSVSet for more information.
 	present in a the sequence table of the database passed in as an
 	argument.  If the optional rank and value parameters are supplied, the
 	function filters the results based on the search criteria.
-
-	\code{plot} for DNAStringSet creates a sequence logo.
 }
 \seealso{
     \code{\link{createGenDB}},
@@ -91,9 +87,6 @@ s
 
 ### get the classification hierarchy for a the sequences
 getHierarchy(db, "id", names(s))
-
-### Sequence Logo
-plot(subseq(s, 1, 20))
 
 ### clean up
 closeGenDB(db)

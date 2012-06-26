@@ -12,13 +12,18 @@ clustal <- function(x, param=NULL) {
 
     infile <- paste(temp_file, ".in", sep="")
     outfile <- paste(temp_file, ".aln", sep="")
-    
+    reader <- if(is(x, "RNAStringSet")) read.RNAMultipleAlignment
+	else if(is(x, "DNAStringSet")) read.DNAMultipleAlignment
+	else if(is(x, "AAStringSet")) read.AAMultipleAlignment
+	else stop("Unknown sequence type!")
+
+
     write.XStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
     system(paste(Sys.which("clustalw -infile"), infile, param))
 
-    read.DNAMultipleAlignment(outfile, format="clustal")
+    reader(outfile, format="clustal")
 }
 
 clustal_help <- function() {

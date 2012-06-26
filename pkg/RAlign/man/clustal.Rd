@@ -1,5 +1,6 @@
 \name{clustal}
 \alias{clustal}
+\alias{clustal_help}
 \title{
 Run Multiple Sequence Alignment (clustal) on a Set of Sequences
 }
@@ -8,13 +9,14 @@ Executes clustal on a set of sequences to obtain a multiple sequence
 alignment. 
 }
 \usage{
-clustal(x)
+clustal(x, param)
+clustal_help()
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-an object of class DNAStringSet with the sequences to be aligned.
-}
+  \item{x}{an object of class DNAStringSet with the sequences to be aligned.}
+  \item{param}{character string with the command line parameters for clustal (see output of \code{clustal_help()}).}
+
 }
 \details{
 The clustalw software has to be installed and 
@@ -30,22 +32,35 @@ version 2.0, Bioinformatics 2007 23(21):2947-29
 }
 \examples{
 \dontrun{
-### clustalW needs to be installed on your system!
-### load 5 sequences
-sequences <- read.DNAStringSet(
-    system.file("examples/phylums/Proteobacteria.fasta",
-            package="QuasiAlign"),
-    nrec=5)
-sequences
+### DNA
+dna <- read.DNAStringSet(system.file("examples/DNA_example.fasta",
+	package="RAlign"))
+dna
 
-### run clustalW
-al <- clustal(sequences)
+al <- clustal(dna) 
 al
 
+### inspect alignment
 detail(al)
 
-### plot a sequence logo for the first 20 pisitions
+### plot a sequence logo for the first 20 positions
 plot(al, 1, 20)
+
+### RNA
+rna <- read.RNAStringSet(system.file("examples/RNA_example.fasta",
+	package="RAlign"))
+rna 
+
+al <- clustal(rna) 
+al  
+
+### Proteins 
+aa <- read.AAStringSet(system.file("examples/Protein_example.fasta",
+	package="RAlign"))
+aa 
+
+al <- clustal(aa)
+al
 }
 }
 \keyword{model}

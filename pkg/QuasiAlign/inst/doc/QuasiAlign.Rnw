@@ -810,22 +810,25 @@ nsv[[1]]
 @
 
 A clearer picture about the clustering will emerge when we visualize the sequences and segments and see how they fit into clusters. In this section, we will introduce some of the plots that are commonly used in the Biological sciences such as the Sequence Logo plot.  We will also use the barplot to plot the distribution of NSVs in a cluster of sequences. 
-The following command illustrates how a Sequence Logo plot can be obtained easily using QuasiAlign
 
+%%% Sequence logos are now in RAlign
+%The following command illustrates how a Sequence Logo plot can be obtained easily using QuasiAlign
+%
+%<<EMM_4, fig=TRUE, include=FALSE>>=
+%plot(sequences,1,20)
+%@
+%
+%\begin{figure}[p]
+%\centering
+%\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_4}
+%\caption{Sequence Logo plot of the first 10 sequences}
+%\label{fig:Sequence_Logo}
+%\end{figure}
+%
+%In the Figure \ref{fig:Sequence_Logo}, only the first 10 sequences have been shown. The \textit{start} and \textit{end} parameters can be varied to obtain sequence logos for different segments of the sequences. Sequence logos provide a powerful way to visualize the consensus sequences at each position. 
 
-
-<<EMM_4, fig=TRUE, include=FALSE>>=
-plot(sequences,1,20)
-@
-
-\begin{figure}[p]
-\centering
-\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_4}
-\caption{Sequence Logo plot of the first 10 sequences}
-\label{fig:Sequence_Logo}
-\end{figure}
-
-In the Figure \ref{fig:Sequence_Logo}, only the first 10 sequences have been shown. The \textit{start} and \textit{end} parameters can be varied to obtain sequence logos for different segments of the sequences. Sequence logos provide a powerful way to visualize the consensus sequences at each position. Consensus sequences can also be obtained using the function \func{consensusString}.
+At the sequence level we can inspect 
+consensus sequences using the function \func{consensusString}.
 <<>>=
 consensus <- consensusString(sequences)
 substring(consensus, 1, 20)

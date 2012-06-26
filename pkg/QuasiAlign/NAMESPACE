@@ -32,11 +32,6 @@ export(
 	validateModels,
 	scoreSequence,
 
-	clustal,
-	simRank,
-	
-	plot.DNAStringSet,
-	plot.DNAMultipleAlignment,
 	modelStatesPlot,
 	compareSequences,
 	findLargestCommon,
