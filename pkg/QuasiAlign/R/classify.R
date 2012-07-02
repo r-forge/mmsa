@@ -109,7 +109,6 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 
     classificationScores <- foreach (i =1:length(modelFiles),.combine=cbind) %dopar% {
 	
-	### FIXME: use the rank and name stored in the model file here!
 	cat("classify: Creating score matrix for", modelNames[i],"\n")
 	model<-readRDS(modelFiles[i])
 	
