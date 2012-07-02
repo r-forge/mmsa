@@ -15,7 +15,7 @@ level i.e. kingdom.
 getTaxonomyNames(db)
 getHierarchy(db, rank, name, drop=TRUE, partialMatch=TRUE)
 getRank(db, rank = NULL, whereRank=NULL, whereName=NULL, 
-    all=FALSE, partialMatch=TRUE, count=FALSE)
+    all=FALSE, partialMatch=TRUE, count=FALSE, removeUnknown=FALSE)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -26,6 +26,7 @@ getRank(db, rank = NULL, whereRank=NULL, whereName=NULL,
 	\item{partialMatch}{logical; use partial matching on names.}
 	\item{name}{Name of the rank at which the hierarchy object is required.}
 	\item{count}{logical; List the counts of rank along with the name?}
+	\item{removeUnknown}{logical; Remove "unknown" ranks ?}
 	\item{drop}{logical; drop a classification for a single element to a vector (from matrix).}
 }
 \details{

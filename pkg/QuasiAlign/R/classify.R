@@ -26,7 +26,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testList<-list()
     testNames<-vector()
     #get all the  rankNames for the given rank
-    rankNames <- getRank(db, rank, count=TRUE)
+    rankNames <- getRank(db, rank, count=TRUE, removeUnknown=TRUE)
 	if (!is.null(numRanks))
 		rankNames <- head(rankNames, numRanks)
     

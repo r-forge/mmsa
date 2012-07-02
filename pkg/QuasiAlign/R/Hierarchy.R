@@ -15,7 +15,7 @@ getTaxonomyNames <- function(db) {
 }
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
-	all=FALSE, partialMatch = TRUE, count=FALSE) {
+	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
 
     fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
@@ -32,8 +32,12 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols )
 	
-    dbGetQuery(db$db, 
+    ret <- dbGetQuery(db$db, 
 	    statement = statement)
+	if(removeUnknown)
+		if (length(which(ret[1,]=="unknown")) > 0)
+			ret <- ret[-which(ret[1,]=="unknown"),]
+	ret
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
