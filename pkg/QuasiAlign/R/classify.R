@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -28,8 +28,12 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     #get all the  rankNames for the given rank
     rankNames <- getRank(db, rank, count=TRUE, removeUnknown=TRUE)
 	if (!is.null(numRanks))
-		rankNames <- head(rankNames, numRanks)
-    
+	{
+		if (top==TRUE)
+			rankNames <- head(rankNames, numRanks)
+    		else
+			rankNames <- tail(rankNames, numRanks)
+	}
 	testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
