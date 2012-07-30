@@ -712,8 +712,8 @@ the model using the Graphviz library.
 
 \subsection{Classification}
 To classify a new sequence at a particular rank level (e.g., at the phylum
-level) we need to have the set of all models at this level.  For example, we
-need to create models for each phylum present in the database. This can be
+level), we need to have the set of all models at this level to classify against.  For example, we
+need to create models for each phylum present in the database for predicting the phylum of an unclassified sequence. This can be
 accomplished using \func{createModels}, which creates a set of models and
 stores them in a directory.
 
@@ -777,6 +777,8 @@ head(validation$prediction)
 table(validation$prediction[,"actual"], 
     validation$prediction[,"predicted"])
 @
+
+
 
 \subsection{Visualizing Sequences and NSVs}
 One of the unique advantages of QuasiAlign is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.
