@@ -715,7 +715,7 @@ To classify a new sequence at a particular rank level (e.g., at the phylum
 level), we need to have the set of all models at this level to classify against.  For example, we
 need to create models for each phylum present in the database for predicting the phylum of an unclassified sequence. This can be
 accomplished using \func{createModels}, which creates a set of models and
-stores them in a directory.
+stores them in a directory specified by the \textit{modelDir} parameter.
 
 The following command creates models for all phylums stored in the database and stores them in directory models (which is created first) 
 and places them in the subdirectory phylum.
@@ -739,14 +739,25 @@ model
 Once all models have been constructed, they can be used to score and classify
 new sequences. We can compare the new sequences against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
+Below, we use the \func{getSequences} to get 5 random sequences from the NSV table and then score
+them against the model for ``Firmicutes'' using the function \func{scoreSequence}.
 <<>>=
 random_sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
 random_sequences
 scoreSequence(model, random_sequences)
 @
 
+The default method for scoring a sequence against a model is the \textit{supported\_transitions} method. It can be changed by the \textit{method} parameter in the \func{scoreSequence}. To find the actual classification, we can use the Greengenes ids of the sequences. The code snippet below illustrated this:
 
-{\bf FIXME: can we get the classification etc from the id attribute in random\_sequence?}
+<<>>=
+ids <- names(random_sequences)
+hierarchy <- getHierarchy(db, rank="id",name=ids)
+hierarchy[,"Phylum"]
+@
+
+We can see that those sequences that belong to the phylum ``Firmicutes'' have the highest score of 1.0. 
+The above commands also shows how easily the actual classification hierarchy of a sequence can be easily obtained using the \func{getHierarchy} for those sequences whose Greengenes id is known.
+
 
 The function \func{classify} can be used to classify sequences in NSV format 
 against all
@@ -760,7 +771,8 @@ table(classification$prediction[,"actual"],
     classification$prediction[,"predicted"])
 @
 
-{\bf FIXME: Better way to get the actual class! No need to specify the rank in getSequences.}
+The default method for \func{classify} is \verb|supported_transitions|, but other methods can also be easily used. 
+
 
 \subsection{Assessing classification accuracy}
 
@@ -778,6 +790,7 @@ table(validation$prediction[,"actual"],
     validation$prediction[,"predicted"])
 @
 
+The function \func{validateModels} returns a list of two vectors - the first containing the scores of the test sequences against the training models and the second containing the predicted rank of the sequences based on the highest score. The prediction vector can be used to find the classification accuracy of the models. 
 
 
 \subsection{Visualizing Sequences and NSVs}
