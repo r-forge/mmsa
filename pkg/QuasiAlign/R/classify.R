@@ -34,7 +34,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     		else
 			rankNames <- tail(rankNames, numRanks)
 	}
-	testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
+    testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
@@ -59,11 +59,11 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		test <- sample(sampleIds,test)
 		if (length(train) > 0)
 			emm<-GenModelDB(db_local, table="NSV", rank, name=rankNames[,1][i], selection=train)
-		emm <- prune(emm, count_threshold=count_threshold)
+		emm_pruned <- prune(emm, count_threshold=count_threshold)
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
-		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		saveRDS(emm_pruned, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 		closeGenDB(db_local)
 		rm(db_local)
 		if (length(test) > 0)
