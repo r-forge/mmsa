@@ -14,6 +14,9 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     if (file.exists(modelDir))
     {
 		if(!file.exists(rankDir)) dir.create(rankDir)
+		else
+			#remove all existing model files
+			unlink(file.path(rankDir,dir(rankDir)))
     }
     else
     {
@@ -57,13 +60,14 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		sampleIds <- setdiff(sampleIds,train)
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
-		if (length(train) > 0)
+		if (length(train) > 0) {
 			emm<-GenModelDB(db_local, table="NSV", rank, name=rankNames[,1][i], selection=train)
-		emm_pruned <- prune(emm, count_threshold=count_threshold)
+			emm <- prune(emm, count_threshold=count_threshold)
+		}
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
-		saveRDS(emm_pruned, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
 		closeGenDB(db_local)
 		rm(db_local)
 		if (length(test) > 0)
