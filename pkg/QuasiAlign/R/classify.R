@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, count_threshold=5)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, count_threshold=5)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -61,7 +61,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
 		if (length(train) > 0) {
-			emm<-GenModelDB(db_local, table="NSV", rank, name=rankNames[,1][i], selection=train)
+			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[,1][i], selection=train)
 			emm <- prune(emm, count_threshold=count_threshold)
 		}
 		#save the model to file
@@ -111,23 +111,22 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     
     modelFiles <- dir(rankDir, full.names=TRUE)    
     modelNames <- sub(".rds", "", basename(modelFiles))
-    
-    classificationScores <- matrix(NA, ncol=length(modelFiles), 
-	    nrow=length(NSVList))
-    colnames(classificationScores) <- modelNames
+    #classificationScores <- matrix(NA, ncol=length(modelFiles), 
+	#    nrow=length(NSVList))
+    #colnames(classificationScores) <- modelNames
 
     classificationScores <- foreach (i =1:length(modelFiles),.combine=cbind) %dopar% {
 	
 	cat("classify: Creating score matrix for", modelNames[i],"\n")
 	model<-readRDS(modelFiles[i])
-	
 	#classificationScores[,i] <- sapply(NSVList, FUN =
 	#	function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
 	sapply(NSVList, FUN =
 		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
     
-	winner <- apply(classificationScores, MARGIN=1, which.max)
+	colnames(classificationScores) <- modelNames
+    winner <- apply(classificationScores, MARGIN=1, which.max)
     prediction <- modelNames[winner]
 
     actual <-  attr(NSVList, "name")
