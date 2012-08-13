@@ -14,7 +14,7 @@ processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
 createModels(modelDir, rank="Phylum", db, selection=NULL, limit=NULL, ...)
 classify(modelDir, NSVList, rank, method="supported_transitions")
 validateModels(db, modelDir, rank="phylum", table="NSV", 
-    pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE)
+    pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, count_threshold=5)
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -31,6 +31,9 @@ validateModels(db, modelDir, rank="phylum", table="NSV",
 	\item{pctTest}{Fraction of sequences within each rank to be used for testing.}
 	\item{method}{Method used to compute the similarity score between
 	the model and a new sequence (see \code{score} in \pkg{rEMM} for available scoring methods).}
+	\item{threshold}{Threshold used for assigning points to clusters and merging clusters in rEMM0.}
+	\item{count_threshold}{Clusters having count below this value are pruned.}
+	\item{measure}{EMM similarity measure.}
 	\item{...}{Further arguments that are passed to \code{createNSVTable} from processSequences and to \code{genModel} from createModels}
 }
 \value{\code{classify} and \code{validateModels} functions return a data.frame containing the classification matrix and actual and predicted values.}
