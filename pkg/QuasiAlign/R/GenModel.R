@@ -1,19 +1,20 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
-	measure="Manhattan", threshold=30, showClusterInfo=TRUE) {
+	measure="Manhattan", threshold=30) {
+### FIXME: showClusterInfo needs to be fixed	
+    #, showClusterInfo=TRUE) {
 
     d <- .make_stream(x)
     if(measure=="Kullback") d <- d + 1
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
-    emm
-	l<-last_clustering(emm)
-	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-	#names(clusterInfo) <- id
+    
+    #l<-last_clustering(emm)
+    #clusterInfo <- .getClusterInfo(clusterInfo,l,0)
 
     genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
 
-    if (showClusterInfo) genModel$clusterInfo <- clusterInfo
+    #if (showClusterInfo) genModel$clusterInfo <- clusterInfo
     
     class(genModel) <- "GenModel"	
     genModel		
@@ -190,14 +191,18 @@ getModelSequences <- function(db, model, state, table="sequences")
 ### print basic info about a model
 print.GenModel <- function(x, ...) {
     cat("Object of class GenModel with", x$nSequences, "sequences\n")
-    cat(x$rank,": ");cat(x$name,sep=", ");cat("\n")
+    if(!is.null(x$rank) && !is.null(x$name)) {
+	cat(x$rank,":", x$name, "\n", sep=" ")
+    }
     cat("\nModel:\n")
     print(x$model)
 }
 
 ### plot a model
 plot.GenModel <- function(x, ...) {
-    plot(x$model,main=paste(x$rank,": ", x$name, sep=""), ...)
+    #plot(x$model, main=paste(x$rank,": ", x$name, sep=""), ...)
+    ### main does not work for interactive!
+    plot(x$model, ...)
 }
 
 

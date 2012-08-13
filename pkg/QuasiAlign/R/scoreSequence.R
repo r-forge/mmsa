@@ -1,6 +1,6 @@
 scoreSequence <- function(x, newdata, 
 	method = "supported_transitions",
-	match_cluster="nn", plus_one = FALSE,
+	match_cluster="nn", plus_one = TRUE,
 	initial_transition = FALSE) {
 
 
