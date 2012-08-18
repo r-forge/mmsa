@@ -16,12 +16,12 @@ kalign <- function(x, param=NULL) {
     write.XStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
-    system(paste(Sys.which("kalign"), infile, outfile, "-f fasta", param))
+    system(paste(.findExecuable("kalign"), infile, outfile, "-f fasta", param))
 
     read.DNAMultipleAlignment(outfile, format="fasta")
 }
 
 kalign_help <- function() {
-    system(paste(Sys.which("kalign"), "-h"))
+    system(paste(.findExecuable("kalign"), "-h"))
 }
 
