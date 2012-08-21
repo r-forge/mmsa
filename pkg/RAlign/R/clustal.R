@@ -21,13 +21,15 @@ clustal <- function(x, param=NULL) {
     write.XStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
-    system(paste(.findExecuable("clustalw"), infile, param))
+    system(paste(.findExecuable(c("clustalw", "clustalw2")), 
+		    infile, param))
 
     reader(outfile, format="clustal")
 }
 
 clustal_help <- function() {
-    system(paste(.findExecuable("clustalw"), "-help"))
+    system(paste(.findExecuable(c("clustalw", "clustalw2")), 
+		    "-help"))
 }
 
 
@@ -60,8 +62,10 @@ clustal_profile <- function(x, y, param=NULL) {
     else write.XStringSet(y, prof2, append=FALSE, format="fasta")
     
     ## call clustalw (needs to be installed and in the path!)
-    system(paste(.findExecuable("clustalw -profile1="), prof1,
-		    "-profile2=", prof2, " ", param2, " ", param, sep=""))
+    system(paste(.findExecuable(c("clustalw", "clustalw2")), 
+		" -profile1=", prof1,
+		" -profile2=", prof2, 
+		" ", param2, " ", param, sep=""))
 
     read.DNAMultipleAlignment(paste(temp_file, ".aln", sep=""), 
 	    format="clustal")
