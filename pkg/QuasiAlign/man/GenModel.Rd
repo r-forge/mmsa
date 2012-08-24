@@ -13,7 +13,7 @@ GenModel models sequences by clusters of similar NSVs and the transition
 information between the clusters.
 }
 \usage{
-GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, showClusterInfo=TRUE)
+GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
     threshold=30, selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE)
