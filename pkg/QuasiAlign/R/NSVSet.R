@@ -132,6 +132,7 @@ dropNSVTable <-  function(db, table) {
     dbSendQuery(db$db,
 	    statement = paste("DROP TABLE ", table, sep='')
 	    )
+	dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name='", table,"'",sep=''))
     dbCommit(db$db)
     invisible()
 }
