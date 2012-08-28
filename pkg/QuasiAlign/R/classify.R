@@ -51,7 +51,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#test is the number of test cases
 		test<-as.integer(pctTest*limit)
 		#create an array of all sequences indices
-		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[,1][i], partialMatch=FALSE)[,1]
+		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
 		#get which indices are to be used for training
 		#if (train <= 0) next;
 		sampleIds <- sample(ids,limit)
@@ -83,7 +83,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
 	testIds <- unlist(testIds)
-	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds)[,1]
+	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, partialMatch=FALSE)[,1]
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
