@@ -87,6 +87,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
+	attr(testList,"id") <- testIds
 	if (length(method) == 1)
     	return(classify(modelDir, testList, rank=rank, method=method))
 	else if (length(method) > 1)
@@ -116,13 +117,12 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     #colnames(classificationScores) <- modelNames
 
     classificationScores <- foreach (i =1:length(modelFiles),.combine=cbind) %dopar% {
-	
-	cat("classify: Creating score matrix for", modelNames[i],"\n")
-	model<-readRDS(modelFiles[i])
-	#classificationScores[,i] <- sapply(NSVList, FUN =
-	#	function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
-	sapply(NSVList, FUN =
-		function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
+		cat("classify: Creating score matrix for", modelNames[i],"\n")
+		model<-readRDS(modelFiles[i])
+		#classificationScores[,i] <- sapply(NSVList, FUN =
+		#	function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
+		sapply(NSVList, FUN =
+			function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
     
 	colnames(classificationScores) <- modelNames
@@ -130,9 +130,9 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     prediction <- modelNames[winner]
 
     actual <-  attr(NSVList, "name")
-
+	id <- attr(NSVList,"id")
     list(scores=classificationScores, 
-	    prediction=cbind(predicted=prediction, actual=actual))
+	    prediction=cbind(id=id,predicted=prediction, actual=actual))
 }
 
 

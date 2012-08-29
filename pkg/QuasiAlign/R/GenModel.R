@@ -64,38 +64,37 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	
 	#this should be used for the entire db and not a selection
     if (is.null(selection)){
-	i<-0
-	total<-0
-	while(i<nSequences){
-	    #get 100 sequences at a time
-		d <-getSequences(db,rank,name,table,limit=c(i,100))
-	    n <- length(d)
-	    n <- min(n,100)
-	    ids <- names(d)[1:n]
-	    d <- .make_stream(d)
-	    #get actual number of sequences
-	    build(emm, d)
-	    l<-last_clustering(emm)
-	    clusterInfo<- .getClusterInfo(clusterInfo,l,i)
-	    names(clusterInfo)[(i+1):(i+n)] <- ids
-	    reset(emm)
-	    #update value of i 
-	    i<-min(i+100,nSequences)
-	    cat("GenModel: Processed",i,"sequences\n")
+		i<-0
+		total<-0
+		while(i<nSequences){
+	    	#get 100 sequences at a time
+			d <-getSequences(db,rank,name,table,limit=c(i,100))
+	    	n <- length(d)
+	    	n <- min(n,100)
+	    	ids <- names(d)[1:n]
+	    	d <- .make_stream(d)
+	    	#get actual number of sequences
+	    	build(emm, d)
+	    	l<-last_clustering(emm)
+	    	clusterInfo<- .getClusterInfo(clusterInfo,l,i)
+	    	names(clusterInfo)[(i+1):(i+n)] <- ids
+	    	reset(emm)
+	    	#update value of i 
+	    	i<-min(i+100,nSequences)
+	    	cat("GenModel: Processed",i,"sequences\n")
 		}
     } else if (!is.null(selection)) {
-		d<-getSequences(db, rank="id", name=selection, table, limit=limit)
-		ids <- names(d)
-		#d<-d[selection]
-		if (length(d)==0) stop("GenModel called with 0 sequences")
-		d <- .make_stream(d)
-		build(emm, d)
-		l<-last_clustering(emm)
-		clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-		names(clusterInfo) <- ids
-		reset(emm)
-		nSequences <- length(selection)
-		cat("GenModel: Processed ",nSequences ," sequences\n")
+			d<-getSequences(db, rank="id", name=selection, table, limit=limit)
+			ids <- names(d)
+			if (length(d)==0) stop("GenModel called with 0 sequences")
+			d <- .make_stream(d)
+			build(emm, d)
+			l<-last_clustering(emm)
+			clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+			names(clusterInfo) <- ids
+			reset(emm)
+			nSequences <- length(selection)
+			cat("GenModel: Processed ",nSequences ," sequences\n")
     }
 
     rank <- .pmatchRank(db, rank)

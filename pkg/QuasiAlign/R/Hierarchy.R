@@ -30,7 +30,7 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 	else
 		statement <- paste("SELECT ", distinct, "classification.",cols,
 		    " FROM classification ", 
-		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols )
+		    .getWhere(db, whereRank, whereName, partialMatch))
 	
     ret <- dbGetQuery(db$db, 
 	    statement = statement)
