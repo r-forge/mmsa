@@ -110,7 +110,7 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 
     rankDir<-file.path(modelDir, tolower(rank))
     if (!file.exists(rankDir)) stop("Model directory ",rankDir," not found!")
-    
+    if (length(NSVList) ==0) stop("No sequence to classify against") 
     modelFiles <- dir(rankDir, full.names=TRUE)    
     modelNames <- sub(".rds", "", basename(modelFiles))
     #classificationScores <- matrix(NA, ncol=length(modelFiles), 
