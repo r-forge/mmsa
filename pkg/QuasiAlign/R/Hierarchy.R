@@ -28,7 +28,7 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		    " , count(", cols, ") AS count FROM classification ", 
 		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" )
 	else
-		statement <- paste("SELECT ", distinct, "classification.",cols,
+		statement <- paste("SELECT classification.",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName, partialMatch))
 	
