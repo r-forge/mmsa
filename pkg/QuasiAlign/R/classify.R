@@ -83,7 +83,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
 	testIds <- unlist(testIds)
-	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)[,1]
+	testNames <- sapply(testIds, FUN= function(x) getRank(db,rank=rank,whereRank="id", whereName=x, all=TRUE, partialMatch=FALSE)[,1])
+	#testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)[,1]
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
