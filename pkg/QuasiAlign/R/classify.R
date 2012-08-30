@@ -118,7 +118,7 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 	#    nrow=length(NSVList))
     #colnames(classificationScores) <- modelNames
 
-    classificationScores <- foreach (i =1:length(modelFiles),.combine=cbind) %dopar% {
+    classificationScores <- foreach (i =1:length(modelNames),.combine=cbind) %dopar% {
 		cat("classify: Creating score matrix for", modelNames[i],"\n")
 		model<-readRDS(modelFiles[i])
 		#classificationScores[,i] <- sapply(NSVList, FUN =
@@ -129,12 +129,21 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     
 	colnames(classificationScores) <- modelNames
     winner <- apply(classificationScores, MARGIN=1, which.max)
-    prediction <- modelNames[winner]
+	prediction <- matrix(NA,nrow=nrow(classificationScores), ncol=3)
+    for(i in 1:nrow(classificationScores)) {
+		prediction[i,1]<-rownames(classificationScores)[i]
+		prediction[i,2]<-names(which.max(classificationScores[i,]))
+		prediction[i,3] <- attr(NSVList,"name")[which(attr(NSVList,"id")==rownames(classificationScores)[i])]
+	}
+	colnames(prediction) <- c("id","predicted","actual")
+	#prediction <- colnames(classificationScores)[winner]
+	#prediction <- modelNames[winner]
 
-    actual <-  attr(NSVList, "name")
-	id <- attr(NSVList,"id")
+    #actual <-  attr(NSVList, "name")
+	#id <- attr(NSVList,"id")
     list(scores=classificationScores, 
-	    prediction=cbind(id=id,predicted=prediction, actual=actual))
+	    prediction=prediction)
+		#prediction=cbind(id=id,predicted=prediction, actual=actual))
 }
 
 
