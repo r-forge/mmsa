@@ -37,7 +37,8 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 	if(removeUnknown)
 		if (length(which(ret[1,]=="unknown")) > 0)
 			ret <- ret[-which(ret[1,]=="unknown"),]
-	ret
+	#ret
+	ret[order(order(as.character(whereName))),]
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
