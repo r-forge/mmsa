@@ -221,9 +221,9 @@ an empty cluster model. As each NSV is processed, it is compared to the
 existing clusters of the model.  If the NSV is not found to be close 
 enough (using a distance measure on the NSVs) a new cluster is created.
 For example Cluster~1 (circle) is created for NSV~1, Cluster~2 for NSV~2 and
-Cluster~3 for NSV~3. NSV~3 was found close enough to NSV~1 and thus was also
-assigned to Cluster~1. In addition to the clusters also the transition
-information between the clusters (arrows) is recorded.  When all NSVs are
+Cluster~3 for NSV~4. NSV~3 was found close enough to NSV~1 and thus was also
+assigned to Cluster~1. In addition to the clusters, the transition
+information between the clusters (arrows) is also recorded as a transition graph.  When all NSVs are
 processed, the model building process is finished.}
 \label{emm}
 \end{figure}
