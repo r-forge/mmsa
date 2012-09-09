@@ -487,7 +487,7 @@ We can obtain the rank name for each sequence individually by using
 \code{all=TRUE}. The folowing code counts how many sequences we have 
 for each genus.
 <<>>=
-table(getRank(db, rank="Genus", all=TRUE)[,1])
+table(getRank(db, rank="Genus", all=TRUE))
 @
 
 This informartion can be easily turned into a barplot showing the abundance
@@ -496,7 +496,7 @@ of different orders in the data database (see Figure~\ref{fig:abundanceplot}).
 <<abundanceplot, fig=TRUE, include=FALSE>>=
 oldpar <- par(mar=c(12,5,5,5)) ### make space for labels
 barplot(sort(
-    table(getRank(db, rank="Genus", all=TRUE)[,1]), 
+    table(getRank(db, rank="Genus", all=TRUE)), 
     decreasing=TRUE), las=2)
 par(oldpar)
 @
@@ -679,9 +679,9 @@ plot(model)
 <<EMM_2, fig=TRUE, include=FALSE>>=
 plot(model, method="MDS")
 @
-<<EMM_3, fig=TRUE, include=FALSE>>=
-plot(model, method="graph")
-@
+%<<EMM_3, fig=TRUE, include=FALSE>>=
+%plot(model, method="graph")
+%@
 
 \begin{figure}
 \centering
@@ -697,12 +697,12 @@ plot(model, method="graph")
 \label{fig:EMM_Plot_MDS}
 \end{figure}
 
-\begin{figure}
-\centering
-\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_3}
-\caption{Plot of the model using Graphviz .}
-\label{fig:EMM_Plot_Graphviz}
-\end{figure}
+%\begin{figure}
+%\centering
+%\includegraphics[width=.8\linewidth]{QuasiAlign-EMM_3}
+%\caption{Plot of the model using Graphviz .}
+%\label{fig:EMM_Plot_Graphviz}
+%\end{figure}
 
 The default plot which displays the model as a graph is shown in
 Figure~\ref{fig:EMM_Plot}.  A plot where the clusters are arranged using
@@ -912,7 +912,7 @@ compareSequences(model,sequences=c(2:4))
 One of the problems in bioinformatics is finding sequences or segments across sequences that are highly similar. This is especially useful in functional and phylogenetic analysis of species and sequences. As a preliminary step, QuasiAlign includes a function \func{findLargestCommon} which searches for two or more sequences in a model that have the largest common portions. The common areas are identified by getting a count of common segments and then finding those sequences that share the maximum number of common segments.
 
 <<>>=
-common <- findLargestCommon(model,limit=5)
+common <- findLargestCommon(model,limit=3)
 common
 @
 

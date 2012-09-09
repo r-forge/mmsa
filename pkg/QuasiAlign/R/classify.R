@@ -29,7 +29,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testList<-list()
     testNames<-vector()
     #get all the  rankNames for the given rank
-    rankNames <- getRank(db, rank, count=TRUE, removeUnknown=TRUE)
+    rankNames <- getRank(db, rank, count=TRUE, removeUnknown=TRUE)[,1]
 	if (!is.null(numRanks))
 	{
 		if (top==TRUE)
@@ -37,11 +37,13 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     		else
 			rankNames <- tail(rankNames, numRanks)
 	}
-    testIds<-foreach (i=1:length(rankNames[,1])) %dopar%
+	#testIds <- vector()
+	#for (i in 1:length(rankNames))
+    testIds<-foreach (i=1:length(rankNames), .combine=c) %dopar%
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
-		n <- nSequences(db_local,rank, rankNames[,1][i])
+		n <- nSequences(db_local,rank, rankNames[i])
 		#how many sequences should we use
 		if(is.null(limit)) limit <- n
 		else limit <- min(n,limit)
@@ -51,7 +53,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#test is the number of test cases
 		test<-as.integer(pctTest*limit)
 		#create an array of all sequences indices
-		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[,1][i])[,1]
+		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[i])
 		#get which indices are to be used for training
 		#if (train <= 0) next;
 		sampleIds <- sample(ids,limit)
@@ -61,20 +63,20 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
 		if (length(train) > 0) {
-			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[,1][i], selection=train)
-			emm <- prune(emm, count_threshold=count_threshold)
+			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[i], selection=train)
+			emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
 		}
 		#save the model to file
 		#some species names have "/" in them, need to remove them
-		rankNames[,1][i]<-gsub("/","",rankNames[,1][i])
-		saveRDS(emm, file=paste(rankDir, "/", rankNames[,1][i], ".rds", sep=''))
+		rankNames[i]<-gsub("/","",rankNames[i])
+		saveRDS(emm, file=paste(rankDir, "/", rankNames[i], ".rds", sep=''))
 		closeGenDB(db_local)
 		rm(db_local)
 		if (length(test) > 0)
 			test
 		
 		#get all sequences and filter it to just test sequences
-		#d<-getSequences(db,table="NSV",rank=rank,name=rankNames[,1][i])
+		#d<-getSequences(db,table="NSV",rank=rank,name=rankNames[i])
 		#filter sequences and add to test list
 		#testList <- c(testList,d[test])
 		#testNames <- c(testNames, attr(d,"name")[test])	
@@ -82,10 +84,10 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     #if(length(testList)==0)
 	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
-	testIds <- unlist(testIds)
-	testNames <- lapply(testIds, FUN= function(x) getRank(db,rank=rank,whereRank="id", whereName=x, all=TRUE, partialMatch=FALSE)[,1])
-	testNames <- unlist(testNames)
-	#testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)[,1]
+	#testIds <- unlist(testIds)
+	#testNames <- lapply(testIds, FUN= function(x) getRank(db,rank=rank,whereRank="id", whereName=x, all=TRUE, partialMatch=FALSE)
+	#testNames <- unlist(testNames)
+	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames

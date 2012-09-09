@@ -16,13 +16,20 @@ getTaxonomyNames <- function(db) {
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
 	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
-
     fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
+	#rankPosition <- match(tolower(rank),tolower(fields)) 
+	rankPosition <- .pmatchRank(db, rank, numeric=TRUE) 
+	if (!is.null(whereRank))
+		#whereRankPosition <- match(tolower(whereRank),tolower(fields)) 
+		whereRankPosition <- .pmatchRank(db, whereRank, numeric=TRUE) 
+	else
+		#whereRankPosition = length(fields)
+		whereRankPosition = 0
 	
 	if(all) distinct <- "" else  distinct <- "DISTINCT"
-
+	
 	if(count)
 		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " , count(", cols, ") AS count FROM classification ", 
@@ -38,7 +45,59 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		if (length(which(ret[1,]=="unknown")) > 0)
 			ret <- ret[-which(ret[1,]=="unknown"),]
 	#ret
-	ret[order(order(as.character(whereName))),]
+	if(count)
+		ret
+	else
+	{
+			if (rankPosition <= whereRankPosition) #order is important
+				ret[order(order(as.character(whereName))),]
+			else if (rankPosition > whereRankPosition) #order is not important
+				ret[,1]
+	}	
+}
+
+
+getRankTable <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
+	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
+# TODO:
+# 	Separate logic depending on whereName is id or not
+
+    fields <- getTaxonomyNames(db)
+    cols <- paste("[", fields[.pmatchRank(db, rank, 
+		    numeric=TRUE)],"]", sep='')
+	
+	if(all) distinct <- "" else  distinct <- "DISTINCT"
+	
+	# if whereRank is not null create a temp table. This is done to get the output ordering in the same way as input ordering
+	if (!is.null(whereRank)) {
+		statement <- paste ("CREATE TABLE temp (orderkey integer primary key,", whereRank, ")")
+		createTable <- dbGetQuery(db$db, statement = statement)
+		for(i in 1:length(whereName)) {
+			statement <- paste("INSERT INTO temp(", whereRank, ") VALUES (", whereRank[i], ")")
+			insertTable <- dbGetQuery(db$db, statement = statement) 
+		}
+	}
+	
+
+	if(count)
+		statement <- paste("SELECT ", distinct, " classification.",cols,
+		    " , count(", cols, ") AS count FROM classification ", 
+		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" )
+	else
+		statement <- paste("SELECT ", distinct, " classification.",cols,
+		    " FROM classification ", 
+		    .getWhere(db, whereRank, whereName, partialMatch))
+	
+    	ret <- dbGetQuery(db$db, 
+	    statement = statement)
+	if(removeUnknown)
+		if (length(which(ret[1,]=="unknown")) > 0)
+			ret <- ret[-which(ret[1,]=="unknown"),]
+	#ret
+	if (!is.null(whereName) && length(whereName)>1)
+		data.frame(rank=ret[order(order(as.character(whereName))),])
+	else 
+		ret
 }
 
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
@@ -50,7 +109,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 		
 		cl <- sapply(1:rankNum, FUN=function(i) 
 			getRank(db, rank=hierarchy[i], whereRank=rank, whereName=name,
-				partialMatch=FALSE)[,1])
+				partialMatch=FALSE))
 
 		m <- matrix(NA, nrow=1, ncol=length(hierarchy))
 		m[1:rankNum] <- unlist(cl)[1:rankNum]
@@ -60,7 +119,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     ### find all matching names
     name <- unlist(lapply(name, FUN=function(n) 
 		    	getRank(db, rank=rank, whereRank=rank, whereName=n, 
-			    partialMatch=partialMatch)[,1]))
+			    partialMatch=partialMatch)))
     
 
     if(length(name) < 1) stop("No match found!")

@@ -51,7 +51,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	#check for random and if so get random 'limit' sequences from the DB
 	if (random) 
 		{	#get the IDs
-			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)[,1]
+			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)
 			#if(is.null(limit)) limit <- nSequences
 			selection <- sample(as.vector(ids[,1]),nSequences)
 		}
@@ -259,7 +259,7 @@ createModels <- function(modelDir, rank = "Phylum", db, selection=NULL,
 	dir.create(rankDir)
     }
     #get All ranks
-    rankNames <- getRank(db, rank)[,1]
+    rankNames <- getRank(db, rank)
     for(n in rankNames) {
 	emm <- GenModelDB(db, table="NSV", rank, name=n,
 		selection=selection, limit=limit, ...)
