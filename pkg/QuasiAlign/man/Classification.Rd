@@ -2,6 +2,7 @@
 \alias{createModels}
 \alias{processSequences}
 \alias{validateModels}
+\alias{createRDPTraining}
 \alias{classify}
 \docType{data}
 \title{Generate Models to Classify Sequences}
@@ -15,6 +16,7 @@ createModels(modelDir, rank="Phylum", db, selection=NULL, limit=NULL, ...)
 classify(modelDir, NSVList, rank, method="supported_transitions")
 validateModels(db, modelDir, rank="phylum", table="NSV", 
     pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, count_threshold=5)
+createRDPTraining(db, rank, name, ids)
 }
 \arguments{
 	\item{db}{Handle of the database containing the sequences.}
@@ -34,6 +36,8 @@ validateModels(db, modelDir, rank="phylum", table="NSV",
 	\item{threshold}{Threshold used for assigning points to clusters and merging clusters in rEMM0.}
 	\item{count_threshold}{Clusters having count below this value are pruned.}
 	\item{measure}{EMM similarity measure.}
+	\item{name}{Name of the rank for which RDP format training set is to be created.}
+	\item{ids}{List of ids for which the RDP format training set is to be created.}
 	\item{...}{Further arguments that are passed to \code{createNSVTable} from processSequences and to \code{genModel} from createModels}
 }
 \value{\code{classify} and \code{validateModels} functions return a data.frame containing the classification matrix and actual and predicted values.}
@@ -68,6 +72,9 @@ validateModels(db, modelDir, rank="phylum", table="NSV",
 	test sequences by comparing their similarity with the generated models.
 	It outputs a dataframe with the similarity score matrix, and also the
 	actual and predicted ranks.
+
+	\code{createRDPTraining} gets a list of ids and creates a RDP reference training set and taxonomy file for use 
+	by the RDP classifier.
 }
 \examples{
 db<-createGenDB("example.sqlite")

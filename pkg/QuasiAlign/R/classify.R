@@ -39,7 +39,11 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	}
 	#testIds <- vector()
 	#for (i in 1:length(rankNames))
-    testIds<-foreach (i=1:length(rankNames), .combine=c) %dopar%
+    #clean up the RDP directories
+	unlink("rdp/sequences/*")
+	unlink("rdp/taxonomy/*")
+	unlink("rdp/test/*")
+	testIds<-foreach (i=1:length(rankNames), .combine=c) %dopar%
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
@@ -64,23 +68,20 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		test <- sample(sampleIds,test)
 		if (length(train) > 0) {
 			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[i], selection=train)
-			emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
-		}
+			if (length(train) >= 5)
+				emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
+		
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[i]<-gsub("/","",rankNames[i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[i], ".rds", sep=''))
+		createRDPTraining(db_local,rank,rankNames[i],train)
 		closeGenDB(db_local)
 		rm(db_local)
 		if (length(test) > 0)
 			test
-		
-		#get all sequences and filter it to just test sequences
-		#d<-getSequences(db,table="NSV",rank=rank,name=rankNames[i])
-		#filter sequences and add to test list
-		#testList <- c(testList,d[test])
-		#testNames <- c(testNames, attr(d,"name")[test])	
-    }
+		}
+	}
     #if(length(testList)==0)
 	#	stop("Insufficient sequences have been selected for testing")
     #add attributes to test
@@ -89,6 +90,28 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	#testNames <- unlist(testNames)
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
+	#combine the rdp files
+	rdpSequences <- list.files("rdp/sequences")
+	for(i in 1:length(rdpSequences))
+	{
+		command <- paste("cat rdp/sequences/", rdpSequences[i]," >> rdp/sequences/train.fasta",sep="")
+		system(command)
+		unlink(paste("rdp/sequences/",rdpSequences[i],sep=""))
+	}	
+	rdpTaxonomy <- list.files("rdp/taxonomy")
+	for(i in 1:length(rdpTaxonomy))
+	{
+		command <- paste("cat rdp/taxonomy/", rdpTaxonomy[i]," >> rdp/taxonomy/taxonomy.txt",sep="")
+		system(command)
+		unlink(paste("rdp/taxonomy/",rdpTaxonomy[i],sep=""))
+	}
+
+	testSequences <- getSequences(db, rank="id", name=testIds)
+	#create test file in fasta format for RDP
+	if (!file.exists("rdp/test"))
+		dir.create("rdp/test", recursive=TRUE)
+	write.XStringSet(testSequences, filepath="rdp/test/test.fasta")
+	
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
 	attr(testList,"id") <- testIds
@@ -148,4 +171,33 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 		#prediction=cbind(id=id,predicted=prediction, actual=actual))
 }
 
+createRDPTraining <- function(db, rank, name, ids)
+{
+	tax <- getHierarchy(db,rank="id",name=ids)
+	#tax is a matrix
+	outTrainTax <- vector()
+	if (!file.exists("rdp/taxonomy"))
+		dir.create("rdp/taxonomy", recursive=TRUE)
+	if (!file.exists("rdp/sequences"))
+		dir.create("rdp/sequences", recursive=TRUE)
+	for(i in 1:nrow(tax))
+	{
+		header =""
+		#seq = ""
+		id = tax[,"Id"][i]
+		seq = getSequences(db,rank="id",name=id,partialMatch=FALSE)
+		header<- paste(id,"\t",sep="")
+		header <- paste(header,"Root",sep="")
+		for(j in 2:6)
+		{
+			header <- paste(header, ";" ,substr(tolower(names(tax[i,j])),1,1),"__",tax[i,j],sep="")
+		}
+		header <- gsub("\\(class\\)","",header)
+		header <- gsub(" ","",header)		
+		
+		outTrainTax[i] <- header
+		write.XStringSet(seq,filepath=paste("rdp/sequences/",rank,name,".fasta",sep=""), append=TRUE)
+	}
+	write(outTrainTax, file=paste("rdp/taxonomy/",rank,name,".txt",sep=""), append=TRUE)
+}
 
