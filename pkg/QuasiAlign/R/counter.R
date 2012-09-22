@@ -1,7 +1,7 @@
 
 #word => size of mer
 .counter <- function(x, window=100, overlap=0, word=3, 
-	last_window=FALSE) {
+	last_window=FALSE, startPos=NULL, endPos=NULL) {
     
     #returns the sequence as a vector  
     #x <- getSequence(x)    
@@ -12,11 +12,17 @@
     }
     
     l <- as.integer(length(x)/(window-overlap)) -1L
-    
     #start and end positions as vectors
-    start <- (window-overlap)*(0:l) + 1
-    end <- start + window - 1
-
+	if (is.null(startPos) || is.null(endPos))
+    {
+		start <- (window-overlap)*(0:l) + 1
+    	end <- start + window - 1
+	}
+	else
+	{
+		start <- startPos
+		end <- endPos
+	}
     if(last_window) {
 	if(tail(end,1) < length(x))	{
 	    start <- c(start, tail(end,1)+1)

@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, count_threshold=5)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, prune=TRUE, count_threshold=5)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -66,15 +66,16 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		sampleIds <- setdiff(sampleIds,train)
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
-		if (length(train) > 0) {
+		if (length(train) > 10) {
 			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[i], selection=train)
-			if (length(train) >= 5)
+			if (prune)
 				emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
 		
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[i]<-gsub("/","",rankNames[i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[i], ".rds", sep=''))
+		#takes the ids and creates a RDP training file for them
 		createRDPTraining(db_local,rank,rankNames[i],train)
 		closeGenDB(db_local)
 		rm(db_local)
@@ -82,12 +83,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 			test
 		}
 	}
-    #if(length(testList)==0)
-	#	stop("Insufficient sequences have been selected for testing")
-    #add attributes to test
-	#testIds <- unlist(testIds)
-	#testNames <- lapply(testIds, FUN= function(x) getRank(db,rank=rank,whereRank="id", whereName=x, all=TRUE, partialMatch=FALSE)
-	#testNames <- unlist(testNames)
+ 	
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
 	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
 	#combine the rdp files
@@ -111,7 +107,24 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	if (!file.exists("rdp/test"))
 		dir.create("rdp/test", recursive=TRUE)
 	write.XStringSet(testSequences, filepath="rdp/test/test.fasta")
-	
+	#run the RDP classifier
+	#check if the macqiime or qiime exists
+	if (Sys.which("macqiime") !="")
+		exec <- "macqiime"
+	else if (Sys.which("qiime") !="")
+		exec <- "qiime"
+	else
+	{
+		print("unable to find macqiime/qiime for RDP")
+		exec <- NULL
+	}
+	if(!is.null(exec))
+	{
+		command <- "assign_taxonomy.py -i rdp/test/test.fasta -t rdp/taxonomy/taxonomy.txt -r rdp/sequences/train.fasta -o ."
+		system(exec, input=command)
+	}
+
+	#	
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
 	attr(testList,"id") <- testIds

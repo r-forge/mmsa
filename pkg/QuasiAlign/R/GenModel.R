@@ -53,7 +53,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 		{	#get the IDs
 			ids <- getRank(db, rank="id", whereRank=rank, whereName=name)
 			#if(is.null(limit)) limit <- nSequences
-			selection <- sample(as.vector(ids[,1]),nSequences)
+			selection <- sample(as.vector(ids),nSequences)
 		}
     #clusterinfo stores the last_clustering details
     clusterInfo<-list(nSequences)

@@ -41,7 +41,7 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 
 createNSVTable <- function(db, table="NSV", 
 	rank=NULL, name=NULL, window=100,
-	overlap=0, word=3, last_window=FALSE) {
+	overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL) {
 
     if(length(grep(" ", table))) stop("table cannot contain spaces!")
     if (length(which(table==listGenDB(db))) > 0)
@@ -90,7 +90,7 @@ createNSVTable <- function(db, table="NSV",
 
 	    #make NSV
 
-	    nsv <- .counter(d$data[i], window, overlap, word, last_window)
+	    nsv <- .counter(d$data[i], window, overlap, word, last_window, startPos, endPos)
 	    d$data[i] <- base64encode(serialize(nsv, NULL))
 	    #end make NSV
 	    ## Insert into DB

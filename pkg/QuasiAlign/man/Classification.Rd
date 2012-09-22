@@ -15,7 +15,7 @@ processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
 createModels(modelDir, rank="Phylum", db, selection=NULL, limit=NULL, ...)
 classify(modelDir, NSVList, rank, method="supported_transitions")
 validateModels(db, modelDir, rank="phylum", table="NSV", 
-    pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, count_threshold=5)
+    pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, prune=TRUE, count_threshold=5)
 createRDPTraining(db, rank, name, ids)
 }
 \arguments{
@@ -38,6 +38,7 @@ createRDPTraining(db, rank, name, ids)
 	\item{measure}{EMM similarity measure.}
 	\item{name}{Name of the rank for which RDP format training set is to be created.}
 	\item{ids}{List of ids for which the RDP format training set is to be created.}
+	\item{prune}{Should the model be pruned?}
 	\item{...}{Further arguments that are passed to \code{createNSVTable} from processSequences and to \code{genModel} from createModels}
 }
 \value{\code{classify} and \code{validateModels} functions return a data.frame containing the classification matrix and actual and predicted values.}
