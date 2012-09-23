@@ -42,8 +42,12 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
     ret <- dbGetQuery(db$db, 
 	    statement = statement)
 	if(removeUnknown)
+	{
 		if (length(which(ret[1,]=="unknown")) > 0)
 			ret <- ret[-which(ret[1,]=="unknown"),]
+		if (length(which(ret[1,]=="NA")) > 0)
+			ret <- ret[-which(ret[1,]=="NA"),]
+	}
 	#ret
 	if(count)
 		ret

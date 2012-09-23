@@ -89,7 +89,6 @@ createNSVTable <- function(db, table="NSV",
 	for(i in 1:nrow(d))  {
 
 	    #make NSV
-
 	    nsv <- .counter(d$data[i], window, overlap, word, last_window, startPos, endPos)
 	    d$data[i] <- base64encode(serialize(nsv, NULL))
 	    #end make NSV

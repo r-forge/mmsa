@@ -32,8 +32,17 @@
     #count function is part of seqinr package - counts occurence of "word" sized mers
     #t(sapply(1:length(start), FUN=function(i) 
     #        count(x[start[i]:end[i]], word=word)))
-
-    t(sapply(1:length(start), FUN=function(i) 
+	if (max(start) > length(x))
+	{
+		start <- start[-which(start > length(x))]
+		end <- end[-which(end > length(x))]
+    }
+	else if (max(end) > length(x))
+	{
+		overflow <- which(end > length(x))
+		end[overflow] <- length(x)
+	}
+	t(sapply(1:length(start), FUN=function(i) 
             oligonucleotideFrequency(DNAString(x,start=start[i],nchar=end[i]-start[i]+1), word)))
 }
 
