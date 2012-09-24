@@ -67,7 +67,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
 		if (length(train) > 10) {
-			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table="NSV", rank, name=rankNames[i], selection=train)
+			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table=table, rank, name=rankNames[i], selection=train)
 			if (prune)
 				emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
 		
@@ -85,7 +85,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	}
  	
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
-	testList <- getSequences(db, table="NSV", rank="id", name=testIds)
+	testList <- getSequences(db, table=table, rank="id", name=testIds)
 	#combine the rdp files
 	rdpSequences <- list.files("rdp/sequences")
 	for(i in 1:length(rdpSequences))
