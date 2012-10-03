@@ -46,6 +46,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     nSequences <- nSequences(db, rank, name)
     hierarchy <- getHierarchy(db, rank, name)
+	if (length(name) > 1)
+		hierarchy <- as.data.frame(hierarchy)
 	
     if (!is.null(limit)) nSequences <- min(nSequences,limit)
 	#check for random and if so get random 'limit' sequences from the DB
@@ -59,10 +61,11 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     clusterInfo<-list(nSequences)
     ### Kullback can not handle 0 counts!
     if(measure=="Kullback") d <- d + 1
-
-    cat("GenModel: Creating model for ",rank,": ",name,"\n",sep="")
 	
-	#this should be used for the entire db and not a selection
+	allRanks <- getRank(db,rank=rank)
+	name <- allRanks[pmatch(name,allRanks)]
+    cat("GenModel: Creating model for ",rank,": ",paste(name, collapse=",") ,"\n",sep="")
+	
     if (is.null(selection)){
 		i<-0
 		total<-0
@@ -114,23 +117,22 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
 #	Returns the model states and the ID and the segment number of the sequences that are part of that state in format id:segment.
 #	By default, returns all states as a list, if a modelState is specified. returns only the sequences that are part of that state
-getModelDetails <- function(model, state=NULL)
+getModelDetails <- function(model, state=NULL, db)
 {	
-    
-    if(!is.null(state)) {
-	occ <- lapply(model$clusterInfo, FUN=function(x) which(x==state))
+   	rank = model$rank 
+	if(!is.null(state)) {
+	occ <- lapply(model$clusterInfo, FUN=function(y) which(y==state))
 	occ[sapply(occ, length) <1] <- NULL     
-	
 	return(
 		data.frame(sequence=	
 			rep(names(occ), times=sapply(occ, length)),
-			segment=unlist(occ),
+			segment=unlist(occ), rank=getRank(db,rank=rank, whereRank="id", whereName=rep(names(occ), times=sapply(occ, length)), all=TRUE),
 			row.names=NULL, stringsAsFactors=FALSE)
 		)
     }
     
     l <- lapply(clusters(model$model), FUN=function(x) 
-	    getModelDetails(model, state=x))
+	    getModelDetails(model=model, state=x, db=db))
 
     names(l) <- clusters(model$model)
     l
@@ -191,7 +193,7 @@ getModelSequences <- function(db, model, state, table="sequences")
 print.GenModel <- function(x, ...) {
     cat("Object of class GenModel with", x$nSequences, "sequences\n")
     if(!is.null(x$rank) && !is.null(x$name)) {
-	cat(x$rank,":", x$name, "\n", sep=" ")
+	cat(x$rank,":", paste(x$name[,1], collapse=",") , "\n", sep=" ")
     }
     cat("\nModel:\n")
     print(x$model)

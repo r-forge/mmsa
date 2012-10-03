@@ -2,7 +2,7 @@
 # test sets.  Uses the training sequences to create models and stores them in
 # the modelDir directory.  The pctTest is the fraction of sequences used for
 # testing.
-validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, prune=TRUE, count_threshold=5)
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, method="supported_transitions", limit=NULL, numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, prune=TRUE, count_threshold=5, createRDP=FALSE)
 {
     #dir => directory containing FASTA files which are to be used for model
     #modelDir => directory where models are to be stored
@@ -39,10 +39,12 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	}
 	#testIds <- vector()
 	#for (i in 1:length(rankNames))
+	if (createRDP) {
     #clean up the RDP directories
 	unlink("rdp/sequences/*")
 	unlink("rdp/taxonomy/*")
 	unlink("rdp/test/*")
+	}
 	testIds<-foreach (i=1:length(rankNames), .combine=c) %dopar%
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
@@ -76,7 +78,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		rankNames[i]<-gsub("/","",rankNames[i])
 		saveRDS(emm, file=paste(rankDir, "/", rankNames[i], ".rds", sep=''))
 		#takes the ids and creates a RDP training file for them
-		createRDPTraining(db_local,rank,rankNames[i],train)
+		if(createRDP)
+			createRDPTraining(db_local,rank,rankNames[i],train)
 		closeGenDB(db_local)
 		rm(db_local)
 		if (length(test) > 0)
@@ -86,45 +89,47 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
  	
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
 	testList <- getSequences(db, table=table, rank="id", name=testIds)
-	#combine the rdp files
-	rdpSequences <- list.files("rdp/sequences")
-	for(i in 1:length(rdpSequences))
+	if (createRDP)
 	{
-		command <- paste("cat rdp/sequences/", rdpSequences[i]," >> rdp/sequences/train.fasta",sep="")
-		system(command)
-		unlink(paste("rdp/sequences/",rdpSequences[i],sep=""))
-	}	
-	rdpTaxonomy <- list.files("rdp/taxonomy")
-	for(i in 1:length(rdpTaxonomy))
-	{
-		command <- paste("cat rdp/taxonomy/", rdpTaxonomy[i]," >> rdp/taxonomy/taxonomy.txt",sep="")
-		system(command)
-		unlink(paste("rdp/taxonomy/",rdpTaxonomy[i],sep=""))
-	}
+			#combine the rdp files
+			rdpSequences <- list.files("rdp/sequences")
+			for(i in 1:length(rdpSequences))
+			{
+				command <- paste("cat rdp/sequences/", rdpSequences[i]," >> rdp/sequences/train.fasta",sep="")
+				system(command)
+				unlink(paste("rdp/sequences/",rdpSequences[i],sep=""))
+			}	
+			rdpTaxonomy <- list.files("rdp/taxonomy")
+			for(i in 1:length(rdpTaxonomy))
+			{
+				command <- paste("cat rdp/taxonomy/", rdpTaxonomy[i]," >> rdp/taxonomy/taxonomy.txt",sep="")
+				system(command)
+				unlink(paste("rdp/taxonomy/",rdpTaxonomy[i],sep=""))
+			}
 
-	testSequences <- getSequences(db, rank="id", name=testIds)
-	#create test file in fasta format for RDP
-	if (!file.exists("rdp/test"))
-		dir.create("rdp/test", recursive=TRUE)
-	write.XStringSet(testSequences, filepath="rdp/test/test.fasta")
-	#run the RDP classifier
-	#check if the macqiime or qiime exists
-	if (Sys.which("macqiime") !="")
-		exec <- "macqiime"
-	else if (Sys.which("qiime") !="")
-		exec <- "qiime"
-	else
-	{
-		print("unable to find macqiime/qiime for RDP")
-		exec <- NULL
+			testSequences <- getSequences(db, rank="id", name=testIds)
+			#create test file in fasta format for RDP
+			if (!file.exists("rdp/test"))
+				dir.create("rdp/test", recursive=TRUE)
+			write.XStringSet(testSequences, filepath="rdp/test/test.fasta")
+			#run the RDP classifier
+			#check if the macqiime or qiime exists
+			if (Sys.which("macqiime") !="")
+				exec <- "macqiime"
+			else if (Sys.which("qiime") !="")
+				exec <- "qiime"
+			else
+			{
+				print("unable to find macqiime/qiime for RDP")
+				exec <- NULL
+			}
+			if(!is.null(exec))
+			{
+				command <- "assign_taxonomy.py -i rdp/test/test.fasta -t rdp/taxonomy/taxonomy.txt -r rdp/sequences/train.fasta -o ."
+				system(exec, input=command)
+			}
 	}
-	if(!is.null(exec))
-	{
-		command <- "assign_taxonomy.py -i rdp/test/test.fasta -t rdp/taxonomy/taxonomy.txt -r rdp/sequences/train.fasta -o ."
-		system(exec, input=command)
-	}
-
-	#	
+		
 	attr(testList,"rank")<-rank
     attr(testList,"name")<-testNames
 	attr(testList,"id") <- testIds

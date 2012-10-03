@@ -16,7 +16,7 @@ getTaxonomyNames <- function(db) {
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
 	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
-    fields <- getTaxonomyNames(db)
+	fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
 	#rankPosition <- match(tolower(rank),tolower(fields)) 
@@ -29,7 +29,6 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		whereRankPosition = 0
 	
 	if(all) distinct <- "" else  distinct <- "DISTINCT"
-	
 	if(count)
 		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " , count(", cols, ") AS count FROM classification ", 
@@ -38,7 +37,6 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName, partialMatch))
-	
     ret <- dbGetQuery(db$db, 
 	    statement = statement)
 	if(removeUnknown)
@@ -158,9 +156,14 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' LIKE '", name, exact, "'", sep='')
 	#more than one names are provided
-	else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
-		"' IN (", paste(name,collapse=","), ")", sep='')
-	
+	#else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+	#	"' IN ('", paste(name,collapse="','"), "')", sep='')
+	else if (length(name) > 1)
+	{  	where <- paste(" classification.'", .pmatchRank(col, rank), 
+		"' LIKE '",  sep='')
+		where <- paste(where, name, exact, collapse="' OR ", sep='')
+		where <- paste("WHERE ",where,"'",sep='')
+	}
 	where
 }
 
