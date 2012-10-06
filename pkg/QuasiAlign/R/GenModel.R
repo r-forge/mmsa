@@ -117,18 +117,30 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
 #	Returns the model states and the ID and the segment number of the sequences that are part of that state in format id:segment.
 #	By default, returns all states as a list, if a modelState is specified. returns only the sequences that are part of that state
-getModelDetails <- function(model, state=NULL, db)
+getModelDetails <- function(model, state=NULL, db=NULL)
 {	
    	rank = model$rank 
 	if(!is.null(state)) {
 	occ <- lapply(model$clusterInfo, FUN=function(y) which(y==state))
-	occ[sapply(occ, length) <1] <- NULL     
-	return(
-		data.frame(sequence=	
-			rep(names(occ), times=sapply(occ, length)),
-			segment=unlist(occ), rank=getRank(db,rank=rank, whereRank="id", whereName=rep(names(occ), times=sapply(occ, length)), all=TRUE),
-			row.names=NULL, stringsAsFactors=FALSE)
+	occ[sapply(occ, length) <1] <- NULL
+	if (!is.null(db)) {     
+			return(
+				data.frame(sequence=	
+					rep(names(occ), times=sapply(occ, length)),
+					segment=unlist(occ), rank=getRank(db,rank=rank, whereRank="id", whereName=rep(names(occ), times=sapply(occ, length)), all=TRUE),
+					row.names=NULL, stringsAsFactors=FALSE)
+				)
+	}
+	else {
+			return(
+				data.frame(sequence=	
+					rep(names(occ), times=sapply(occ, length)),
+					segment=unlist(occ), 
+					row.names=NULL, stringsAsFactors=FALSE)
 		)
+
+	}
+	
     }
     
     l <- lapply(clusters(model$model), FUN=function(x) 
@@ -144,7 +156,7 @@ getModelDetails <- function(model, state=NULL, db)
 getModelSequences <- function(db, model, state, table="sequences")
 {	
     #get the ids that are part of the model state as a list
-    ids<-getModelDetails(model, state)
+    ids<-getModelDetails(model, state, db)
 
     stateSequences <- list()
     
@@ -193,7 +205,7 @@ getModelSequences <- function(db, model, state, table="sequences")
 print.GenModel <- function(x, ...) {
     cat("Object of class GenModel with", x$nSequences, "sequences\n")
     if(!is.null(x$rank) && !is.null(x$name)) {
-	cat(x$rank,":", paste(x$name[,1], collapse=",") , "\n", sep=" ")
+	cat(x$rank,":", paste(x$name, collapse=",") , "\n", sep=" ")
     }
     cat("\nModel:\n")
     print(x$model)

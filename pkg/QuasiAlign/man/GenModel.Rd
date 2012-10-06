@@ -18,7 +18,7 @@ GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30)
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
     threshold=30, selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE)
 
-getModelDetails(model, state=NULL)
+getModelDetails(model, state=NULL, db=NULL)
 getModelSequences(db, model, state, table="sequences")
 
 \S4method{prune}{GenModel}(x, ...)

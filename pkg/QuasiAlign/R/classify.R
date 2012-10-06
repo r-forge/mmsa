@@ -88,7 +88,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 	}
  	
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
-	testList <- getSequences(db, table=table, rank="id", name=testIds)
+	testList <- getSequences(db, table=table, rank="id", name=testIds, partialMatch=FALSE)
 	if (createRDP)
 	{
 			#combine the rdp files
@@ -173,7 +173,8 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 	colnames(classificationScores) <- modelNames
     winner <- apply(classificationScores, MARGIN=1, which.max)
 	prediction <- matrix(NA,nrow=nrow(classificationScores), ncol=3)
-    for(i in 1:nrow(classificationScores)) {
+	for(i in 1:nrow(classificationScores)) {
+		cat("i = ",i,"\n")
 		prediction[i,1]<-rownames(classificationScores)[i]
 		prediction[i,2]<-names(which.max(classificationScores[i,]))
 		prediction[i,3] <- attr(NSVList,"name")[which(attr(NSVList,"id")==rownames(classificationScores)[i])]

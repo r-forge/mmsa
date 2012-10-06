@@ -810,7 +810,7 @@ sequences and segments are part of a state.
 This can be easily obtained using the \func{getModelDetails}.
 
 <<>>=
-getModelDetails(model, state=17)
+getModelDetails(model=model, state=17)
 @
 
 The above command gives the sequences and the segments within them that are part of state 17. The \textit{state} parameter can be ommitted to obtain details of all the states.  To see the actual segments that are part of a state, the function \func{getModelSequences} can be used. It can provide both the DNA sequences as well as the NSV for a state. The commands below illustrate this. 

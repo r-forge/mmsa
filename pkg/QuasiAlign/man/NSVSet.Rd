@@ -19,7 +19,7 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 	    window=100, overlap=0, word=3, last_window=FALSE)
 	
 	createNSVTable(db, table="NSV", rank=NULL, name=NULL, 
-	    window=100, overlap=0, word=3, last_window=FALSE)
+	    window=100, overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL)
 	dropNSVTable(db, table)
 }
 \arguments{
@@ -32,6 +32,8 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 	\item{overlap}{Value of overlap parameter.}
 	\item{word}{Value of word parameter.}
 	\item{last_window}{Value of boolean last_window parameter.}
+	\item{startPos}{Vector of starting points of the segments.}
+	\item{endPos}{Vector of ending points of the segments.}
 }
 \details{
 	\code{createNSVSet()} creates NSVs from the sequences represented as a
