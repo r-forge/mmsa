@@ -174,7 +174,6 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     winner <- apply(classificationScores, MARGIN=1, which.max)
 	prediction <- matrix(NA,nrow=nrow(classificationScores), ncol=3)
 	for(i in 1:nrow(classificationScores)) {
-		cat("i = ",i,"\n")
 		prediction[i,1]<-rownames(classificationScores)[i]
 		prediction[i,2]<-names(which.max(classificationScores[i,]))
 		prediction[i,3] <- attr(NSVList,"name")[which(attr(NSVList,"id")==rownames(classificationScores)[i])]
@@ -183,8 +182,6 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 	#prediction <- colnames(classificationScores)[winner]
 	#prediction <- modelNames[winner]
 
-    #actual <-  attr(NSVList, "name")
-	#id <- attr(NSVList,"id")
     list(scores=classificationScores, 
 	    prediction=prediction)
 		#prediction=cbind(id=id,predicted=prediction, actual=actual))
