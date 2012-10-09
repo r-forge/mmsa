@@ -20,6 +20,7 @@
 	closeGenDB(db)
 	listGenDB(db) 
 	metaGenDB(db) 
+	randomizeGenDB(db, limit=NULL, copy=TRUE)
 }
 \arguments{
     \item{dbName}{Name of the database where the classification 
@@ -29,7 +30,9 @@
     \item{drv}{Database driver, if none is provided then by 
 	default SQLite driver is used.} 
     \item{classification}{Classification type object. By default, 
-	a Greengenes 16S type classification is used. } 
+	a Greengenes 16S type classification is used. }
+    \item{limit}{The number of sequences to keep in the database.}
+    \item{copy}{Logical. Should the original DB file be copied and backed up before randomizing.}
     \item{...}{further arguments are passed on to the database driver.} 
 }
 \value{

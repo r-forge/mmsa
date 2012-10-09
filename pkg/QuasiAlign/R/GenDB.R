@@ -104,15 +104,28 @@ print.GenDB <- function(x, ...) {
     cat(paste(dbListTables(x$db), collapse=", "), "\n")
 }
 
-randomizeGenDB <- function(db)
+randomizeGenDB <- function(db, limit=NULL, copy=TRUE)
 {
-    tables <- listGenDB(db)
-    for(i in 1:length(tables))
+   	if (copy)
+		file.copy(db$dbName,paste(db$dbName,".orig",sep=''))
+	tables <- listGenDB(db)
+	if (is.null(limit))
+		dbSendQuery(db$db,statement= paste("CREATE TABLE temp AS SELECT * FROM sequences ORDER BY random()",sep=''))
+	else if (!is.null(limit))
+		dbSendQuery(db$db,statement= paste("CREATE TABLE temp AS SELECT * FROM sequences ORDER BY random() limit ", limit,sep=''))
+	dbSendQuery(db$db,statement= "DROP TABLE sequences")
+	dbSendQuery(db$db,statement= paste("ALTER TABLE temp RENAME TO sequences"))
+
+	for(i in 1:length(tables))
     {
-        dbSendQuery(db$db,statement= paste("CREATE TABLE temp AS SELECT * FROM ",tables[i]," ORDER BY random()",sep=''))
-        dbSendQuery(db$db,statement= paste("DROP TABLE ",tables[i],sep=''))
-        dbSendQuery(db$db,statement= paste("ALTER TABLE temp RENAME TO  ",tables[i],sep=''))
-    }
+		if (tables[i] != "sequences" && tables[i] != "metaData")
+		{
+				dbSendQuery(db$db,statement= paste("CREATE TABLE temp AS SELECT * FROM ",tables[i]," o WHERE o.id IN (SELECT id FROM sequences)"))
+				dbSendQuery(db$db,statement= paste("DROP TABLE ",tables[i],sep=''))
+				dbSendQuery(db$db,statement= paste("ALTER TABLE temp RENAME TO  ",tables[i],sep=''))
+		} 
+	}
     dbCommit(db$db)
+	db
 }
 
