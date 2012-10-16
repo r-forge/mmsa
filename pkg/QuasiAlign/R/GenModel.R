@@ -1,20 +1,23 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
-	measure="Manhattan", threshold=30) {
+	measure="Manhattan", threshold=30 
+    , showClusterInfo=TRUE) {
 ### FIXME: showClusterInfo needs to be fixed	
-    #, showClusterInfo=TRUE) {
 
     d <- .make_stream(x)
+	clusterInfo <- list(length(x))
     if(measure=="Kullback") d <- d + 1
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
     
-    #l<-last_clustering(emm)
-    #clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+    l<-last_clustering(emm)
+    
+	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
+	names(clusterInfo) <- attr(x,"id")
+    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm, measure=measure, window=attr(x,"window"), word=attr(x,"word"), overlap=attr(x,"overlap"),
+		last_window=attr(x,"last_window"))
 
-    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm)
-
-    #if (showClusterInfo) genModel$clusterInfo <- clusterInfo
+    if (showClusterInfo) genModel$clusterInfo <- clusterInfo
     
     class(genModel) <- "GenModel"	
     genModel		
@@ -127,7 +130,7 @@ getModelDetails <- function(model, state=NULL, db=NULL)
 			return(
 				data.frame(sequence=	
 					rep(names(occ), times=sapply(occ, length)),
-					segment=unlist(occ), rank=getRank(db,rank=rank, whereRank="id", whereName=rep(names(occ), times=sapply(occ, length)), all=TRUE),
+					segment=unlist(occ), rank=sapply(rep(names(occ), times=sapply(occ, length)), FUN=function(x) getRank(db,rank=rank, whereRank="id",whereName=x, all=TRUE,partialMatch=FALSE)),
 					row.names=NULL, stringsAsFactors=FALSE)
 				)
 	}

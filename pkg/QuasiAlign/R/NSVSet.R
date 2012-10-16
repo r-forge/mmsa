@@ -29,11 +29,11 @@ plot.NSVSet <- function(x, ..., whiskers=TRUE)
 
 ### convert to NSVs
 createNSVSet <- function(x, window=100, overlap=0, word=3, 
-	last_window=FALSE) {
+	last_window=FALSE, startPos=NULL, endPos=NULL) {
     ### This should work but as.list does not inside the package!
     #s <- lapply(x, .counter, window, overlap, word, last_window)
     s <- lapply(1:length(x), FUN= function(i) .counter(x[[i]], window, 
-		    overlap, word, last_window))
+		    overlap, word, last_window, startPos, endPos))
     class(s) <- "NSVSet"
     s
 }

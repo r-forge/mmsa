@@ -37,7 +37,8 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " FROM classification ", 
 		    .getWhere(db, whereRank, whereName, partialMatch))
-    ret <- dbGetQuery(db$db, 
+	
+	ret <- dbGetQuery(db$db, 
 	    statement = statement)
 	if(removeUnknown)
 	{
@@ -156,14 +157,14 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' LIKE '", name, exact, "'", sep='')
 	#more than one names are provided
-	#else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
-	#	"' IN ('", paste(name,collapse="','"), "')", sep='')
-	else if (length(name) > 1)
-	{  	where <- paste(" classification.'", .pmatchRank(col, rank), 
-		"' LIKE '",  sep='')
-		where <- paste(where, name, exact, collapse="' OR ", sep='')
-		where <- paste("WHERE ",where,"'",sep='')
-	}
+	else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+		"' IN ('", paste(name,collapse="','"), "')", sep='')
+	#else if (length(name) > 1)
+	#{  	where <- paste(" classification.'", .pmatchRank(col, rank), 
+	#	"' LIKE '",  sep='')
+	#	where <- paste(where, name, exact, collapse="' OR ", sep='')
+	#	where <- paste("WHERE ",where,"'",sep='')
+	#}
 	where
 }
 
