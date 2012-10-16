@@ -16,7 +16,7 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 }
 \usage{
 	createNSVSet(x, 
-	    window=100, overlap=0, word=3, last_window=FALSE)
+	    window=100, overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL)
 	
 	createNSVTable(db, table="NSV", rank=NULL, name=NULL, 
 	    window=100, overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL)
