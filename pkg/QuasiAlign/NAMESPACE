@@ -33,6 +33,7 @@ export(
 	scoreSequence,
 
 	modelStatesPlot,
+	modelStatesBarPlot,
 	compareSequences,
 	findLargestCommon,
 	

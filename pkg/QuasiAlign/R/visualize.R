@@ -1,4 +1,4 @@
-modelStatesPlot <- function (model, states, ylab=TRUE, ...)
+modelStatesPlot <- function (model, states=NULL, numStates=5, ylab=TRUE, ...)
 {
 		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
@@ -17,6 +17,14 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 		colors <- c("red")
 		vertColors <- c("blue")
 		colorIdx <- 0	
+		if (is.null(states))
+		{
+			#get top numStates states from the model
+			d <- getModelDetails(model)
+			len <- unlist(lapply(d,FUN=function(x){nrow(x)}))
+			len <- sort(len, decreasing=TRUE)[1:numStates]
+			states <- names(len)	
+		}
 	for(modelState in states)
 	{
 		#get meta info from clustering details of the model
@@ -55,6 +63,40 @@ modelStatesPlot <- function (model, states, ylab=TRUE, ...)
 	}
 
 }
+
+modelStatesBarPlot <- function(model, ...)
+{
+
+		ci <- model$clusterInfo
+		#min is the largest number of segments in any sequence
+		min <- min(sapply(ci,length))
+		barplotVal <- vector()
+		clusters <- vector()
+		for(i in 1:min) 
+		{
+			t <- table(sapply(ci, FUN=function(x) if(length(x)>=i) x[[i]] else 0))
+			barplotVal[i] <- max(t)/sum(t)
+			clusters[i] <- names(which.max(t))
+			
+		}
+		
+		names(barplotVal) <- seq(1,min,1)
+		bp=barplot(barplotVal,ylim=c(0,1.2), xlim=c(0,min*1.2),las=1, ...)
+		text(bp,y=barplotVal*1.05,clusters,  las=3)
+
+		hyper<-list(c(69,99), c(137,242), c(433,497), c(576,682), c(822,879), c(986,1043), c(1117,1173), c(1243,1294),c(1435,1465))
+		for(i in 1:length(hyper)) hyper[[i]] <- hyper[[i]]/model$window
+		for(i in 1:length(hyper))
+		{	
+			lines(hyper[[i]],c(1.1,1.1),col="blue",lwd=2)
+			hyperRegion <- paste("V",i,sep="")
+			text(mean(hyper[[i]]),1.12, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+		}
+
+
+}
+
+
 
 .segmentToSequenceNumbers<- function(model, segment)
 {

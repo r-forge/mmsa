@@ -1,5 +1,6 @@
 \name{Visualization}
 \alias{modelStatesPlot}
+\alias{modelStatesBarPlot}
 \alias{compareSequences}
 \alias{findLargestCommon}
 \title{
@@ -9,13 +10,15 @@ Visualize and compare sequences from EMM models.
 Groups of functions to visualize, and compare sequences and NSVs from EMM models.
 }
 \usage{
-modelStatesPlot(model, states, ylab=TRUE, ...)
+modelStatesPlot(model, states=NULL, numStates=5, ylab=TRUE, ...)
+modelStatesBarPlot(model, ...)
 compareSequences(model, sequences, ...)
 findLargestCommon(model, limit=NULL)
 }
 \arguments{
 	\item{model}{genModel object returned by the genModel and genModelDB classes.} 
 	\item{states}{genModel states which are to be investigated.} 
+	\item{numStates}{number of states to visualize.} 
 	\item{sequences}{Gene sequences which are to be compared.}
 	\item{limit}{Upper limit of number of sequences to be compared for common states.}
 	\item{ylab}{Whether Y axis labels should be displayed.}
@@ -24,7 +27,8 @@ findLargestCommon(model, limit=NULL)
 }
 \value{
 	{\code{modelStatesPlot()}  returns a plot of the sequences highlighting which sequences and states are part of the given state(s). 
-     \code{compareSequences()} returns a plot of sequences highlighting the given sequences and showing the common states and regions
+    \code{modelStatesBarPlot()} returns a consensus-type plot showing which state is dominant among the given window.
+	 \code{compareSequences()} returns a plot of sequences highlighting the given sequences and showing the common states and regions
      \code{findLargestCommon()} returns a list containing the most similar sequences from a model. Similar sequences are found by a count of the number
 	of common states between them. The ith element of the list gives the i most similar sequences}
 
