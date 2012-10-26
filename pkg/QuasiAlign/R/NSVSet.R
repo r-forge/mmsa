@@ -41,7 +41,7 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 
 createNSVTable <- function(db, table="NSV", 
 	rank=NULL, name=NULL, window=100,
-	overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL) {
+	overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL, limit=NULL, removeUnknownSpecies=FALSE) {
 
     if(length(grep(" ", table))) stop("table cannot contain spaces!")
     if (length(which(table==listGenDB(db))) > 0)
@@ -71,17 +71,19 @@ createNSVTable <- function(db, table="NSV",
     #start loop
     start<-0 #start position of query
     num_records<-100 # number of records at a time
-    while(TRUE)
+	if (is.null(limit))
+		limit <- 500000
+    while(TRUE && total <limit)
     {
 	if (is.null(rank) && is.null(name))
 	    d <- dbGetQuery(db$db, statement = 
-		paste("SELECT * FROM sequences LIMIT ", start,",
+		paste("SELECT * FROM sequences ", if (removeUnknownSpecies) " INNER JOIN classification c ON c.id=sequences.id WHERE c.[Species] NOT LIKE 'Unknown%'" ,"LIMIT ", start,",
 			",num_records,sep=""))    
 	else
 	    d <- dbGetQuery(db$db, statement = 
 		paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
 			.pmatchRank(db,rank)," LIKE '", 
-			name,"%' LIMIT ", start,", ",num_records, sep=""))    
+			name,"%'", if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep=""))    
 
 	if (nrow(d)==0) break;
 

@@ -1,7 +1,6 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
 	measure="Manhattan", threshold=30 
     , showClusterInfo=TRUE) {
-### FIXME: showClusterInfo needs to be fixed	
 
     d <- .make_stream(x)
 	clusterInfo <- list(length(x))
@@ -14,7 +13,7 @@ GenModel <- function(x, rank=NULL, name = NULL,
     
 	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
 	names(clusterInfo) <- attr(x,"id")
-    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm, measure=measure, window=attr(x,"window"), word=attr(x,"word"), overlap=attr(x,"overlap"),
+    genModel <- list(name=name, rank=rank, nSequences=length(x), model=emm, measure=measure, threshold=threshold, window=attr(x,"window"), word=attr(x,"word"), overlap=attr(x,"overlap"),
 		last_window=attr(x,"last_window"))
 
     if (showClusterInfo) genModel$clusterInfo <- clusterInfo
@@ -47,7 +46,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     emm <- EMM(measure=measure,threshold=threshold)
 
-    nSequences <- nSequences(db, rank, name)
+    nSequences <- nSequences(db, rank, name, table=table)
     hierarchy <- getHierarchy(db, rank, name)
 	if (length(name) > 1)
 		hierarchy <- as.data.frame(hierarchy)
@@ -108,7 +107,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     genModel <- list(name=rankName, rank=rank, 
 	    nSequences=nSequences, model=emm, 
-	    hierarchy=hierarchy, measure=measure, 
+	    hierarchy=hierarchy, measure=measure, threshold=threshold, 
 	    window=window, word=word, overlap=overlap, 
 	    last_window=last_window)
 

@@ -14,7 +14,7 @@ getTaxonomyNames <- function(db) {
     cl
 }
 
-getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, 
+getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, table="sequences",  
 	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
 	fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
@@ -31,11 +31,11 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL,
 	if(all) distinct <- "" else  distinct <- "DISTINCT"
 	if(count)
 		statement <- paste("SELECT ", distinct, " classification.",cols,
-		    " , count(", cols, ") AS count FROM classification ", 
+		    " , count(", cols, ") AS count FROM ", table," t INNER JOIN classification ON t.id=classification.id  ", 
 		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" )
 	else
 		statement <- paste("SELECT ", distinct, " classification.",cols,
-		    " FROM classification ", 
+		    " FROM ",table," t INNER JOIN classification ON t.id=classification.id ", 
 		    .getWhere(db, whereRank, whereName, partialMatch))
 	
 	ret <- dbGetQuery(db$db, 
@@ -159,12 +159,6 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 	#more than one names are provided
 	else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' IN ('", paste(name,collapse="','"), "')", sep='')
-	#else if (length(name) > 1)
-	#{  	where <- paste(" classification.'", .pmatchRank(col, rank), 
-	#	"' LIKE '",  sep='')
-	#	where <- paste(where, name, exact, collapse="' OR ", sep='')
-	#	where <- paste("WHERE ",where,"'",sep='')
-	#}
 	where
 }
 

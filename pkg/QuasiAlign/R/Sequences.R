@@ -1,9 +1,9 @@
 ### Sequences are DNAStringSet
 
 ### GenDB
-nSequences <- function(db, rank=NULL, name=NULL) {
+nSequences <- function(db, rank=NULL, name=NULL, table="sequences") {
     dbGetQuery(db$db, 
-	    statement = paste("SELECT COUNT(*) FROM classification", 
+	    statement = paste("SELECT COUNT(*) FROM ",table," t INNER JOIN classification ON t.id=classification.id ", 
 		    .getWhere(db, rank, name)))[1,1]
 
 }
@@ -11,12 +11,12 @@ nSequences <- function(db, rank=NULL, name=NULL) {
 
 getSequences <- function(db,  rank=NULL, name=NULL, 
 	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE) {
+	partialMatch=TRUE, removeUnknownSpecies=FALSE) {
 
 	# limit = number of sequences to limit	
 	# random = whether the sequences should be random
 	# start = start of the chunk eg: 1
-	# length = length of the chunk eg: 100
+	# length = length of the chunk eg: 100 (should be called width?)
 
     if(is.null(limit)) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
@@ -25,10 +25,10 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 		limit <- paste(" ORDER BY RANDOM() ",limit)
     #get chunks of sequences, important for clustering
 	#make length SQL compatible
-    if (is.null(length)) 
+	if (is.null(length)) 
 		lengthFilter= "data"
     else
-		lengthFilter = paste("substr(data,",start,",",length,")",sep="")
+		lengthFilter = paste("substr(sequences.data,",start,",",length,")",sep="")
 
     if (!is.null(rank)) {    
 		fullRank<-.pmatchRank(db,rank)
@@ -41,15 +41,15 @@ getSequences <- function(db,  rank=NULL, name=NULL,
     #different route for NSV segments
     #get Sequences in memory and convert to NSV using in-memory function createNSVSet
     if(table!="sequences" && !is.null(length)) {
-	res <- dbGetQuery(db$db, 
-		statement = paste("SELECT ", lengthFilter ," AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM sequences ", 
-			" INNER JOIN classification ON classification.id = sequences.id ",
+		res <- dbGetQuery(db$db, 
+			statement = paste("SELECT ", lengthFilter ," AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM sequences ", 
+			" INNER JOIN classification ON classification.id = sequences.id INNER JOIN ",table," t ON t.id=sequences.id ",
 			.getWhere(db, rank, name, partialMatch), limit)
 		)
     }
     else {	    
-	res <- dbGetQuery(db$db, 
-		statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
+		res <- dbGetQuery(db$db, 
+			statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 			" INNER JOIN classification ON classification.id = ",
 			table, ".id ", 
 			.getWhere(db, rank, name, partialMatch), limit)

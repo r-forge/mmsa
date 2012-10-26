@@ -14,7 +14,7 @@ level i.e. kingdom.
 \usage{
 getTaxonomyNames(db)
 getHierarchy(db, rank, name, drop=TRUE, partialMatch=TRUE)
-getRank(db, rank = NULL, whereRank=NULL, whereName=NULL, 
+getRank(db, rank = NULL, whereRank=NULL, whereName=NULL, table="sequences",  
     all=FALSE, partialMatch=TRUE, count=FALSE, removeUnknown=FALSE)
 }
 \arguments{
@@ -22,6 +22,7 @@ getRank(db, rank = NULL, whereRank=NULL, whereName=NULL,
 	\item{rank}{Name of the rank where the list of values is desired. Fuzzy matching is performed if an incomplete name is specified.}
 	\item{whereRank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
 	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
+	\item{table}{Table where the rank analysis is to be done. }
 	\item{all}{logical; List the rank for each sequence separately?}
 	\item{partialMatch}{logical; use partial matching on names.}
 	\item{name}{Name of the rank at which the hierarchy object is required.}

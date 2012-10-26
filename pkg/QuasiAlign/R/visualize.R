@@ -97,6 +97,41 @@ modelStatesBarPlot <- function(model, ...)
 }
 
 
+modelStatesLinePlot <- function(model, ...)
+{
+
+	ci <- model$clusterInfo
+    #min is the min number of segments in any sequence
+    min <- min(sapply(ci,length))
+	barplotVal <- vector()
+	clusters <- vector()
+	for(i in 1:min)
+	{
+		t <- table(sapply(ci, FUN=function(x) if(length(x)>=i) x[[i]] else 0))
+		barplotVal[i] <- max(t)/sum(t)
+		clusters[i] <- names(which.max(t))
+	}
+	
+	segments <- seq(1,model$window * min, model$window)
+	title <- paste("GenModel created from",model$nSequences, "sequences from the", model$rank, model$name,"\n using window size",
+			model$window,"threshold ",model$threshold,sep=' ')
+	plot(segments, barplotVal, type="l",ylim=1.05*range(barplotVal), 1.05*range(segments), xlab="Sequence Nucleotide Positions", ylab="Model States Consensus", ...)
+	title(main=title, cex.lab=0.75)
+	hyper<-list(c(69,99), c(137,242), c(433,497), c(576,682), c(822,879), c(986,1043), c(1117,1173), c(1243,1294),c(1435,1465))
+	hyper <- hyper[-which(sapply(hyper,FUN=function(x) x[1]) > range(segments)[2])]
+	for(i in 1:length(hyper))
+	{
+		yval <- 1.0 * range(barplotVal)[2]
+        lines(hyper[[i]], rep(yval,times=length(hyper[[i]])), col="blue", lwd=2)
+		hyperRegion <- paste("V",i,sep="")
+        text(mean(hyper[[i]]),1.01*range(barplotVal)[2], hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+        
+	}
+
+
+}
+
+
 
 .segmentToSequenceNumbers<- function(model, segment)
 {
