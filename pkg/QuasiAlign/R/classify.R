@@ -72,7 +72,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table=table, rank, name=rankNames[i], selection=train)
 			if (prune)
 				{
-				if (length(rare_clusters(emm$model,count_threshold=count_threshold)) > 0)
+				#check if there will be enough clusters left after pruning 
+				if (length(setdiff(cluster_counts(emm$model),rare_clusters(emm$model,count_threshold=count_threshold))) > 0)
 					emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
 				}
 		#save the model to file
