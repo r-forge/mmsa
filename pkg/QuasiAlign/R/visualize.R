@@ -2,10 +2,10 @@ modelStatesPlot <- function (model, states=NULL, numStates=5, ylab=TRUE, ...)
 {
 		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
-		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))*window
+		xrange <- max(sapply(model$clusterInfo, length))*window
 		#yrange is the number of sequences
 		yrange <- model$nSequences
-		plot(NA, xlim=c(0,xrange),ylim=c(1,max(1.05*yrange,2)), axes=FALSE, xlab="nucleotide positions", ylab="sequences", bty="l", las=1, ...)
+		plot(NA, xlim=c(0,xrange),ylim=c(1,max(1.20*yrange,2)), axes=FALSE, xlab="Nucleotide Positions", ylab="Sequences", bty="l", las=1, ...)
 		#bty="l"
 		#labels for x axis
 		axis(1, at=seq(0,xrange,by=window), labels=seq(0,xrange,by=window), las=2)
@@ -55,10 +55,10 @@ modelStatesPlot <- function (model, states=NULL, numStates=5, ylab=TRUE, ...)
 	for(i in 1:length(hyper))
 	{	
 		#lines(hyper[[i]],c(max(sequenceInd)+1,max(sequenceInd)+1),col="blue",lwd=2)
-		lines(hyper[[i]],c(max(1.05*yrange,2),max(1.05*yrange,2)),col="blue",lwd=2)
+		lines(hyper[[i]],c(max(1.18*yrange,2),max(1.18*yrange,2)),col="blue",lwd=2)
 		hyperRegion <- paste("V",i,sep="")
 		#text(mean(hyper[[i]]),max(sequenceInd)+1, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
-		text(mean(hyper[[i]]),max(1.05*yrange,2), hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+		text(mean(hyper[[i]]),max(1.18*yrange,2), hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
 			
 	}
 
@@ -97,34 +97,49 @@ modelStatesBarPlot <- function(model, ...)
 }
 
 
-modelStatesLinePlot <- function(model, ...)
+modelStatesLinePlot <- function(model, title=TRUE, ...)
 {
+		window <- as.integer(model$window)
+		#xrange is the max number of windows from all the sequences
+		xrange <- min(sapply(model$clusterInfo, length))*window
 
 	ci <- model$clusterInfo
     #min is the min number of segments in any sequence
-    min <- min(sapply(ci,length))
+    max <- max(sapply(ci,length))
 	barplotVal <- vector()
 	clusters <- vector()
-	for(i in 1:min)
+	#loop over all segments from 1 to min
+	for(i in 1:max)
 	{
-		t <- table(sapply(ci, FUN=function(x) if(length(x)>=i) x[[i]] else 0))
-		barplotVal[i] <- max(t)/sum(t)
-		clusters[i] <- names(which.max(t))
+		#find all the clusters at each segment and make a table
+		t <- table(sapply(ci, FUN=function(x) if(length(x)>=i) x[[i]] else -1))
+		if (length(which(names(t)==-1) > 0))
+			t1<-t[-which(names(t)==-1)]
+		else
+			t1<-t
+		#find the max value at each segment
+		barplotVal[i] <- max(t1)/sum(t)
+		clusters[i] <- names(which.max(t1))
 	}
-	
-	segments <- seq(1,model$window * min, model$window)
-	title <- paste("GenModel created from",model$nSequences, "sequences from the", model$rank, model$name,"\n using window size",
+	segments <- seq(1,window * max, window)
+	plot(segments+window/2, barplotVal, type="l",ylim=c(0.9*range(barplotVal)[1],1.05*range(barplotVal)[2]), xlim=c(range(segments)[1],range(segments)[2]+window), 
+			axes=FALSE, xlab="Nucleotide Positions", ylab="Model States Consensus", ...)
+	axis(1, at=seq(0,max*window,by=window), labels=seq(0,max*window,by=window), las=2)
+	axis(2)
+	if (title)
+	{
+		title <- paste("GenModel created from",model$nSequences, "sequences from the", model$rank, model$name,"\n using window size",
 			model$window,"threshold ",model$threshold,sep=' ')
-	plot(segments, barplotVal, type="l",ylim=1.05*range(barplotVal), 1.05*range(segments), xlab="Sequence Nucleotide Positions", ylab="Model States Consensus", ...)
-	title(main=title, cex.lab=0.75)
+		title(main=title, cex.lab=0.75)
+	}
 	hyper<-list(c(69,99), c(137,242), c(433,497), c(576,682), c(822,879), c(986,1043), c(1117,1173), c(1243,1294),c(1435,1465))
-	hyper <- hyper[-which(sapply(hyper,FUN=function(x) x[1]) > range(segments)[2])]
+	#hyper <- hyper[-which(sapply(hyper,FUN=function(x) x[1]) > range(segments)[2])]
 	for(i in 1:length(hyper))
 	{
-		yval <- 1.0 * range(barplotVal)[2]
+		yval <- 1.01 * range(barplotVal)[2]
         lines(hyper[[i]], rep(yval,times=length(hyper[[i]])), col="blue", lwd=2)
 		hyperRegion <- paste("V",i,sep="")
-        text(mean(hyper[[i]]),1.01*range(barplotVal)[2], hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
+        text(mean(hyper[[i]]),yval, hyperRegion ,pos=3, adj=c(0,0), xpd=TRUE, col="black")
         
 	}
 

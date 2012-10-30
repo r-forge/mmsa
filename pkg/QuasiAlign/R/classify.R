@@ -71,8 +71,10 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		if (length(train) > 10) {
 			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table=table, rank, name=rankNames[i], selection=train)
 			if (prune)
-				emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
-		
+				{
+				if (length(rare_clusters(emm$model,count_threshold=count_threshold)) > 0)
+					emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
+				}
 		#save the model to file
 		#some species names have "/" in them, need to remove them
 		rankNames[i]<-gsub("/","",rankNames[i])

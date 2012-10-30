@@ -79,12 +79,20 @@ createNSVTable <- function(db, table="NSV",
 	    d <- dbGetQuery(db$db, statement = 
 		paste("SELECT * FROM sequences ", if (removeUnknownSpecies) " INNER JOIN classification c ON c.id=sequences.id WHERE c.[Species] NOT LIKE 'Unknown%'" ,"LIMIT ", start,",
 			",num_records,sep=""))    
-	else
-	    d <- dbGetQuery(db$db, statement = 
-		paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
-			.pmatchRank(db,rank)," LIKE '", 
-			name,"%'", if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep=""))    
-
+	else {
+		
+		#statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
+		#	.pmatchRank(db,rank)," LIKE '", 
+		#	name,"%'", if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep="")
+		statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", .getWhere(db, rank, name) ,
+			if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep="")
+	
+		print(statement)    
+		
+    d <- dbGetQuery(db$db, statement = 
+		paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", .getWhere(db, rank, name) ,
+			if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep=""))    
+	}
 	if (nrow(d)==0) break;
 
 	dbBeginTransaction(db$db)

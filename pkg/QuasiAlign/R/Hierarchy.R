@@ -157,8 +157,19 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' LIKE '", name, exact, "'", sep='')
 	#more than one names are provided
-	else if (length(name) > 1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
-		"' IN ('", paste(name,collapse="','"), "')", sep='')
+	
+	else if (length(name) > 1) 
+ 	{
+		rankExact <- .pmatchRank(col, rank)
+		names <- vector()
+		for(i in 1:length(name))
+		{
+			names <- c(names, getRank(db=col, rank=rankExact, whereRank=rankExact, whereName=name[i]))
+		}		
+		where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
+			"' IN ('", paste(names,collapse="','"), "')", sep='')
+	
+	}
 	where
 }
 
