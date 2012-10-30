@@ -13,7 +13,7 @@ Groups of functions to visualize, and compare sequences and NSVs from EMM models
 \usage{
 modelStatesPlot(model, states=NULL, numStates=5, ylab=TRUE, ...)
 modelStatesBarPlot(model, ...)
-modelStatesLinePlot(model, ...)
+modelStatesLinePlot(model, title=TRUE, ...)
 compareSequences(model, sequences, ...)
 findLargestCommon(model, limit=NULL)
 }
@@ -24,6 +24,7 @@ findLargestCommon(model, limit=NULL)
 	\item{sequences}{Gene sequences which are to be compared.}
 	\item{limit}{Upper limit of number of sequences to be compared for common states.}
 	\item{ylab}{Whether Y axis labels should be displayed.}
+	\item{title}{Should the default title be shown for the modelStatesLine plot.}
 	\item{...}{Other parameters to be passed to the plot function.}
 
 }
