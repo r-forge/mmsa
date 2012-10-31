@@ -160,7 +160,10 @@ getModelSequences <- function(db, model, state, table="sequences")
     #get the ids that are part of the model state as a list
     ids<-getModelDetails(model, state, db)
 
-    stateSequences <- list()
+    if (table=="sequences")
+		stateSequences <- DNAStringSet()
+	else
+		stateSequences <- list()
     
     for(i in 1:nrow(ids)){
 	id <- ids[i,]
@@ -171,12 +174,13 @@ getModelSequences <- function(db, model, state, table="sequences")
 	
 	stateSequences <- c(stateSequences,
 		getSequences(db, rank="id",name=sequence, 
-			table, start = start, length=window))
+			table, start = start, length=window, partialMatch=FALSE))
     }
     
-    if(table == "sequences") 
-	stateSequences <- do.call(c, stateSequences)
-    else class(stateSequences) <- "NSVSet"
+    #if(table == "sequences") 
+	#stateSequences <- do.call(c, stateSequences)
+    if (table !="sequences")
+		class(stateSequences) <- "NSVSet"
 
     return(stateSequences)
 }

@@ -18,6 +18,8 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	# start = start of the chunk eg: 1
 	# length = length of the chunk eg: 100 (should be called width?)
 
+ 	if (!is.null(rank))
+		if(rank=="id") partialMatch <- FALSE
     if(is.null(limit)) limit <- "" 
     else limit <- paste(" LIMIT ",paste(limit,collapse=","))
 

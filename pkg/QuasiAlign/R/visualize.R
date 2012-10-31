@@ -123,7 +123,7 @@ modelStatesLinePlot <- function(model, title=TRUE, ...)
 	}
 	segments <- seq(1,window * max, window)
 	plot(segments+window/2, barplotVal, type="l",ylim=c(0.9*range(barplotVal)[1],1.05*range(barplotVal)[2]), xlim=c(range(segments)[1],range(segments)[2]+window), 
-			axes=FALSE, xlab="Nucleotide Positions", ylab="Model States Consensus", ...)
+			axes=FALSE, xlab="Nucleotide Positions", ylab="Consensus", ...)
 	axis(1, at=seq(0,max*window,by=window), labels=seq(0,max*window,by=window), las=2)
 	axis(2)
 	if (title)
