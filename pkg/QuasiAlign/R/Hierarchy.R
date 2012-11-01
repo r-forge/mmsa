@@ -31,13 +31,13 @@ getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, table="sequen
 	if(all) distinct <- "" else  distinct <- "DISTINCT"
 	if(count)
 		statement <- paste("SELECT ", distinct, " classification.",cols,
-		    " , count(", cols, ") AS count FROM ", table," t INNER JOIN classification ON t.id=classification.id  ", 
-		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY ", cols, " ORDER BY count(",cols, ") desc" )
+		    " , count(classification.", cols, ") AS count FROM ", table," t INNER JOIN classification ON t.id=classification.id  ", 
+		    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY classification.", cols, " ORDER BY count(classification.",cols, ") desc" )
 	else
 		statement <- paste("SELECT ", distinct, " classification.",cols,
 		    " FROM ",table," t INNER JOIN classification ON t.id=classification.id ", 
 		    .getWhere(db, whereRank, whereName, partialMatch))
-	
+
 	ret <- dbGetQuery(db$db, 
 	    statement = statement)
 	if(removeUnknown)

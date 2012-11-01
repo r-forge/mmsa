@@ -74,7 +74,10 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 				{
 				#check if there will be enough clusters left after pruning 
 				if (length(setdiff(cluster_counts(emm$model),rare_clusters(emm$model,count_threshold=count_threshold))) > 0)
+					{
 					emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
+					#if (rankNames[i]=="Thermoanaerobacterium saccharolyticum")
+					}
 				}
 		#save the model to file
 		#some species names have "/" in them, need to remove them
