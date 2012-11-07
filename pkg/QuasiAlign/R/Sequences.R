@@ -11,7 +11,7 @@ nSequences <- function(db, rank=NULL, name=NULL, table="sequences") {
 
 getSequences <- function(db,  rank=NULL, name=NULL, 
 	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE, removeUnknownSpecies=FALSE) {
+	partialMatch=TRUE, removeUnknownSpecies=FALSE, allOffsets=FALSE) {
 
 	# limit = number of sequences to limit	
 	# random = whether the sequences should be random
@@ -69,7 +69,16 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 		last_window <-sub("last_window=","",x[6])
 		#need to convert DNA sequences into NSV in-memory
 		if(!is.null(length))
-	    	ret <- createNSVSet(res$data, window=window, overlap=overlap, word=word, last_window=last_window)   
+			#modify to get all possible offsets
+			if (!allOffsets)
+				ret <- createNSVSet(res$data, window=window, overlap=overlap, word=word, last_window=last_window)   
+			else {
+				maxWidth <- max(width(getSequences(db)))
+				startPos <- seq(1,maxWidth-window+1,1)
+				endPos <- seq(window,maxWidth,1)
+				ret <- createNSVSet(res$data, window=window, overlap=overlap, word=word, startPos=startPos, endPos=endPos, 
+					last_window=last_window)   
+			}
 		else    
 	    	ret <- lapply(res$data,decodeSequence)
 		attr(ret,"window")<- window

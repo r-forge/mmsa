@@ -68,12 +68,16 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		sampleIds <- setdiff(sampleIds,train)
 		#get which indices are to be used for testing
 		test <- sample(sampleIds,test)
+		cat("length(train) = ",length(train),"\n")
 		if (length(train) > 10) {
 			emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table=table, rank, name=rankNames[i], selection=train)
 			if (prune)
 				{
 				#check if there will be enough clusters left after pruning 
-				if (length(setdiff(cluster_counts(emm$model),rare_clusters(emm$model,count_threshold=count_threshold))) > 0)
+				#if (length(setdiff(cluster_counts(emm$model),rare_clusters(emm$model,count_threshold=count_threshold))) > 0)
+				x <- emm$model
+				emm_reduced <- remove_transitions(x, rare_transitions(x, count_threshold=count_threshold), copy=FALSE)
+				if (nstates(emm_reduced) > 0)
 					{
 					emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
 					#if (rankNames[i]=="Thermoanaerobacterium saccharolyticum")
