@@ -179,7 +179,6 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 		sapply(NSVList, FUN =
 			function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
-    
 	colnames(classificationScores) <- modelNames
     winner <- apply(classificationScores, MARGIN=1, which.max)
 	prediction <- matrix(NA,nrow=nrow(classificationScores), ncol=3)
