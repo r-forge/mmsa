@@ -29,7 +29,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testList<-list()
     testNames<-vector()
     #get all the  rankNames for the given rank
-    rankNames <- getRank(db, rank, count=TRUE, removeUnknown=TRUE)[,1]
+    rankNames <- getRank(db, rank, count=TRUE, table=table, removeUnknown=TRUE)[,1]
 	if (!is.null(numRanks))
 	{
 		if (top==TRUE)
@@ -162,7 +162,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 {
 
-    rankDir<-file.path(modelDir, tolower(rank))
+	rankDir<-file.path(modelDir, tolower(rank))
     if (!file.exists(rankDir)) stop("Model directory ",rankDir," not found!")
     if (length(NSVList) ==0) stop("No sequence to classify against") 
     modelFiles <- dir(rankDir, full.names=TRUE)    

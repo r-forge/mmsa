@@ -1,28 +1,29 @@
-
-#word => size of mer
+#start
 .counter <- function(x, window=100, overlap=0, word=3, 
-	last_window=FALSE, startPos=NULL, endPos=NULL) {
+	last_window=FALSE, allOffsets=FALSE) {
     
     #returns the sequence as a vector  
-    #x <- getSequence(x)    
-    x <- DNAString(x)    
+	x <- DNAString(x)
+    ret<- matrix(NA, ncol=4^word, nrow=0)
     if(length(x) < window) {
 	warning("Sequence is shorter than window size!")
 	return(matrix(nrow=0, ncol=0))
     }
+   if (allOffsets)
+	end <- window
+   else
+	end <- 1
+
+    for(offset in 1:end)
+   {   
+    y <- DNAString(x,start=offset)    
+    if (length(y) < window) break;
+    l <- as.integer(length(y)/(window-overlap)) -1L
     
-    l <- as.integer(length(x)/(window-overlap)) -1L
     #start and end positions as vectors
-	if (is.null(startPos) || is.null(endPos))
-    {
-		start <- (window-overlap)*(0:l) + 1
-    	end <- start + window - 1
-	}
-	else
-	{
-		start <- startPos
-		end <- endPos
-	}
+    start <- (window-overlap)*(0:l) + 1
+    end <- start + window - 1
+
     if(last_window) {
 	if(tail(end,1) < length(x))	{
 	    start <- c(start, tail(end,1)+1)
@@ -32,19 +33,22 @@
     #count function is part of seqinr package - counts occurence of "word" sized mers
     #t(sapply(1:length(start), FUN=function(i) 
     #        count(x[start[i]:end[i]], word=word)))
-	if (max(start) > length(x))
+
+    mat <- t(sapply(1:length(start), FUN=function(i) 
+            oligonucleotideFrequency(DNAString(y,start=start[i],nchar=end[i]-start[i]+1), word)))
+    if (offset ==1)
+	ret<- mat
+    else
 	{
-		start <- start[-which(start > length(x))]
-		end <- end[-which(end > length(x))]
-    }
-	else if (max(end) > length(x))
-	{
-		overflow <- which(end > length(x))
-		end[overflow] <- length(x)
+	ret <- rbind(ret,matrix(NA,nrow=1,ncol=4^word))
+	ret <- rbind(ret, mat)  
 	}
-	t(sapply(1:length(start), FUN=function(i) 
-            oligonucleotideFrequency(DNAString(x,start=start[i],nchar=end[i]-start[i]+1), word)))
+  }
+	ret
 }
+
+#end
+
 
 # count individual sequences
 .count_sequences <- function(x, window=100, overlap=0, 

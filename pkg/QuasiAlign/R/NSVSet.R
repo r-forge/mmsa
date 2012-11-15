@@ -29,11 +29,11 @@ plot.NSVSet <- function(x, ..., whiskers=TRUE)
 
 ### convert to NSVs
 createNSVSet <- function(x, window=100, overlap=0, word=3, 
-	last_window=FALSE, startPos=NULL, endPos=NULL) {
+	last_window=FALSE, allOffsets=FALSE) {
     ### This should work but as.list does not inside the package!
     #s <- lapply(x, .counter, window, overlap, word, last_window)
     s <- lapply(1:length(x), FUN= function(i) .counter(x[[i]], window, 
-		    overlap, word, last_window, startPos, endPos))
+		    overlap, word, last_window, allOffsets ))
     class(s) <- "NSVSet"
     s
 }
@@ -41,7 +41,7 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 
 createNSVTable <- function(db, table="NSV", 
 	rank=NULL, name=NULL, window=100,
-	overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL, limit=NULL, removeUnknownSpecies=FALSE) {
+	overlap=0, word=3, last_window=FALSE, limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE) {
 
     if(length(grep(" ", table))) stop("table cannot contain spaces!")
     if (length(which(table==listGenDB(db))) > 0)
@@ -87,7 +87,6 @@ createNSVTable <- function(db, table="NSV",
 		statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", .getWhere(db, rank, name) ,
 			if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep="")
 	
-		print(statement)    
 		
     d <- dbGetQuery(db$db, statement = 
 		paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", .getWhere(db, rank, name) ,
@@ -99,7 +98,7 @@ createNSVTable <- function(db, table="NSV",
 	for(i in 1:nrow(d))  {
 
 	    #make NSV
-	    nsv <- .counter(d$data[i], window, overlap, word, last_window, startPos, endPos)
+	    nsv <- .counter(d$data[i], window, overlap, word, last_window, allOffsets)
 	    d$data[i] <- base64encode(serialize(nsv, NULL))
 	    #end make NSV
 	    ## Insert into DB

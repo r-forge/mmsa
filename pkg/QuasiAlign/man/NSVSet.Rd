@@ -16,10 +16,10 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 }
 \usage{
 	createNSVSet(x, 
-	    window=100, overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL)
+	    window=100, overlap=0, word=3, last_window=FALSE, allOffsets=FALSE)
 	
 	createNSVTable(db, table="NSV", rank=NULL, name=NULL, 
-	    window=100, overlap=0, word=3, last_window=FALSE, startPos=NULL, endPos=NULL, limit=NULL, removeUnknownSpecies=FALSE)
+	    window=100, overlap=0, word=3, last_window=FALSE, limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE)
 	dropNSVTable(db, table)
 }
 \arguments{
@@ -32,10 +32,9 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 	\item{overlap}{Value of overlap parameter.}
 	\item{word}{Value of word parameter.}
 	\item{last_window}{Value of boolean last_window parameter.}
-	\item{startPos}{Vector of starting points of the segments.}
-	\item{endPos}{Vector of ending points of the segments.}
 	\item{limit}{Length of sequences to limit.}
 	\item{removeUnknownSpecies}{Logical. Should unknown species be not be included while creating NSV Table?}
+	\item{allOffsets}{Logical. Should NSV be created using all possible offsets?}
 }
 \details{
 	\code{createNSVSet()} creates NSVs from the sequences represented as a
