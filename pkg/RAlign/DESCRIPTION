@@ -7,5 +7,5 @@ Author:  Michael Hahsler and Anurag Nagar
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
 Description: Interfaces to several sequence alignment tools (clustalw, kalign) based on Biostrings (from Bioconductor).
 License: GPL-2
-Depends: Biostrings, seqLogo, proxy
+Depends: Biostrings, seqLogo, proxy, QuasiAlign
 LazyLoad: yes

@@ -34,8 +34,8 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     #check if table is of type NSV	
     meta<-dbReadTable(db$db,"metaData") #meta = table data in memory
     index<-which(meta$name==table)  #find index of table
-    if (meta$type[index]!="NSV")
-		stop("Not an NSV table")
+    #if (meta$type[index]!="NSV")
+	#	stop("Not an NSV table")
     #get metadata about the table
     meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
     x<-unlist(strsplit(meta,";"))	

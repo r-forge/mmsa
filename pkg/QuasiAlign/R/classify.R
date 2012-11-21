@@ -29,7 +29,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     testList<-list()
     testNames<-vector()
     #get all the  rankNames for the given rank
-    rankNames <- getRank(db, rank, count=TRUE, table=table, removeUnknown=TRUE)[,1]
+	rankNames <- getRank(db, rank, count=TRUE, table=table, removeUnknown=TRUE)[,1]
 	if (!is.null(numRanks))
 	{
 		if (top==TRUE)
@@ -49,7 +49,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     {
 		db_local <- reopenGenDB(db, flags=SQLITE_RO)
 		#get number of sequences in the rank
-		n <- nSequences(db_local,rank, rankNames[i])
+		n <- nSequences(db_local,rank, rankNames[i],table)
 		#how many sequences should we use
 		if(is.null(limit)) limit <- n
 		else limit <- min(n,limit)
@@ -59,7 +59,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 		#test is the number of test cases
 		test<-as.integer(pctTest*limit)
 		#create an array of all sequences indices
-		ids <- getRank(db_local,rank="id",whereRank=rank, whereName=rankNames[i])
+		ids <- getRank(db_local,rank="id",whereRank=rank, table=table, whereName=rankNames[i])
 		#get which indices are to be used for training
 		#if (train <= 0) next;
 		sampleIds <- sample(ids,limit)
@@ -96,9 +96,8 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 			test
 		}
 	}
- 	
 	testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
-	testList <- getSequences(db, table=table, rank="id", name=testIds, partialMatch=FALSE)
+	testList <- getSequences(db, table="NSV", rank="id", name=testIds, partialMatch=FALSE)
 	if (createRDP)
 	{
 			#combine the rdp files
@@ -117,7 +116,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
 				unlink(paste("rdp/taxonomy/",rdpTaxonomy[i],sep=""))
 			}
 
-			testSequences <- getSequences(db, rank="id", name=testIds)
+			testSequences <- getSequences(db, rank="id", name=testIds, partialMatch=FALSE)
 			#create test file in fasta format for RDP
 			if (!file.exists("rdp/test"))
 				dir.create("rdp/test", recursive=TRUE)
@@ -144,7 +143,7 @@ validateModels<-function(db, modelDir, rank="phylum", table="NSV", pctTest=0.1, 
     attr(testList,"name")<-testNames
 	attr(testList,"id") <- testIds
 	if (length(method) == 1)
-    	return(classify(modelDir, testList, rank=rank, method=method))
+    	return(list(classify(modelDir, testList, rank=rank, method=method)))
 	else if (length(method) > 1)
 	{
 		ret<-list()
@@ -167,15 +166,10 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
     if (length(NSVList) ==0) stop("No sequence to classify against") 
     modelFiles <- dir(rankDir, full.names=TRUE)    
     modelNames <- sub(".rds", "", basename(modelFiles))
-    #classificationScores <- matrix(NA, ncol=length(modelFiles), 
-	#    nrow=length(NSVList))
-    #colnames(classificationScores) <- modelNames
 
     classificationScores <- foreach (i =1:length(modelNames),.combine=cbind) %dopar% {
 		cat("classify: Creating score matrix for", modelNames[i],"\n")
 		model<-readRDS(modelFiles[i])
-		#classificationScores[,i] <- sapply(NSVList, FUN =
-		#	function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
 		sapply(NSVList, FUN =
 			function(x) scoreSequence(model, x, method=method, plus_one=TRUE))
     }    
@@ -188,12 +182,30 @@ classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 		prediction[i,3] <- attr(NSVList,"name")[which(attr(NSVList,"id")==rownames(classificationScores)[i])]
 	}
 	colnames(prediction) <- c("id","predicted","actual")
-	#prediction <- colnames(classificationScores)[winner]
-	#prediction <- modelNames[winner]
+    #UNCOMMENT to print out hierarchy out file
+	#hierarchy <- getHierarchy(db,rank=rank,name=prediction[,2])
+	#if (is.matrix(hierarchy))
+	#{
+	#	#remove the last 3 columns as they are for id, org_name, otu, 
+	#	hierarchy <- hierarchy[,-((ncol(hierarchy)-2):ncol(hierarchy))]
+	#	#get taxonomy position
+	#	pos <- grep(rank, getTaxonomyNames(db), ignore.case=TRUE)
+	#	#remove lower ranking ranks
+	#	if (pos!=ncol(hierarchy))
+	#		hierarchy <- hierarchy[,-((pos+1):ncol(hierarchy))]
+	#	hierarchy <- cbind(attr(NSVList, "id"),hierarchy)
+	#	colnames(hierarchy)[1] <- "Id"	
+	#}
+	# summary
+	correct <- 0
+	for(i in 1:nrow(prediction))
+		if(prediction[i,2]==prediction[i,3])
+			correct <- correct + 1
+	pctCorrect <- correct/nrow(prediction)
 
-    list(scores=classificationScores, 
-	    prediction=prediction)
-		#prediction=cbind(id=id,predicted=prediction, actual=actual))
+	list(scores=classificationScores, 
+	    prediction=prediction, pctCorrect=pctCorrect)
+
 }
 
 createRDPTraining <- function(db, rank, name, ids)

@@ -39,14 +39,13 @@ getSequences <- function(db,  rank=NULL, name=NULL,
     }
     else
 	fullRankSQL <-"-1"
-
     #different route for NSV segments
     #get Sequences in memory and convert to NSV using in-memory function createNSVSet
     if(table!="sequences" && !is.null(length)) {
 		res <- dbGetQuery(db$db, 
 			statement = paste("SELECT ", lengthFilter ," AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM sequences ", 
 			" INNER JOIN classification ON classification.id = sequences.id INNER JOIN ",table," t ON t.id=sequences.id ",
-			.getWhere(db, rank, name, partialMatch), limit)
+			.getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limit)
 		)
     }
     else {	    
@@ -54,7 +53,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 			statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 			" INNER JOIN classification ON classification.id = ",
 			table, ".id ", 
-			.getWhere(db, rank, name, partialMatch), limit)
+			.getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limit)
 		)
     }
 

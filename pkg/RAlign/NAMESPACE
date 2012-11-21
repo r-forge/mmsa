@@ -7,8 +7,8 @@ export(
 	
 	kalign,
 	kalign_help,
-
-	
+	classifyRDP,
+	checkRDPOutput,	
 	simRank,
 	
 	plot.DNAStringSet,

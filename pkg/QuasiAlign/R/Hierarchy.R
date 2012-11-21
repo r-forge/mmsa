@@ -16,14 +16,20 @@ getTaxonomyNames <- function(db) {
 
 getRank <- function(db, rank=NULL, whereRank=NULL, whereName=NULL, table="sequences",  
 	all=FALSE, partialMatch = TRUE, count=FALSE, removeUnknown=FALSE) {
+	
 	fields <- getTaxonomyNames(db)
     cols <- paste("[", fields[.pmatchRank(db, rank, 
 		    numeric=TRUE)],"]", sep='')
-	#rankPosition <- match(tolower(rank),tolower(fields)) 
 	rankPosition <- .pmatchRank(db, rank, numeric=TRUE) 
 	if (!is.null(whereRank))
-		#whereRankPosition <- match(tolower(whereRank),tolower(fields)) 
+		{
 		whereRankPosition <- .pmatchRank(db, whereRank, numeric=TRUE) 
+		if (whereRankPosition == .pmatchRank(db,"id",numeric=TRUE))
+			{
+				all=TRUE
+				partialMatch=FALSE
+			}
+		}
 	else
 		#whereRankPosition = length(fields)
 		whereRankPosition = 0
@@ -150,14 +156,14 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     if(numeric) m else fields[m]
 }
 
-.getWhere <- function(col, rank, name, partialMatch=TRUE) {
+.getWhere <- function(col, rank, name, partialMatch=TRUE, removeUnknownSpecies=FALSE) {
     if(partialMatch) exact <- "%" else exact <- ""
 
     if(is.null(rank) && is.null(name)) where <- ""
     else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(col, rank), 
 		"' LIKE '", name, exact, "'", sep='')
-	#more than one names are provided
 	
+	#more than one names are provided
 	else if (length(name) > 1) 
  	{
 		rankExact <- .pmatchRank(col, rank)
@@ -170,6 +176,8 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 			"' IN ('", paste(names,collapse="','"), "')", sep='')
 	
 	}
+	if (removeUnknownSpecies)
+		where <- paste(where, " AND classification.species NOT LIKE 'Unknown%' ")
 	where
 }
 
