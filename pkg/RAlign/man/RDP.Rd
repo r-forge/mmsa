@@ -32,10 +32,7 @@ see if the program is properly installed.
 \examples{
 \dontrun{
 ### DNA
-dna <- read.DNAStringSet(system.file("examples/DNA_example.fasta",
-	package="RAlign"))
-db<-createGenDB("example.sqlite")
-addSequences(db,system.file("examples/DNA_example.fasta", package="RAlign"))
+db<-openGenDB(system.file("examples/example.sqlite",package="RAlign"))
 seq <- getSequences(db)
 write.XStringSet(seq, file="seq.fasta")
 classifyRDP(filepath="seq.fasta")
