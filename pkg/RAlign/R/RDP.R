@@ -1,6 +1,9 @@
 #This function requires either Qiime or MacQiime to be installed.
 
-classifyRDP <- function(x, param=NULL){
+classifyRDP <- function(x, confidence=.8, property=NULL, java_args="-Xmx1g"){
+
+    ## check 
+    if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
 
     ## get temp files and change working directory
     wd <- tempdir()
@@ -14,57 +17,38 @@ classifyRDP <- function(x, param=NULL){
 
     infile <- paste(temp_file, ".fasta", sep="")
     outfile <- paste(temp_file, "_tax_assignments.txt", sep="")
+    
+    ## property?
+    if(!is.null(property)) property <- paste("-t", property)
+    else property <- ""
 
     write.XStringSet(x, infile, append=FALSE, format="fasta")
 
-    system(paste(.findExecuable(c("qiime", "macqiime")), 
-		    "assign_taxonomy", "-i", infile, "-o ." , "-m rdp"))	
+    system(paste("java", java_args, "-jar", Sys.getenv("RDP_JAR_PATH"), 
+		    "-f fixrank", property, "-q", infile, "-o", outfile),
+	    ignore.stdout=TRUE, ignore.stderr=TRUE)
 
+    ## read and parse rdp output
     cl_tab <- read.table(outfile, sep="\t") 
     
-    ### FIXME: is 10 good?
-    cl <- as.data.frame(t(sapply(strsplit(as.character(cl_tab[,2]), ";"), 
-		    function(x) { length(x) <- 10; x })))
+    ## remove empty columns
+    cl_tab <- cl_tab[!sapply(cl_tab, FUN=function(x) all(is.na(x)))]
     
-    rownames(cl) <- cl_tab[,1]
-    colnames(cl) <- paste("level", 1:10, sep="_")
-    cl <- cbind(cl, prop=cl_tab[,3])
+    seq_names <- cl_tab[,1] ## sequence names are in first column
     
-    ### rdp does not seem to produce the output in the same order!
-    cl <- cl[names(x),]
+    i <- seq(2, ncol(cl_tab), by=3) ## 3 columns for each tax. level
+    
+    ## get classification
+    cl <- cl_tab[,i]	
+    dimnames(cl) <- list(seq_names, as.matrix(cl_tab[1,i+1])[1,])
+
+    ## get confidence
+    conf <- as.matrix(cl_tab[,i+2])
+    dimnames(conf) <- list(seq_names, as.matrix(cl_tab[1,i+1])[1,])
+    
+    if(confidence>0) cl[conf < confidence] <- NA
+    
+    attr(cl, "confidence") <- conf    
     cl
 }
 
-
-### FIXME: this needs to go to QuasiAlign
-### Maybe the database stuff of quasialign should go to Ralign?
-#checkRDPOutput <- function(db,RDPfile="rdp/classify_tax_assignments.txt")
-#{
-#	if (!file.exists(RDPfile))
-#		stop("File not found")
-#	correctFile <- "rdp/correct.txt"
-#	incorrectFile <- "rdp/incorrect.txt"
-#	if (file.exists(correctFile))
-#		file.remove(correctFile)
-#	if (file.exists(incorrectFile))
-#		file.remove(incorrectFile)
-#	cat("Id","RDP Classification","Correct Classification","\n",sep="\t",append=TRUE,file=incorrectFile)
-#	cat("Id","RDP Classification","Correct Classification","\n",sep="\t",append=TRUE,file=correctFile)
-#	correct <- 0
-#	rdp<- read.table(RDPfile, stringsAsFactors=FALSE)
-#	ids <- rdp[,1]
-#	h<- getHierarchy(db,rank="id",name=ids,partialMatch=FALSE)
-#	for(i in 1:nrow(rdp))
-#	{
-#		correctClassification <- gsub(" \\(class\\)","",paste(h[i,1:6],collapse=";"))
-#		if (length(grep(correctClassification,rdp[i,2])) >0)
-#			{
-#				correct <- correct + 1
-#				cat(rdp[i,1],rdp[i,2],correctClassification,"\n",sep="\t",append=TRUE,file=correctFile)
-#			}
-#		else
-#				cat(rdp[i,1],rdp[i,2],correctClassification,"\n",sep="\t",append=TRUE,file=incorrectFile)
-#	}
-#
-#	cat("Total sequences = ",nrow(rdp),"Correct classification = ",correct," Percentage  =",(correct/nrow(rdp))*100,"\n")
-#}
