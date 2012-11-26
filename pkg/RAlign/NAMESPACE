@@ -7,10 +7,13 @@ export(
 	
 	kalign,
 	kalign_help,
+
 	classifyRDP,
-#	checkRDPOutput,	
+
 	simRank,
-	
+
+	BLAST,
+
 	plot.DNAStringSet,
 	plot.DNAMultipleAlignment,
 	plot.RNAStringSet,

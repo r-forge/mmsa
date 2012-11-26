@@ -1,4 +1,3 @@
-#This function requires either Qiime or MacQiime to be installed.
 
 classifyRDP <- function(x, confidence=.8, property=NULL, java_args="-Xmx1g"){
 
