@@ -11,7 +11,7 @@ nSequences <- function(db, rank=NULL, name=NULL, table="sequences") {
 
 getSequences <- function(db,  rank=NULL, name=NULL, 
 	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE, removeUnknownSpecies=FALSE) {
+	partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id") {
 
 	# limit = number of sequences to limit	
 	# random = whether the sequences should be random
@@ -85,7 +85,19 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 		class(ret) <- "NSVSet"
     } else {
 	ret <- DNAStringSet(res$data)
-	names(ret) <- res$id
+	if (annotation=="id")
+		names(ret) <- res$id
+	else if (annotation=="rdp")
+		{
+			h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE)[,1:6]
+			if (class(h)=="matrix")
+				hierarchy <- apply(h,MARGIN=1,FUN=function(x) paste(x,collapse=";"))
+			hierarchy <- gsub(";unknown","",hierarchy)
+			hierarchy <- gsub(" \\(class\\)","",hierarchy)
+			hierarchy <- paste("Root",hierarchy,sep=";")
+			hierarchy <- paste(res$id,hierarchy)	
+			names(ret) <- hierarchy
+		}
 	if(!is.null(rank)){
 	    attr(ret,"rank")<-fullRank
 	    attr(ret,"name")<-res$fullRank

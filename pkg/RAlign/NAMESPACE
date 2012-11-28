@@ -9,7 +9,7 @@ export(
 	kalign_help,
 
 	classifyRDP,
-
+	trainRDP,	
 	simRank,
 
 	BLAST,

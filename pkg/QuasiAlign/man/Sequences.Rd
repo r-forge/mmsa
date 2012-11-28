@@ -18,7 +18,7 @@ See NSVSet for more information.
 	    metaDataReader=GreengenesMetaDataReader, verbose=FALSE)
 	getSequences(db, rank=NULL, name=NULL, table="sequences",
 	    limit=NULL, random=FALSE, start=1, length=NULL,
-	    partialMatch=TRUE, removeUnknownSpecies=FALSE)
+	    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
 	
 	nSequences(db, rank=NULL, name=NULL, table="sequences")
 }
@@ -37,6 +37,7 @@ See NSVSet for more information.
     \item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
     \item{partialMatch}{logical; perform partial matching on the name.} 
     \item{removeUnknownSpecies}{logical; whether unknown species should be removed from the result.} 
+    \item{annotation}{Annotation of the returned sequences. Options are Greengenes id or RDP format.}
 
 }
 \value{
