@@ -3,6 +3,7 @@
 \alias{classifyRDP}
 \alias{trainRDP}
 \alias{RDP_help}
+\alias{findAccuracy}
 \title{
 Ribosomal Database Project (RDP) Classifier for 16S rRNA
 }
@@ -10,15 +11,18 @@ Ribosomal Database Project (RDP) Classifier for 16S rRNA
 Use the RDP classifier to classify 16S rRNA sequences.
 }
 \usage{
-classifyRDP(x, confidence=.8, property=NULL, java_args="-Xmx1g")
-trainRDP(x, java_args="-Xmx1g", outDir=".")
+classifyRDP(x, confidence=.8, classifier=NULL, java_args="-Xmx1g")
+trainRDP(x, java_args="-Xmx1g", classifier="classifier")
+findAccuracy(actual, predicted, rank)
 }
 \arguments{
   \item{x}{an object of class DNAStringSet with the 16S rRNA sequences to be classified.}
   \item{confidence}{numeric; minimum confidence level for classification. Results with lower confidence are replaced by NAs. Set to 0 to disable.}
-  \item{property}{a custom .property file.}
+  \item{classifier}{a directory containing .property file.}
   \item{java_args}{additional arguments for java (default sets the max. heap memory to 1GB).}
-  \item{outDir}{Directory where the output training files are to be stored.}
+  \item{actual}{A data frame containing the actual classification.}
+  \item{predicted}{A data frame containing the predicted classification.}
+  \item{rank}{Taxonomic rank at which the classification accuracy is to be examined.}
 }
 \details{
 Java and the RDP classifier has to be installed. You need to set an environment

@@ -13,10 +13,9 @@
 	end <- window
    else
 	end <- 1
-
-    for(offset in 1:end)
+   for(seqOffset in 1:end)
    {   
-    y <- DNAString(x,start=offset)    
+    y <- DNAString(x,start=seqOffset)    
     if (length(y) < window) break;
     l <- as.integer(length(y)/(window-overlap)) -1L
     
@@ -36,7 +35,7 @@
 
     mat <- t(sapply(1:length(start), FUN=function(i) 
             oligonucleotideFrequency(DNAString(y,start=start[i],nchar=end[i]-start[i]+1), word)))
-    if (offset ==1)
+    if (seqOffset ==1)
 	ret<- mat
     else
 	{

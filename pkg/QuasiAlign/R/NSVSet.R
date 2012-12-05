@@ -46,7 +46,6 @@ createNSVTable <- function(db, table="NSV",
     if(length(grep(" ", table))) stop("table cannot contain spaces!")
     if (length(which(table==listGenDB(db))) > 0)
 	stop("A table with this name already exists in the db")
-
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
 	    dbSendQuery(db$db, 
@@ -70,15 +69,18 @@ createNSVTable <- function(db, table="NSV",
 
     #start loop
     start<-0 #start position of query
-    num_records<-100 # number of records at a time
+    num_records<-min(limit,100) # number of records at a time
 	if (is.null(limit))
 		limit <- 500000
     while(TRUE && total <limit)
     {
 	if (is.null(rank) && is.null(name))
-	    d <- dbGetQuery(db$db, statement = 
-		paste("SELECT * FROM sequences ", if (removeUnknownSpecies) " INNER JOIN classification c ON c.id=sequences.id WHERE c.[Species] NOT LIKE 'Unknown%'" ,"LIMIT ", start,",
+		{
+		
+		d <- dbGetQuery(db$db, statement = 
+			paste("SELECT s.* FROM sequences s ", if (removeUnknownSpecies) " INNER JOIN classification c ON c.id=s.id WHERE c.[Species] NOT LIKE 'Unknown%' " ,"LIMIT ", start,",
 			",num_records,sep=""))    
+		}
 	else {
 		
 		#statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
@@ -99,7 +101,7 @@ createNSVTable <- function(db, table="NSV",
 
 	    #make NSV
 	    nsv <- .counter(d$data[i], window, overlap, word, last_window, allOffsets)
-	    d$data[i] <- base64encode(serialize(nsv, NULL))
+		d$data[i] <- base64encode(serialize(nsv, NULL))
 	    #end make NSV
 	    ## Insert into DB
 	    dat <- paste("'",d[i,],"'", sep='', collapse=', ')

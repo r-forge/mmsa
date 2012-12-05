@@ -1,33 +1,31 @@
 
-classifyRDP <- function(x, confidence=.8, property=NULL, java_args="-Xmx1g"){
+classifyRDP <- function(x, confidence=.8, classifier=NULL, java_args="-Xmx1g"){
 
     ## check 
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
 
-    ## get temp files and change working directory
-    #wd <- tempdir()
-    #dir <- getwd()
-    #temp_file <- basename(tempfile(tmpdir = wd))
-    #on.exit({
-	#	file.remove(Sys.glob(paste(temp_file, "*", sep="")))
-	#	setwd(dir)
-	#    })
-    #setwd(wd)
+   # get temp files and change working directory
+   wd <- tempdir()
+   dir <- getwd()
+   temp_file <- tempfile(tmpdir = wd)
+   #temp_file <- "train"
+   on.exit({
+				file.remove(Sys.glob(paste(temp_file, "*", sep="")))
+				setwd(dir)
+			})
 
-    #infile <- paste(temp_file, ".fasta", sep="")
-    #outfile <- paste(temp_file, "_tax_assignments.txt", sep="")
-   
-	infile <-"query.fasta" 
-    outfile <-"outFile.out"
+	#setwd(wd)
+    infile <- paste(temp_file, ".fasta", sep="")
+    outfile <- paste(temp_file, "_tax_assignments.txt", sep="")
 	 ## property?
-    if(!is.null(property)) property <- paste("-t", property)
+    if(!is.null(classifier)) property <- paste("-t", file.path(classifier,"rRNAClassifier.properties"))
     else property <- ""
 
     write.XStringSet(x, infile, append=FALSE)
-
-    system(paste("java", java_args, "-jar", Sys.getenv("RDP_JAR_PATH"), 
+	if (system(paste("java", java_args, "-jar", Sys.getenv("RDP_JAR_PATH"), 
 		    property, "-q", infile, "-o", outfile),
-	    ignore.stdout=TRUE, ignore.stderr=TRUE)
+	    ignore.stdout=TRUE, ignore.stderr=TRUE)) 
+		stop("Error executing jar: ",Sys.getenv("RDP_JAR_PATH"))
 
     ## read and parse rdp output
     cl_tab <- read.table(outfile, sep="\t") 
@@ -53,12 +51,14 @@ classifyRDP <- function(x, confidence=.8, property=NULL, java_args="-Xmx1g"){
     cl
 }
 
-trainRDP <- function(sequences, java_args="-Xmx1g", outDir=".") 
+trainRDP <- function(x, java_args="-Xmx1g", classifier="classifier") 
 {
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
+	if (length(list.files(classifier)) > 0) stop("Classifier directory should be empty")
+	if (!file.exists("classifier/")) dir.create("classifier")
 	
-	write.XStringSet(sequences,"train.fasta")
-	l<-strsplit(names(sequences),"Root;")
+	write.XStringSet(x,file.path(classifier,"train.fasta"))
+	l<-strsplit(names(x),"Root;")
 	annot<-sapply(l,FUN=function(x) x[2])
 	h<-matrix(ncol=6,nrow=0)
 	colnames(h) <-c("Kingdom","Phylum","Class","Order","Family","Genus")
@@ -99,13 +99,26 @@ trainRDP <- function(sequences, java_args="-Xmx1g", outDir=".")
 		}
 	}
 	out<-apply(m,MARGIN=1,FUN=function(x) paste(x,collapse="*"))
-	write(out, file="train.txt")
+	write(out, file=file.path(classifier,"train.txt"))
 	#create parsed training files
-	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker train.txt train.fasta 1 version1 test ", outDir),
+	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(classifier,"train.txt"), file.path(classifier,"train.fasta")," 1 version1 test ", classifier),
 	    ignore.stdout=TRUE, ignore.stderr=TRUE)
-	file.copy(system.file("examples/rRNAClassifier.properties",package="RAlign"),outDir)
-	return(file.path(outDir,"rRNAClassifier.properties"))
+	file.copy(system.file("examples/rRNAClassifier.properties",package="RAlign"),classifier)
+	
+	invisible(classifier)
 
 
 }
 
+findAccuracy <- function(actual, predicted, rank)
+{
+	rank <- colnames(actual)[grep(rank, colnames(actual), ignore.case=TRUE)]
+	actual <- factor(actual[,rank])
+    predicted <- factor(predicted[,rank])
+
+	commonLevels <- sort(unique(c(levels(actual), levels(predicted))))
+	actual <- factor(actual, levels = commonLevels)
+	predicted <- factor(predicted, levels = commonLevels)
+
+	table(actual,predicted, dnn=list("actual","predicted"))
+}
