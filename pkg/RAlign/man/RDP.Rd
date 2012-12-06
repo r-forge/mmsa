@@ -40,13 +40,13 @@ RDP Classifier \url{http://sourceforge.net/projects/rdp-classifier/}
 }
 \examples{
 \dontrun{
-trainingSequences <- read.DNAStringSet(system.file("examples/trainingSequences.fasta",package="RAlign"))
+trainingSequences <- readDNAStringSet(system.file("examples/trainingSequences.fasta",package="RAlign"))
 property <- trainRDP(trainingSequences)
-testSequences <- read.DNAStringSet(system.file("examples/testSequences.fasta",package="RAlign"))
+testSequences <- readDNAStringSet(system.file("examples/testSequences.fasta",package="RAlign"))
 classifyRDP(testSequences, property=property)
 
 #can also be used with default training values
-seq <- read.RNAStringSet(system.file("examples/RNA_example.fasta",
+seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="RAlign"))
 
 ## shorten names

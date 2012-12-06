@@ -1,11 +1,10 @@
 Package: RAlign
 Type: Package
-Title: Interfaces to several sequence alignment tools
+Title: Interfaces to several sequence alignment and clasification tools
 Version: 0.0-1
 Date: 20xx-xx-xx
 Author:  Michael Hahsler and Anurag Nagar
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
 Description: Interfaces to several sequence alignment tools (clustalw, kalign) based on Biostrings (from Bioconductor).
 License: GPL-2
-Depends: Biostrings, seqLogo, proxy
-LazyLoad: yes
+Depends: Biostrings (>= 2.26.2), seqLogo, proxy

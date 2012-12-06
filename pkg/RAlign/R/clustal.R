@@ -1,3 +1,21 @@
+#######################################################################
+# RAlign - Interfaces to several sequence alignment and classification tools
+# Copyright (C) 2012 Michael Hahsler and Anurag Nagar
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 clustal <- function(x, param=NULL) {
     
     ## get temp files and change working directory
@@ -12,9 +30,9 @@ clustal <- function(x, param=NULL) {
 
     infile <- paste(temp_file, ".in", sep="")
     outfile <- paste(temp_file, ".aln", sep="")
-    reader <- if(is(x, "RNAStringSet")) read.RNAMultipleAlignment
-	else if(is(x, "DNAStringSet")) read.DNAMultipleAlignment
-	else if(is(x, "AAStringSet")) read.AAMultipleAlignment
+    reader <- if(is(x, "RNAStringSet")) readRNAMultipleAlignment
+	else if(is(x, "DNAStringSet")) readDNAMultipleAlignment
+	else if(is(x, "AAStringSet")) readAAMultipleAlignment
 	else stop("Unknown sequence type!")
 
 
@@ -67,6 +85,6 @@ clustal_profile <- function(x, y, param=NULL) {
 		" -profile2=", prof2, 
 		" ", param2, " ", param, sep=""))
 
-    read.DNAMultipleAlignment(paste(temp_file, ".aln", sep=""), 
+    readDNAMultipleAlignment(paste(temp_file, ".aln", sep=""), 
 	    format="clustal")
 }

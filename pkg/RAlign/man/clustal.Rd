@@ -33,7 +33,7 @@ version 2.0, Bioinformatics 2007 23(21):2947-29
 \examples{
 \dontrun{
 ### DNA
-dna <- read.DNAStringSet(system.file("examples/DNA_example.fasta",
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="RAlign"))
 dna
 
@@ -47,7 +47,7 @@ detail(al)
 plot(al, 1, 20)
 
 ### RNA
-rna <- read.RNAStringSet(system.file("examples/RNA_example.fasta",
+rna <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="RAlign"))
 rna 
 
@@ -55,7 +55,7 @@ al <- clustal(rna)
 al  
 
 ### Proteins 
-aa <- read.AAStringSet(system.file("examples/Protein_example.fasta",
+aa <- readAAStringSet(system.file("examples/Protein_example.fasta",
 	package="RAlign"))
 aa 
 

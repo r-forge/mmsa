@@ -28,11 +28,12 @@ Returns a data.frame containing the
 blast results.
 }
 \references{
-BLAST \url{http://blast.ncbi.nlm.nih.gov/}
+BLAST+ \url{http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download}
+
 }
 \examples{
 \dontrun{
-seq <- read.RNAStringSet(system.file("examples/RNA_example.fasta",
+seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="RAlign"))
 
 ## shorten names

@@ -28,7 +28,7 @@ sequence alignment algorithm, BMC Bioinformatics 2005, 6:298
 }
 \examples{
 \dontrun{
-dna <- read.DNAStringSet(system.file("examples/DNA_example.fasta",
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="RAlign"))
 dna
 

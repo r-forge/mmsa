@@ -28,7 +28,7 @@ search tool, BMC Ecology 2011, 11:11
 }
 \examples{
 ### load sequences
-sequences <- read.DNAStringSet(
+sequences <- readDNAStringSet(
     system.file("examples/DNA_example.fasta", 
 	package="RAlign"))
 sequences
