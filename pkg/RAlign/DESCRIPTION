@@ -1,10 +1,10 @@
 Package: RAlign
 Type: Package
-Title: Interfaces to several sequence alignment and clasification tools
+Title: Interface to Several Sequence Alignment and Classification Tools
 Version: 0.0-1
 Date: 20xx-xx-xx
 Author:  Michael Hahsler and Anurag Nagar
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
-Description: Interfaces to several sequence alignment tools (clustalw, kalign) based on Biostrings (from Bioconductor). This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
+Description: Interfaces several popular tools for sequence alignment (clustalw, kalign), data base search (BLAST) and classification (rdp). Based on Biostrings (from Bioconductor). This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
 Depends: Biostrings (>= 2.26.2), seqLogo, proxy
