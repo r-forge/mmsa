@@ -127,7 +127,7 @@ addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader,
 
     dbBeginTransaction(db$db)
     #start
-	f <- read.DNAStringSet(file)
+	f <- readDNAStringSet(file)
 	for(i in 1:length(f)) {
 		annot<- names(f)[i]
 		cl <- metaDataReader(annot)

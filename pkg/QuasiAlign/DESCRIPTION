@@ -7,5 +7,5 @@ Author:  Anurag Nagar and Michael Hahsler
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
 Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, quasi-alignment, comparison, and classification. The package can read FASTA files and import meta data from Greengenes into relational databases for further analysis. This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
-Depends: rEMM (>= 1.0-6), DBI, RSQLite, caTools, Biostrings, Hmisc, methods, foreach
+Depends: rEMM (>= 1.0-6), DBI, RSQLite, Biostrings, caTools, methods, foreach
 LazyLoad: yes
