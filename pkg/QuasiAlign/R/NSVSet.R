@@ -21,8 +21,9 @@ plot.NSVSet <- function(x, ..., whiskers=TRUE)
     mean <- rowMeans(sapply(x, colMeans))
     minVal <- apply(sapply(x, apply, MARGIN=2, min), MARGIN=1, min)
     maxVal <- apply(sapply(x, apply, MARGIN=2, max), MARGIN=1, max)
-    bp <- barplot(mean, ylim=c(0,max(maxVal)), las=2, ...)
-    if(whiskers) errbar(bp, mean, maxVal, minVal, cap=0.005, add=T, pch=NA)
+    browser()
+	bp <- barplot(mean, ylim=c(0,max(maxVal)), las=2, ...)
+    #if(whiskers) errbar(bp, mean, maxVal, minVal, cap=0.005, add=T, pch=NA)
     invisible(bp)
 }
 

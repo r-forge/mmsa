@@ -29,9 +29,6 @@
 	    end <- c(end, length(x))
 	}
     }
-    #count function is part of seqinr package - counts occurence of "word" sized mers
-    #t(sapply(1:length(start), FUN=function(i) 
-    #        count(x[start[i]:end[i]], word=word)))
 
     mat <- t(sapply(1:length(start), FUN=function(i) 
             oligonucleotideFrequency(DNAString(y,start=start[i],nchar=end[i]-start[i]+1), word)))
