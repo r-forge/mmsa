@@ -31,7 +31,7 @@ kalign <- function(x, param=NULL) {
     infile <- paste(temp_file, ".in", sep="")
     outfile <- paste(temp_file, ".aln", sep="")
     
-    write.XStringSet(x, infile, append=FALSE, format="fasta")
+    writeXStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
     system(paste(.findExecuable("kalign"), infile, outfile, "-f fasta", param))

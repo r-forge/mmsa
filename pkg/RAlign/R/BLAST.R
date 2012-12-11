@@ -33,7 +33,7 @@ BLAST <- function(x, db=NULL, BLAST_args="") {
     infile <- paste(temp_file, ".fasta", sep="")
     outfile <- paste(temp_file, "_BLAST_out.txt", sep="")
 
-    write.XStringSet(x, infile, append=FALSE, format="fasta")
+    writeXStringSet(x, infile, append=FALSE, format="fasta")
 
     system(paste(.findExecuable("blastn"), "-db", db,
 		    "-query", infile, "-out", outfile, "-outfmt 6", BLAST_args))

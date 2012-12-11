@@ -38,7 +38,7 @@ classifyRDP <- function(x, confidence=.8, classifier=NULL, java_args="-Xmx1g"){
     if(!is.null(classifier)) property <- paste("-t", file.path(classifier,"rRNAClassifier.properties"))
     else property <- ""
 
-    write.XStringSet(x, infile, append=FALSE)
+    writeXStringSet(x, infile, append=FALSE)
 	if (system(paste("java", java_args, "-jar", Sys.getenv("RDP_JAR_PATH"), 
 		    property, "-q", infile, "-o", outfile),
 	    ignore.stdout=TRUE, ignore.stderr=TRUE)) 
@@ -74,7 +74,7 @@ trainRDP <- function(x, java_args="-Xmx1g", classifier="classifier")
 	if (length(list.files(classifier)) > 0) stop("Classifier directory should be empty")
 	if (!file.exists("classifier/")) dir.create("classifier")
 	
-	write.XStringSet(x,file.path(classifier,"train.fasta"))
+	writeXStringSet(x,file.path(classifier,"train.fasta"))
 	l<-strsplit(names(x),"Root;")
 	annot<-sapply(l,FUN=function(x) x[2])
 	h<-matrix(ncol=6,nrow=0)

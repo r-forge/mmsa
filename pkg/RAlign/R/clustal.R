@@ -36,7 +36,7 @@ clustal <- function(x, param=NULL) {
 	else stop("Unknown sequence type!")
 
 
-    write.XStringSet(x, infile, append=FALSE, format="fasta")
+    writeXStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
     system(paste(.findExecuable(c("clustalw", "clustalw2")), 
@@ -77,7 +77,7 @@ clustal_profile <- function(x, y, param=NULL) {
     
     write.phylip(x, prof1)
     if(profileprofile) write.phylip(y, prof2)
-    else write.XStringSet(y, prof2, append=FALSE, format="fasta")
+    else writeXStringSet(y, prof2, append=FALSE, format="fasta")
     
     ## call clustalw (needs to be installed and in the path!)
     system(paste(.findExecuable(c("clustalw", "clustalw2")), 
