@@ -3,44 +3,47 @@
 	last_window=FALSE, allOffsets=FALSE) {
     
     #returns the sequence as a vector  
-	x <- DNAString(x)
-    ret<- matrix(NA, ncol=4^word, nrow=0)
+    x <- DNAString(x)
+
+    ret <- matrix(NA, ncol=4^word, nrow=0)
+    
     if(length(x) < window) {
 	warning("Sequence is shorter than window size!")
 	return(matrix(nrow=0, ncol=0))
     }
-   if (allOffsets)
+
+    if (allOffsets)
 	end <- window
-   else
-	end <- 1
-   for(seqOffset in 1:end)
-   {   
-    y <- DNAString(x,start=seqOffset)    
-    if (length(y) < window) break;
-    l <- as.integer(length(y)/(window-overlap)) -1L
-    
-    #start and end positions as vectors
-    start <- (window-overlap)*(0:l) + 1
-    end <- start + window - 1
-
-    if(last_window) {
-	if(tail(end,1) < length(x))	{
-	    start <- c(start, tail(end,1)+1)
-	    end <- c(end, length(x))
-	}
-    }
-
-    mat <- t(sapply(1:length(start), FUN=function(i) 
-            oligonucleotideFrequency(DNAString(y,start=start[i],nchar=end[i]-start[i]+1), word)))
-    if (seqOffset ==1)
-	ret<- mat
     else
-	{
-	ret <- rbind(ret,matrix(NA,nrow=1,ncol=4^word))
-	ret <- rbind(ret, mat)  
+	end <- 1
+
+    for(seqOffset in 1:end)
+    {   
+	y <- DNAString(x, start=seqOffset)    
+	if (length(y) < window) break;
+	l <- as.integer(length(y)/(window-overlap)) -1L
+
+	#start and end positions as vectors
+	start <- (window-overlap)*(0:l) + 1
+	end <- start + window - 1
+
+	if(last_window) {
+	    if(tail(end,1) < length(x))	{
+		start <- c(start, tail(end,1)+1)
+		end <- c(end, length(x))
+	    }
 	}
-  }
-	ret
+
+	mat <- t(sapply(1:length(start), FUN=function(i) 
+			oligonucleotideFrequency(DNAString(y,
+					start=start[i],
+					nchar=end[i]-start[i]+1), 
+				word)))
+	
+	if (seqOffset>1) ret <- rbind(ret, matrix(NA,nrow=1,ncol=4^word))
+	ret <- rbind(ret, mat)  
+    }
+    ret
 }
 
 #end
@@ -58,13 +61,13 @@ lapply(x, .counter, window=window, overlap=overlap, word=word,
 .make_stream <- function(cnt, use_ss=TRUE, ss_val = NA) {
     ## start state
     ss <- NULL
-	if(use_ss) ss <- rep(ss_val, ncol(cnt[[1]]))
+    if(use_ss) ss <- rep(ss_val, ncol(cnt[[1]]))
 
     stream <- matrix(NA, ncol= ncol(cnt[[1]]), nrow=0)
     colnames(stream) <- colnames(cnt[[1]])
 
-	for(i in 1:length(cnt)) stream <- base::rbind(stream, ss, cnt[[i]])
-    
+    for(i in 1:length(cnt)) stream <- base::rbind(stream, ss, cnt[[i]])
+
     stream
 }
 
