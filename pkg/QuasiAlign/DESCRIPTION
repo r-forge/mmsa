@@ -1,11 +1,11 @@
 Package: QuasiAlign
 Type: Package
 Title: Infrastructure for Quasi-Alignment of Genetic Sequences
-Version: 0.0-3
+Version: 0.0-4
 Date: 20xx-xx-xx
 Author:  Anurag Nagar and Michael Hahsler
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
-Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, quasi-alignment, comparison, and classification. The package can read FASTA files and import meta data from Greengenes into relational databases for further analysis. This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
+Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, quasi-alignment, comparison, and classification. This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
-Depends: rEMM (>= 1.0-6), DBI, RSQLite, Biostrings (>= 2.26.2), caTools, methods, foreach
-LazyLoad: yes
+Depends: BioTools, rEMM (>= 1.0-6), caTools, methods, foreach
+Suggests: caret, doMC

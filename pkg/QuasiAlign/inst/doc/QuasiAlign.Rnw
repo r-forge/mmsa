@@ -119,6 +119,8 @@ health screening in the near future.
 options(width = 70, prompt="R> ", digits=4)
 ### for sampling
 set.seed(1234)
+unlink("example.sqlite")
+unlink("models", recursive=TRUE)
 @
 
 \section{Introduction}
@@ -314,43 +316,20 @@ this approach for taxonomic classification in \citep{hahsler:Kotamarti:2010}.
 %%end
 \section{QuasiAlign Package}
 \pkg{QuasiAlign} builds on the packages 
-\pkg{Biostrings} for biological sequence analysis,
-\pkg{RSQLite} and \pkg{DBI} for storage and data management 
-functionality, \pkg{caTools} for
-Base64 encoding of models, and \pkg{rEMM} for model
-building using TRACDS (Transitions Among Clusters for Data Streams).
+\pkg{Biostrings} for biological sequence analysis
+and \pkg{BioTools} for database supported
+sequence storage and data management. 
+For modeling, \pkg{rEMM}
+which implements TRACDS (Transitions Among Clusters for Data Streams)
+is used.
 
 The main components of the package are:
 \begin{itemize}
-\item Data storage an management (GenDB)
 \item Sequence to NSV conversion
 \item Model creation
 \item Visualization
 \item Classification
 \end{itemize}
-
-\subsection{GenDB: Data storage an management}
-At the heart of the \pkg{QuasiAlign} package 
-are genetic databases (GenDB) which are used
-for efficient storage and retrieval. By default we use s light-weight 
-SQLite databases,
-but any other compatible database such as mySQL or Oracle can also be used.
-Figure~\ref{fig:ER_Diag} shows an example of the basic table layout of a
-GenDB instance with a table containing classification information, a table 
-containing the sequence information and a meta data table.
-For each sequence we will have an entry in the classification table
-and an corresponding entry in the sequence table.
-The tables are connected by a unique sequence ID as the primary key.
-Classification and sequence 
-are separated because later we will also add tables with NSVs for sequences
-which will share the classification table.
-
-\begin{figure}
-\centering
-\includegraphics[width=.7\linewidth]{er-diagram}
-\caption{Entity Relationship diagram of genetic database}
-\label{fig:ER_Diag}
-\end{figure}
 
 \subsection{Classification}
 The classification score evaluates how likely
@@ -400,7 +379,7 @@ created by chance?}
 In the following we will demonstrate the key features of 
 \pkg{QuasiAlign} using several examples.
 
-\subsection{Setting up a GenDB}
+\subsection{Setting up the data}
 
 First, we load the library into the R environment.
 <<>>=
@@ -409,135 +388,17 @@ library(QuasiAlign)
 
 To start we need to create an empty GenDB to store and organize
 sequences.
-<<>>=
+<<DB>>=
 db<-createGenDB("example.sqlite")
 db
 @
 
-The above command creates an empty database with a table structure similar to
-Figure~\ref{fig:ER_Diag} and stores it in the file example.sqlite.  If a
-GenDB already exists, then it can be opened using
-\func{openGenDB}.
-
-The next step is to import sequences into the database by reading FASTA files. 
-This is accomplished by function \func{addSequences}. 
-This function automatically
-extracts the classification information from the FASTA file's 
-description lines.
-The default is to expect 
-classification in the format used by the Greengenes project,
-however other meta data readers can be implemented (see manual page
-for addSequences).
 
 The command below uses a FASTA file provided by the package, hence we use
 \func{system.file} instead of just a string with the file name.
 <<>>= 
 addSequences(db,
   system.file("examples/phylums/Firmicutes.fasta", package="QuasiAlign"))
-@
-
-After inserting the sequences, various querying and limiting functions can be
-used to check the data and obtain a subset of the sequences.  
-To get a count of the number of sequences in the database, the function \func{nSequences} can be used.
-<<>>=
-nSequences(db)
-@
-
-The function \func{getSequences} returns the sequences as a vector. 
-In the following example we get all sequences in the database and then show
-the first 50 bases of the first sequence.
-<<>>=
-s <- getSequences(db)
-s
-length(s)
-s[[1]]
-substr(s[[1]], 1, 50)
-@
-
-Sequences in the database can also be filtered using classification 
-information. For example, we can get all sequences of the genus name 
-``Desulfosporomusa'' by specifying rank and name.
-<<>>=
-s <- getSequences(db, rank="Genus", name="Desulfosporomusa")
-s
-@
-
-To obtain a single sequence, getSequences can be used with rank equal to "id" and supplying the sequence's greengenes ID as the name.
-<<>>=
-s <- getSequences(db, rank="id", name="1250")
-s
-@
-
-The database also stores a classification hierarchy.
-We can obtain the classification hierarchy used in 
-the database with \func{getTaxonomyNames}.     
-<<>>=
-getTaxonomyNames(db)
-@
-
-To obtain all unique names stored in the database 
-for a given rank we can use \func{getRank}.     
-<<>>=
-getRank(db, rank="Order")
-@
-
-The \Sexpr{nSequences(db)}~sequences 
-in our example data base contain
-organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
-We can obtain the rank name for each sequence individually by using
-\code{all=TRUE}. The folowing code counts how many sequences we have 
-for each genus.
-<<>>=
-table(getRank(db, rank="Genus", all=TRUE))
-@
-
-This informartion can be easily turned into a barplot showing the abundance
-of different orders in the data database (see Figure~\ref{fig:abundanceplot}).
-
-<<abundanceplot, fig=TRUE, include=FALSE>>=
-oldpar <- par(mar=c(12,5,5,5)) ### make space for labels
-barplot(sort(
-    table(getRank(db, rank="Genus", all=TRUE)), 
-    decreasing=TRUE), las=2)
-par(oldpar)
-@
-
-\begin{figure}
-\centering
-\includegraphics[width=.8\linewidth]{QuasiAlign-abundanceplot}
-\caption{Abundance of different orders in the database.}
-\label{fig:abundanceplot}
-\end{figure}
-
-
-Filtering also works for \func{getRank}.
-For example, we can find the genera within the order
-``Thermoanaerobacterales''.
-<<>>=
-getRank(db, rank="Genus", 
-    whereRank="Order", whereName="Thermo")
-@
-
-Note that partial matching is performed from ``Thermo'' to 
-``Thermoanaerobacterales.'' Partial matching is available for ranks and 
-names in most operations in \pkg{QuasiAlign}.
-
-We can also get the complete classification hierarchy for different ranks 
-down to individual sequences. In the following we get the classification
-hierarchy for genus Thermaerobacter, then all orders matching Therm and
-then for a list of names. 
-<<>>=
-getHierarchy(db, rank="Genus", name="Thermaerobacter")
-
-getHierarchy(db, rank="Genus", name="Therm")
-
-getHierarchy(db, rank="Genus", name=c("Acid", "Thermo"))
-@
-
-To get individual sequences we can use again the unique sequence id.
-
-<<>>=
-getHierarchy(db, rank="id", name="1250")
 @
 
 
@@ -547,7 +408,7 @@ first create Numerical Summarization Vectors (NSVs).  The \pkg{QuasiAlign} packa
 easily convert large number of sequences in the database to NSV format and 
 store them in the same database. The following command will convert all
 the sequences to NSV format  and store them in a table called NSV.
-<<>>=
+<<createNSV>>=
 createNSVTable(db, table = "NSV")
 @
 
@@ -711,18 +572,30 @@ multi-dimensional scaling to place similar clusters closer together is shown in
 Figure~\ref{fig:EMM_Plot_MDS}. Figure~\ref{fig:EMM_Plot_Graphviz} shows
 the model using the Graphviz library.
 
+<<>>=
+closeGenDB(db)
+unlink("example.sqlite")
+@
+
 \subsection{Classification}
 To classify a new sequence at a particular rank level (e.g., at the phylum
 level), we need to have the set of all models at this level to classify against.  For example, we
 need to create models for each phylum present in the database for predicting the phylum of an unclassified sequence. This can be
-accomplished using \func{createModels}, which creates a set of models and
-stores them in a directory specified by the \textit{modelDir} parameter.
+accomplished using \func{trainGenClassifier}, which creates a set of models and
+stores them in a directory specified by the \code{classifier_dir} parameter.
 
 The following command creates models for all phylums stored in the database and stores them in directory models (which is created first) 
 and places them in the subdirectory phylum.
-<<>>=
-dir.create("models")
-createModels(modelDir="models", rank="phylum", db)
+<<trainClassifier>>=
+library(doMC)
+registerDoMC()
+
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
+db
+
+classifier <- trainGenClassifier("models", db=db, rank="phylum", 
+                                 limit=30, random=TRUE)
+classifier
 @
 
 The models are now stored as compressed files.
@@ -740,10 +613,10 @@ model
 Once all models have been constructed, they can be used to score and classify
 new sequences. We can compare the new sequences against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
-Below, we use the \func{getSequences} to get 5 random sequences from the NSV table and then score
+Below, we use the \func{getNSVs} to get 5 random sequences from the NSV table and then score
 them against the model for ``Firmicutes'' using the function \func{scoreSequence}.
 <<>>=
-random_sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
+random_sequences <- getNSVs(db, table="NSV", limit=5, random=TRUE)
 random_sequences
 scoreSequence(model, random_sequences)
 @
@@ -756,43 +629,90 @@ hierarchy <- getHierarchy(db, rank="id",name=ids)
 hierarchy[,"Phylum"]
 @
 
-We can see that those sequences that belong to the phylum ``Firmicutes'' have the highest score of 1.0. 
+We can see that those sequences that belong to the phylum ``Firmicutes'' have the highest score. 
 The above commands also shows how easily the actual classification hierarchy of a sequence can be easily obtained using the \func{getHierarchy} for those sequences whose Greengenes id is known.
 
 
-The function \func{classify} can be used to classify sequences in NSV format 
+The function \func{predict} can be used to classify sequences in NSV format 
 against all
 the models stored in a directory. It returns a data.frame containing the
 score matrix and the actual and predicted ranks. 
 <<>>=
-unknown <- getSequences(db, table="NSV", rank="Phylum", limit=5, random=TRUE)
-classification<-classify(modelDir="models", unknown, rank="Phylum")
-classification
-table(classification$prediction[,"actual"], 
-    classification$prediction[,"predicted"])
+unknown <- getSequences(db, table="NSV", rank="Phylum", 
+                        limit=10, random=TRUE)
+pred <- predict(classifier, unknown, rank="Phylum")
+pred
+@
+
+Compare the predictions with the true class labels.
+<<>>=
+true<- getRank(db, rank="Phylum", whereRank="id", whereName=names(unknown))
+true
+table(predicted = pred$class, true)
 @
 
 The default method for \func{classify} is \verb|supported_transitions|, but other methods can also be easily used. 
 
-
-\subsection{Assessing classification accuracy}
-
-For validation we split the data into a training and test set.
-We use the training sequences for generating the models and then evaluate
-classification accuracy on the hold out test set.  This is implemented in
-function \func{validateModels}. 
-The parameter pctTest is used to specify
-the fraction of sequences to be used for test dataset. 
 <<>>=
-validation <- validateModels(db, modelDir="models", rank="phylum", pctTest=.1)
-head(validation$scores)
-head(validation$prediction)
-table(validation$prediction[,"actual"], 
-    validation$prediction[,"predicted"])
+closeGenDB(db)
+removeGenClassifier(classifier)
 @
 
-The function \func{validateModels} returns a list of two vectors - the first containing the scores of the test sequences against the training models and the second containing the predicted rank of the sequences based on the highest score. The prediction vector can be used to find the classification accuracy of the models. 
+\subsection{Assessing classification accuracy}
+<<accuracy>>=
+library(caret)
+library(doMC)
+registerDoMC()
 
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
+nSequences(db)
+
+#createNSVTable(db)
+
+
+ids <- getIDs(db)
+phyla <- getRank(db, rank="Phylum", all=TRUE)
+trainIDs <- createDataPartition(phyla, p=.7, list=FALSE)
+train <- ids[trainIDs]
+test <- ids[-trainIDs]
+
+classifier <- trainGenClassifier("models", db=db, rank="phylum", 
+    selection=train)
+classifier
+
+testn <- getSequences(db, rank="id", name=test, table="NSV")
+testn
+
+pred <- predict(classifier, testn)
+
+true <- getRank(db, rank="phylum", whereRank="id", whereName=test)
+confusionMatrix(pred$class, true)
+@
+
+<<>>=
+removeGenClassifier(classifier)
+@
+
+%
+%
+%\subsection{Assessing classification accuracy}
+%
+%For validation we split the data into a training and test set.
+%We use the training sequences for generating the models and then evaluate
+%classification accuracy on the hold out test set.  This is implemented in
+%function \func{validateModels}. 
+%The parameter pctTest is used to specify
+%the fraction of sequences to be used for test dataset. 
+%<<>>=
+%validation <- validateModels(db, modelDir="models", rank="phylum", pctTest=.1)
+%head(validation$scores)
+%head(validation$prediction)
+%table(validation$prediction[,"actual"], 
+%    validation$prediction[,"predicted"])
+%@
+%
+%The function \func{validateModels} returns a list of two vectors - the first containing the scores of the test sequences against the training models and the second containing the predicted rank of the sequences based on the highest score. The prediction vector can be used to find the classification accuracy of the models. 
+%
 
 \subsection{Visualizing Sequences and NSVs}
 One of the unique advantages of QuasiAlign is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.

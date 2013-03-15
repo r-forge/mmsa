@@ -73,6 +73,7 @@ plot(model)
 getModelDetails(model, 17)
 s <- getModelSequences(db, model, state = 17)
 s
+clustal(s)
 
 nsv <- getModelSequences(db, model, state = 17, table="NSV")
 nsv

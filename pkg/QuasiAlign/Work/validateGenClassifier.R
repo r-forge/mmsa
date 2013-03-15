@@ -1,0 +1,155 @@
+
+# Takes the sequences from a directory and splits them up into training and
+# test sets.  Uses the training sequences to create models and stores them in
+# the modelDir directory.  The pctTest is the fraction of sequences used for
+# testing.
+validateModels<-function(db, modelDir, rank="phylum", table="NSV", 
+	pctTest=0.1, method="supported_transitions", limit=NULL, 
+	numRanks=NULL, top=TRUE, measure="Manhattan", threshold=30, 
+	prune=TRUE, count_threshold=5, createRDP=FALSE)
+{
+    #dir => directory containing FASTA files which are to be used for model
+    #modelDir => directory where models are to be stored
+    #pctTrain => percentage of each rank to be used for creating the training model
+    #pctTest => percentage of each rank to be used for testing the model
+    #db=> database where sequences are to be stored	
+    #numRanks=> number of names of each rank to consider , for example just the top 5 phylums, etc
+    rankDir<-file.path(modelDir,rank)
+    
+    if (!file.exists(modelDir)) dir.create(modelDir)
+    if(!file.exists(rankDir)) dir.create(rankDir)
+    else
+	    #remove all existing model files
+	    unlink(file.path(rankDir,dir(rankDir)))
+    
+    pctTrain = 1 - pctTest
+    #create a list with a vector of selection for EACH rank
+    trainingList<-list()
+    testList<-list()
+    testNames<-vector()
+    #get all the  rankNames for the given rank
+    rankNames <- getRank(db, rank, count=TRUE, table=table, removeUnknown=TRUE)[,1]
+    if (!is.null(numRanks))
+    {
+	if (top==TRUE)
+	    rankNames <- head(rankNames, numRanks)
+	else
+	    rankNames <- tail(rankNames, numRanks)
+    }
+    #testIds <- vector()
+    #for (i in 1:length(rankNames))
+    if (createRDP) {
+	#clean up the RDP directories
+	unlink("rdp/sequences/*")
+	unlink("rdp/taxonomy/*")
+	unlink("rdp/test/*")
+    }
+    testIds<-foreach (i=1:length(rankNames), .combine=c) %dopar%
+    {
+	db_local <- reopenGenDB(db, flags=SQLITE_RO)
+	#get number of sequences in the rank
+	n <- nSequences(db_local,rank, rankNames[i],table)
+	#how many sequences should we use
+	if(is.null(limit)) limit <- n
+	else limit <- min(n,limit)
+	    #create selection vector for this rank
+	    #train is the number of training cases
+	    train<-as.integer(pctTrain*limit)
+	#test is the number of test cases
+	test<-as.integer(pctTest*limit)
+	#create an array of all sequences indices
+	ids <- getRank(db_local,rank="id",whereRank=rank, table=table, whereName=rankNames[i])
+	#get which indices are to be used for training
+	#if (train <= 0) next;
+	sampleIds <- sample(ids,limit)
+	train <- sample(sampleIds,train)
+	#remove these from the x indices
+	sampleIds <- setdiff(sampleIds,train)
+	#get which indices are to be used for testing
+	test <- sample(sampleIds,test)
+	cat("length(train) = ",length(train),"\n")
+	if (length(train) > 10) {
+	    emm<-GenModelDB(db_local,measure=measure, threshold=threshold, table=table, rank, name=rankNames[i], selection=train)
+	    if (prune)
+	    {
+		#check if there will be enough clusters left after pruning 
+		#if (length(setdiff(cluster_counts(emm$model),rare_clusters(emm$model,count_threshold=count_threshold))) > 0)
+		x <- emm$model
+		emm_reduced <- remove_transitions(x, rare_transitions(x, count_threshold=count_threshold), copy=FALSE)
+		if (nstates(emm_reduced) > 0)
+		{
+		    emm <- prune(emm, count_threshold=count_threshold, transitions=TRUE)
+		    #if (rankNames[i]=="Thermoanaerobacterium saccharolyticum")
+		}
+	    }
+	    #save the model to file
+	    #some species names have "/" in them, need to remove them
+	    rankNames[i]<-gsub("/","",rankNames[i])
+	    saveRDS(emm, file=paste(rankDir, "/", rankNames[i], ".rds", sep=''))
+	    #takes the ids and creates a RDP training file for them
+	    if(createRDP)
+		createRDPTraining(db_local,rank,rankNames[i],train)
+	    closeGenDB(db_local)
+	    rm(db_local)
+	    if (length(test) > 0)
+		test
+	}
+    }
+    testNames <- getRank(db, rank=rank, whereRank="id", whereName=testIds, all=TRUE, partialMatch=FALSE)
+    testList <- getNSVs(db, table="NSV", rank="id", name=testIds, partialMatch=FALSE)
+    if (createRDP)
+    {
+	#combine the rdp files
+	rdpSequences <- list.files("rdp/sequences")
+	for(i in 1:length(rdpSequences))
+	{
+	    command <- paste("cat rdp/sequences/", rdpSequences[i]," >> rdp/sequences/train.fasta",sep="")
+	    system(command)
+	    unlink(paste("rdp/sequences/",rdpSequences[i],sep=""))
+	}	
+	rdpTaxonomy <- list.files("rdp/taxonomy")
+	for(i in 1:length(rdpTaxonomy))
+	{
+	    command <- paste("cat rdp/taxonomy/", rdpTaxonomy[i]," >> rdp/taxonomy/taxonomy.txt",sep="")
+	    system(command)
+	    unlink(paste("rdp/taxonomy/",rdpTaxonomy[i],sep=""))
+	}
+
+	testSequences <- getSequences(db, rank="id", name=testIds, partialMatch=FALSE)
+	#create test file in fasta format for RDP
+	if (!file.exists("rdp/test"))
+	    dir.create("rdp/test", recursive=TRUE)
+	write.XStringSet(testSequences, filepath="rdp/test/test.fasta")
+	#run the RDP classifier
+	#check if the macqiime or qiime exists
+	if (Sys.which("macqiime") !="")
+	    exec <- "macqiime"
+	else if (Sys.which("qiime") !="")
+	    exec <- "qiime"
+	else
+	{
+	    print("unable to find macqiime/qiime for RDP")
+	    exec <- NULL
+	}
+	if(!is.null(exec))
+	{
+	    command <- "assign_taxonomy.py -i rdp/test/test.fasta -t rdp/taxonomy/taxonomy.txt -r rdp/sequences/train.fasta -o ."
+	    system(exec, input=command)
+	}
+    }
+
+    attr(testList,"rank")<-rank
+    attr(testList,"name")<-testNames
+    attr(testList,"id") <- testIds
+    if (length(method) == 1)
+	return(list(classify(modelDir, testList, rank=rank, method=method)))
+    else if (length(method) > 1)
+    {
+	ret<-list()
+	for(i in 1:length(method))
+	    ret[[i]]<-classify(modelDir, testList, rank=rank, method=method[i])
+	return(ret)
+    }
+}
+
+

@@ -1,0 +1,58 @@
+import(Biostrings)
+
+export( 
+	### clustal
+	clustal,
+	clustal_help,
+#	clustal_profile,
+	
+	### kalign
+	kalign,
+	kalign_help,
+
+	### RDP
+	RDP,
+	trainRDP,	
+	removeRDP,	
+	findAccuracy,
+	
+	### SimRank
+	simRank,
+
+	### BLAST
+	BLAST,
+
+	### visualizations for BioStrings
+	plot.DNAStringSet,
+	plot.DNAMultipleAlignment,
+	plot.RNAStringSet,
+	plot.RNAMultipleAlignment,
+
+	### GenDB
+	GenClass16S,
+	GenClass16S_Greengenes,
+	GreengenesMetaDataReader,
+	
+	addSequences,
+	createGenDB,
+	openGenDB,
+	reopenGenDB,
+	closeGenDB,
+	listGenDB,
+	metaGenDB,
+
+	getTaxonomyNames,
+	getRank,
+	getIDs,
+	getHierarchy,
+
+	nSequences,
+	getSequences
+)
+
+S3method(print, RDPClassifier)
+S3method(predict, RDPClassifier)
+
+S3method(print, GenDB)
+
+

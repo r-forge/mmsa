@@ -34,7 +34,7 @@ errbar <-
       
       omai <- par('mai')
       mai <- omai
-      mai[2] <- max(strwidth(x, 'inches')) + .25*.R.
+      mai[2] <- max(strwidth(x, 'inches')) + .25
     
       par(mai=mai)
       on.exit(par(mai=omai))

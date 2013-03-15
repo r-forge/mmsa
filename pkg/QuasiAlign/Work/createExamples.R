@@ -1,6 +1,6 @@
 #	dirpath is the path of the directory that contains split up phylum files
 #
-createExamples<-function(dirpath,outpath)
+createExampleSeq<-function(dirpath, outpath="./inst/examples")
 {
 	proteobacteria <- file.path(dirpath,"Proteobacteria.fasta")
 	planctomycetes <- file.path(dirpath,"Planctomycetes.fasta")
@@ -13,9 +13,11 @@ createExamples<-function(dirpath,outpath)
 	write.XStringSet(sample1, filepath=file.path(outpath,"phylums/Proteobacteria.fasta"))
 	write.XStringSet(sample2, filepath=file.path(outpath,"phylums/Planctomycetes.fasta"))
 	write.XStringSet(sample3, filepath=file.path(outpath,"phylums/Firmicutes.fasta"))
-	
-	db<-createGenDB("16S.sqlite")
-	processSequences(dir=outpath,db)
-	createModels(modelDir=file.path(outpath,"models"),rank="Phylum",db)
-
 }
+ 
+createExampleDb <- function(outpath="./inst/examples"){
+	unlink(file.path(outpath, "16S.sqlite"))
+  db<-createGenDB(file.path(outpath, "16S.sqlite"))
+	processSequences(dir=file.path(outpath, "phylums"), db = db)
+}
+

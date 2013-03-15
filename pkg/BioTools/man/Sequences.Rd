@@ -1,0 +1,94 @@
+\name{Sequences}
+\alias{Sequences}
+\alias{getSequences}
+\alias{addSequences}
+\alias{nSequences}
+\title{Genetic Sequences}
+\description{
+Genetic sequences are stored in a GenDB (as character strings with meta
+information) or directly in R as objects of class DNAStringSet (package
+\pkg{Biostrings}). \code{addSequences} adds sequences from a FASTA file to the
+GenDB and \code{getSequences} retrieves sequences from the GenDB.
+	
+Sequences can also be represented in NSV format. 
+See NSVSet for more information.
+}
+\usage{
+addSequences(db, file,
+	    metaDataReader=GreengenesMetaDataReader, verbose=FALSE)
+	
+getSequences(db, rank=NULL, name=NULL, table="sequences",
+	    limit=NULL, random=FALSE, start=1, length=NULL,
+	    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
+	
+nSequences(db, rank=NULL, name=NULL, table="sequences")
+}
+\arguments{
+    \item{db}{Handle of the GenDB database.} 
+    \item{file}{Complete path of existing FASTA format file containing
+	sequence information. }
+    \item{metaDataReader}{function to process the meta data from the FASTA documentation line. }
+    \item{verbose}{logical; print progress information.}
+    \item{rank}{Name of Rank to be filtered by. For example: "kingdom", "phylum", etc.}
+    \item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
+    \item{table}{Value of the table which stores sequences.}
+    \item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
+    \item{random}{Get sequences in randomized order.} 
+    \item{start}{Start position for the subsequence.} 
+    \item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
+    \item{partialMatch}{logical; perform partial matching on the name.} 
+    \item{removeUnknownSpecies}{logical; whether unknown species should be removed from the result.} 
+    \item{annotation}{Annotation of the returned sequences. Options are Greengenes id or RDP format.}
+
+}
+\value{
+	\code{getSequences()} returns an object containing the sequences
+	as a DNAStingSet.
+}
+\details{
+	\code{addSequences()} reads and parses an existing FASTA format file
+	and stores the sequences in an existing GenDB.  Meta data (biological
+	classification) can also be extracted and stored in the GenDB for easy
+	retrieval and selection of sequences. A custom reader for the meta data
+	can be implemented and used.  The reader is called for each sequence,
+	gets the content of the description line  and needs to return a vector
+	containing the classification to be stored in the GenDB. The default is
+	a reader for meta data used by the Greengenes project.
+	
+	\code{getSequences()} returns a list of sequences
+	satisfying a search criteria specified by the optional rank and name
+	parameters.  If no search criteria is specified, all the sequences are
+	returned. 
+	
+	\code{nSequences()} counts the total number of sequences
+	present in a the sequence table of the database passed in as an
+	argument.  If the optional rank and value parameters are supplied, the
+	function filters the results based on the search criteria.
+}
+\seealso{
+    \code{\link{createGenDB}},
+    \code{\link{openGenDB}},
+    \code{\link{GreengenesMetaDataReader}},
+    \code{\link[Biostrings]{DNAStringSet}}
+}
+\examples{
+db <- createGenDB("example.sqlite")
+addSequences(db,
+    system.file("examples/Firmicutes.fasta",
+        package="BioTools"))
+
+
+nSequences(db)
+
+### select some sequences
+s <- getSequences(db, rank="Class", name="Clostridia", limit=5)
+s
+
+### get the classification hierarchy for a the sequences
+getHierarchy(db, "id", names(s))
+
+### clean up
+closeGenDB(db)
+unlink("example.sqlite")
+}
+\keyword{database}
