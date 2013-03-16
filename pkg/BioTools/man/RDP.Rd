@@ -64,6 +64,7 @@ attribure called "confidence" with a matrix containing the confidence values.
 RDP Classifier \url{http://sourceforge.net/projects/rdp-classifier/}
 }
 \examples{
+\dontrun{
 ### Use the default classifier
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="BioTools"))
@@ -76,7 +77,6 @@ seq
 predict(RDP(), seq)
 
 
-\dontrun{
 ### Train a custom RDP classifier on new data
 trainingSequences <- readDNAStringSet(
     system.file("examples/trainingSequences.fasta", package="BioTools"))
