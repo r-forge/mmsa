@@ -34,7 +34,8 @@ findAccuracy(actual, predicted, rank)
   \item{...}{additional arguments (currently unused).}
 }
 \details{
-Java and the RDP classifier has to be installed. You need to set an environment
+Java and the RDP classifier has to be installed (See References for URL). 
+You need to set an environment
 variable called "RDP_JAR_PATH" with the path to the RDP classifier jar file.
 You can set this variable using \code{Sys.setenv(RDP_JAR_PATH="/your_path/rdp_classifier-2.x.jar"} 
 and test if it is set correctly with \code{Sys.getenv("RDP_JAR_PATH"}.

@@ -19,7 +19,7 @@ clustal_help()
 
 }
 \details{
-The clustalw software has to be installed and 
+The clustalw software has to be installed (Debian/Ubuntu package: clustalw) and 
 be executable by the system. Try \code{Sys.which("clustalw")} to 
 see if the program is properly installed.
 }

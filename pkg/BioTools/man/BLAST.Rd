@@ -17,7 +17,8 @@ BLAST(x, db=NULL, BLAST_args="")
 \details{
     The blast+ software has to be installed and
     be executable by the system. Try \code{Sys.which("blastn")} to
-    see if the program is properly installed.
+    see if the program is properly installed (
+    Debian/Ubuntu package: ncbi-blast+).
 
     A database is needed. NCBI BLAST databases are updated daily 
     and may be downloaded via FTP 

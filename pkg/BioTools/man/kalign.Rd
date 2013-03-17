@@ -15,7 +15,7 @@ kalign_help()
   \item{param}{character string with the command line parameters for kalign (see output of \code{kalign_help()}).}
 }
 \details{
-The kalign software has to be installed and 
+The kalign software has to be installed (Debian/Ubuntu package: kalign) and 
 be executable by the system. Try \code{Sys.which("kalign")} to 
 see if the program is properly installed.
 }
