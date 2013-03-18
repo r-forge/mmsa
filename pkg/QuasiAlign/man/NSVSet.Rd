@@ -97,12 +97,12 @@ addSequences(db,
     system.file("examples/phylums/Proteobacteria.fasta", 
 	package="QuasiAlign"))
 
-### add the table with the counts for all sequences in the GenDB
+## add the table with the counts for all sequences in the GenDB
 createNSVTable(db, table="NSV")
 db
 
 ### get NSVs for the first sequence
-s <- getNSVs(db, table="NSV")
+s <- getNSVs(dng()b, table="NSV")
 s
 
 ### select the first element (sequence)

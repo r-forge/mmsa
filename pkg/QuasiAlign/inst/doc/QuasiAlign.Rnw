@@ -503,6 +503,9 @@ The convenience function \func{processSequences} loads all FASTA
 files from a directory into the database and then converts them into NSVs.
 
 <<>>=
+library("doParallel")
+registerDoParallel()
+
 db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 @
@@ -587,8 +590,8 @@ stores them in a directory specified by the \code{classifier_dir} parameter.
 The following command creates models for all phylums stored in the database and stores them in directory models (which is created first) 
 and places them in the subdirectory phylum.
 <<trainClassifier>>=
-library(doMC)
-registerDoMC()
+library(doParallel)
+registerDoParallel()
 
 db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 db

@@ -3,7 +3,8 @@
 NSVSet <- function(x=NULL, window=NULL, word=NULL, 
 	last_window=NULL, overlap=NULL, rank=NULL, name=NULL) {
     structure(x, window=window, word=word, last_window=last_window, 
-	    overlap=overlap, rank=rank, name=name ,class="NSVSet")
+	    overlap=overlap, rank=rank, name=name, 
+	    class="NSVSet")
 }
 
 ### combine
@@ -53,9 +54,7 @@ plot.NSVSet <- function(x, ..., whiskers=TRUE)
 ### convert to NSVs
 createNSVSet <- function(x, window=100, overlap=0, word=3, 
 	last_window=FALSE, allOffsets=FALSE) {
-    ### This should work but as.list does not inside the package!
-    #s <- lapply(x, .counter, window, overlap, word, last_window)
-    s <- lapply(1:length(x), FUN= function(i) .counter(x[[i]], window, 
+    s <- lapply(Biostrings::as.list(x), FUN= function(i) .counter(i, window, 
 		    overlap, word, last_window, allOffsets ))
 
     NSVSet(s, window=window, overlap=overlap, word=word, 
@@ -63,13 +62,15 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 }
 
 
-createNSVTable <- function(db, table="NSV", 
-	rank=NULL, name=NULL, window=100,
-	overlap=0, word=3, last_window=FALSE, limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE) {
+createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL, 
+	window=100, overlap=0, word=3, last_window=FALSE, 
+	limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE) {
 
     if(length(grep(" ", table))) stop("table cannot contain spaces!")
-    if (length(which(table==listGenDB(db))) > 0)
+    
+    if (any(table==listGenDB(db)))
 	stop("A table with this name already exists in the db")
+    
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
     try(
 	    dbSendQuery(db$db, 
@@ -77,6 +78,7 @@ createNSVTable <- function(db, table="NSV",
 			    "(",  NSV,  ")", sep='')
 		    )
 	    )
+    
     # insert into metadata
     meta<-paste("'", table, "','NSV','rank=", rank, ";name=",
 	    name , ";window=", window, ";overlap=", overlap,
@@ -87,89 +89,73 @@ createNSVTable <- function(db, table="NSV",
 			    meta,  ")", sep='')
 		    )
 	    )	
-    ok <- 0
-    fail <- 0
-    total <- 0
+   
 
-    #start loop
-    start<-0 #start position of query
-    num_records<-min(limit,100) # number of records at a time
-    if (is.null(limit))
-	limit <- 500000
-    while(TRUE && total <limit)
-    {
-	if (is.null(rank) && is.null(name))
-	{
+    ## number of sequences
+    n <- nSequences(db, rank, name, "sequences")
+    if(n<1) {
+	warning("No sequences to process!")
+	return()
+    }
 
-	    d <- dbGetQuery(db$db, statement = 
-		    paste("SELECT s.* FROM sequences s ", if (removeUnknownSpecies) " INNER JOIN classification c ON c.id=s.id WHERE c.[Species] NOT LIKE 'Unknown%' " ,"LIMIT ", start,",
-			    ",num_records,sep=""))    
-			}
-			else {
+    cat("CreateNSVTable: Number of sequences to process:", n, "\n")
+    if(!is.null(limit) && limit<n) {
+	cat("CreateNSVTable: Converting only", limit, "sequences (limit)\n")
+	n <- limit
+    } 
 
-			    #statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id WHERE classification.",
-			    #	.pmatchRank(db,rank)," LIKE '", 
-			    #	name,"%'", if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep="")
-			    statement<-	paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", BioTools:::.getWhere(db, rank, name) ,
-				    if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep="")
+    ### process 50 sequences on each core
+    block <- 50
+    
+    res <- foreach(start=seq(0, n-1, by=block), .combine=rbind) %dopar% {
+	ok <- 0
+	fail <- 0
+	total <- 0
+	db <- reopenGenDB(db)
+	
+	s <- getSequences(db, rank, name, table="sequences",
+		limit=c(start, block))
+	n <- createNSVSet(s,  window, overlap, word, last_window, allOffsets)
+	n <- lapply(n, FUN=function(x) base64encode(serialize(x, NULL)))
 
+	##dbBeginTransaction(db$db) ### no concurrent transactions
+	for(i in 1:length(n)) {
+	    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
+	    tr <- try(
+		    dbSendQuery(db$db,          
+			    statement = paste("INSERT INTO ", table,
+				    " VALUES (", dat, ")", sep=''))
+		    )
+	    
+	    if(!is(tr, "try-error")) ok <- ok+1
+	    else fail <- fail+1
+	    total <- total+1
+	}
+	##dbCommit(db$db) 
 
-				d <- dbGetQuery(db$db, statement = 
-				    paste("SELECT sequences.id, sequences.data FROM sequences INNER JOIN classification ON sequences.id=classification.id ", BioTools:::.getWhere(db, rank, name) ,
-					    if(removeUnknownSpecies) " AND classification.[Species] NOT LIKE 'Unknown%' ", " LIMIT ", start,", ",num_records, sep=""))    
-			    }
-			if (nrow(d)==0) break;
+	closeGenDB(db) ### this does not close the main db!
+	c(ok, fail, total)
+    }
+    #end loop
 
-			dbBeginTransaction(db$db)
-			for(i in 1:nrow(d))  {
+    if(is.matrix(res)) res <- colSums(res)
+    names(res) <- c("ok", "fail", "total")
 
-			    #make NSV
-			    nsv <- .counter(d$data[i], window, overlap, word, last_window, allOffsets)
-			    d$data[i] <- base64encode(serialize(nsv, NULL))
-			    #end make NSV
-			    ## Insert into DB
-			    dat <- paste("'",d[i,],"'", sep='', collapse=', ')
+    cat("CreateNSVTable: Read ", res["total"], " entries. Added ", 
+	    res["ok"] , " entries (",res["fail"]," failed).\n", sep="")
 
-			    tr<- try(
-				    dbSendQuery(db$db,          
-					    statement = paste("INSERT INTO ", table,
-						    " VALUES (", dat, ")", sep=''))
-				    )
-
-			    if(!is(tr, "try-error")) ok <- ok+1
-			    else 
-			    {
-				fail <- fail+1
-				stop("Error ", tr, " occured. It is likely you are trying to insert duplicate values in the NSV")
-
-			    }
-			    total <- total+1
-
-			    if(total%%num_records == 0) cat("CreateNSVTable: Read", total, "entries (ok:", ok, 
-				    "/ fail:", fail,")\n")
-
-			} #for(i in 1:nrow(d))
-			dbCommit(db$db)
-			start<-start+num_records
-
-		    } #while(TRUE)
-
-		    #end loop
+}
 
 
-		    cat("CreateNSVTable: Read", ok+fail, "entries. Added", ok , "entries.\n")
-
-		}
-
-
-		dropNSVTable <-  function(db, table) {
-		    dbSendQuery(db$db,
-			    statement = paste("DROP TABLE ", table, sep='')
-			    )
-		    dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name='", table,"'",sep=''))
-		    dbCommit(db$db)
-		    invisible(NULL)
-		}
+dropNSVTable <-  function(db, table) {
+    dbSendQuery(db$db,
+	    statement = paste("DROP TABLE ", table, sep='')
+	    )
+    dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name='", 
+		    table,"'",sep=''))
+    dbCommit(db$db)
+    invisible(NULL)
+}
 
 getNSVs <- function(db,  rank=NULL, name=NULL, 
 	table="NSV", limit=NULL, random=FALSE, start=1, length=NULL,
