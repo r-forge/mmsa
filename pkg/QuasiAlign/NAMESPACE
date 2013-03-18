@@ -1,4 +1,5 @@
 importFrom("rEMM", "prune")
+#import(Biostrings)
 
 export( 
 	getModelDetails,
@@ -34,7 +35,6 @@ export(
 
 )
 
-#import(Biostrings)
 
 S3method(print, NSVSet)
 S3method(plot, NSVSet)
