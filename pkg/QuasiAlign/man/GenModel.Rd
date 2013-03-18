@@ -71,9 +71,12 @@ plot(model)
 
 ### look at sequence segments clustered in state 17
 getModelDetails(model, 17)
+
+### align sequences in state
+\dontrun{
 s <- getModelSequences(db, model, state = 17)
 s
-clustal(s)
+clustal(s)}
 
 nsv <- getModelSequences(db, model, state = 17, table="NSV")
 nsv
