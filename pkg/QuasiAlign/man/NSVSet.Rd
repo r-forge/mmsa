@@ -102,7 +102,7 @@ createNSVTable(db, table="NSV")
 db
 
 ### get NSVs for the first sequence
-s <- getNSVs(dng()b, table="NSV")
+s <- getNSVs(db, table="NSV")
 s
 
 ### select the first element (sequence)
