@@ -8,4 +8,4 @@ Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yah
 Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, quasi-alignment, comparison, and classification. This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
 Depends: BioTools, rEMM (>= 1.0-6), caTools, methods, foreach
-Suggests: caret, doMC
+Suggests: caret, doParallel
