@@ -43,8 +43,8 @@ findLargestCommon(model, limit=NULL)
 }
 
 \examples{
-db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
+
 model <- GenModelDB(db, rank="Gen", name="Syntro", table="NSV") 
 model
 
@@ -58,6 +58,5 @@ common <- findLargestCommon(model)
 
 ### clean up
 closeGenDB(db)
-unlink("example.sqlite")
 }
 %\keyword{model}

@@ -1,5 +1,6 @@
 importFrom("rEMM", "prune")
 import(Biostrings)
+import(BioTools)
 
 export( 
 	getModelDetails,

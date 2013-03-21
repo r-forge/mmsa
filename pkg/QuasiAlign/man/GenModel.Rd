@@ -59,8 +59,7 @@ getModelSequences(db, model, state, table="sequences")
 }
 \seealso{\code{\link[rEMM]{prune}} in package \pkg{rEMM}}
 \examples{
-db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 
 ### create a model for Genus Syntrophomonas
 model <- GenModelDB(db, rank="Genus", name="Syntrophomonas") 
@@ -90,6 +89,5 @@ scoreSequence(model, random_sequence)
 
 ### clean up
 closeGenDB(db)
-unlink("example.sqlite")
 }
 \keyword{model}

@@ -502,10 +502,8 @@ format in the database in a single step.
 The convenience function \func{processSequences} loads all FASTA
 files from a directory into the database and then converts them into NSVs.
 
-<<>>=
-library("doParallel")
-registerDoParallel()
 
+<<>>=
 db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 @
@@ -589,10 +587,14 @@ stores them in a directory specified by the \code{classifier_dir} parameter.
 
 The following command creates models for all phylums stored in the database and stores them in directory models (which is created first) 
 and places them in the subdirectory phylum.
-<<trainClassifier>>=
+
+%%% R CMD check chokes up with multicore
+<<eval=false>>=
 library("doParallel")
 registerDoParallel()
+@
 
+<<trainClassifier>>=
 db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 db
 
@@ -662,10 +664,16 @@ removeGenClassifier(classifier)
 @
 
 \subsection{Assessing classification accuracy}
-<<accuracy>>=
-library("caret")
+
+%%% R CMD check chokes up with multicore
+<<eval=false>>=
 library("doParallel")
 registerDoParallel()
+@
+
+<<accuracy>>=
+library("QuasiAlign")
+library("caret")
 
 db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 nSequences(db)
@@ -687,7 +695,7 @@ testn
 pred <- predict(classifier, testn)
 
 true <- getRank(db, rank="phylum", whereRank="id", whereName=test)
-confusionMatrix(pred$class, true)
+#confusionMatrix(pred$class, true)
 @
 
 <<>>=

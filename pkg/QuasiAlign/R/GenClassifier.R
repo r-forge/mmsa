@@ -57,28 +57,33 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
 
     #get All ranks
     rankNames <- getRank(db, rank)
-    
+
+
     # handle selection (only use sequences in correct rank)
     if(!is.null(selection))
 	selRnkName <- getRank(db, rank=rank, whereRank="id", 
 	    whereName=selection)
+    
 
-    i <- 1  ### FIXME: otherwise R check complains about missing global binding 
+    i <- 1  ### FIXME: otherwise R CMD check complains about missing global binding 
     foreach (i = 1:length(rankNames)) %dopar% {
-	db <- reopenGenDB(db) ### so multicore does not complain
+	dbl <- reopenGenDB(db) ### reopen for multicore
+	
 	n <- rankNames[i]
+	sel <- selection
 
 	# only use selected sequences in model
 	if(!is.null(selection)) {
-	    selection <- selection[selRnkName==n]  
+	    sel <- sel[selRnkName==n]  
 	    rn <- NULL
-	}else rn <- n
+	} else rn <- n
 
-	emm <- GenModelDB(db, table=table, rank, name=rn,
-		selection=selection, limit=limit, ...)
+	emm <- GenModelDB(dbl, rank=rank, name=rn, table=table,
+		selection=sel, limit=limit, ...)
 	
 	n<-gsub("/","",n)
 	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
+	closeGenDB(dbl)
     }
 
     GenClassifier(classifier_dir)

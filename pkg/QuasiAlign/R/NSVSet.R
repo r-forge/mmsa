@@ -72,12 +72,14 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	stop("A table with this name already exists in the db")
     
     NSV <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
-    try(
+    tr <- try(
 	    dbSendQuery(db$db, 
 		    statement = paste("CREATE TABLE ", table,
 			    "(",  NSV,  ")", sep='')
 		    )
 	    )
+    
+    if(is(tr, "try-error")) stop("Unable to create table ", table)
     
     # insert into metadata
     meta<-paste("'", table, "','NSV','rank=", rank, ";name=",
@@ -89,8 +91,7 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 			    meta,  ")", sep='')
 		    )
 	    )	
-   
-
+    
     ## number of sequences
     n <- nSequences(db, rank, name, "sequences")
     if(n<1) {
@@ -111,18 +112,19 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	ok <- 0
 	fail <- 0
 	total <- 0
-	db <- reopenGenDB(db)
 	
-	s <- getSequences(db, rank, name, table="sequences",
+	dbl <- reopenGenDB(db)
+	
+	s <- getSequences(dbl, rank, name, table="sequences",
 		limit=c(start, block))
 	n <- createNSVSet(s,  window, overlap, word, last_window, allOffsets)
 	n <- lapply(n, FUN=function(x) base64encode(serialize(x, NULL)))
 
-	##dbBeginTransaction(db$db) ### no concurrent transactions
+	##dbBeginTransaction(dbl$db) ### no concurrent transactions
 	for(i in 1:length(n)) {
 	    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
 	    tr <- try(
-		    dbSendQuery(db$db,          
+		    dbSendQuery(dbl$db,          
 			    statement = paste("INSERT INTO ", table,
 				    " VALUES (", dat, ")", sep=''))
 		    )
@@ -131,9 +133,9 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	    else fail <- fail+1
 	    total <- total+1
 	}
-	##dbCommit(db$db) 
+	##dbCommit(dbl$db) 
 
-	closeGenDB(db) ### this does not close the main db!
+	closeGenDB(dbl) ### this does not close the main db!
 	c(ok, fail, total)
     }
     #end loop
@@ -225,7 +227,20 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	length, partialMatch, removeUnknownSpecies, 
 	annotation)
 }
-					    
+
+# reads all fasta files in a directory into a db and 
+# creates NSV table with all sequences
+processSequences <- function(dir, db, metaDataReader=GreengenesMetaDataReader,
+	...) {
+    for(f in dir(dir, full.names=TRUE))
+    {
+	cat("Processing file: ",f,"\n")
+	addSequences(db, f, metaDataReader=metaDataReader)
+    }
+
+    createNSVTable(db, "NSV", ...)
+}
+
 ## helper
 decodeSequence <- function(sequence) {
     if(length(sequence)==1) unserialize(base64decode(sequence, what="raw"))

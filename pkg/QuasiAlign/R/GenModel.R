@@ -30,6 +30,8 @@ GenModel <- function(x, rank=NULL, name = NULL,
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
 	measure="Manhattan", threshold=30, 
 	selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE) {
+    
+    rank <- BioTools:::.pmatchRank(db, rank)
 
     if(random && !is.null(selection)) 
 	stop("Cannot use random and selection!")
@@ -46,18 +48,18 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 
     #get metadata about the table
     meta <- subset(metaGenDB(db),name==table)[1, "annotation"]
-    x<-unlist(strsplit(meta,";"))	
-    window <-as.integer(sub("window=","",x[3]))
+    x <- unlist(strsplit(meta,";"))	
+    window <- as.integer(sub("window=","",x[3]))
     overlap <- as.integer(sub("overlap=","",x[4]))
     word <- as.integer(sub("word=","",x[5]))
     last_window <- as.logical(sub("last_window=","",x[6]))	
 
-    if(is.null(selection))
+    if(is.null(selection)) {
 	nSequences <- nSequences(db, rank, name, table=table)
-    else 
+	if (!is.null(limit)) nSequences <- min(nSequences,limit)  
+    } else {
 	nSequences <- length(selection)
-    
-    if (!is.null(limit)) nSequences <- min(nSequences,limit)  
+    }
     
     #clusterinfo stores the last_clustering details
     clusterInfo <- list(nSequences)
@@ -69,9 +71,6 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     }
   
 
-    # Kullback can not handle 0 counts!
-    if(measure=="Kullback") d <- d + 1
-
     #emm
     emm <- EMM(measure=measure,threshold=threshold)
 
@@ -81,69 +80,59 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	name <- allRanks[pmatch(name,allRanks)]
 	cat("GenModel: Creating model for ",rank,": ",
 		paste(name, collapse=",") ,"\n",sep="")
-
-	i<-0
-	total<-0
-	while(i<nSequences){
-	    #get 100 sequences at a time
-	    d <- getNSVs(db, rank, name, table, limit=c(i,100))
-	    ids <- names(d)
-	    d <- .make_stream(d)
-	    #get actual number of sequences
-	    build(emm, d)
-	    l <- last_clustering(emm)
-	    clusterInfo <- .getClusterInfo(clusterInfo, l, i)
-	    names(clusterInfo)[(i+1):(i+length(ids))] <- ids
-
-	    reset(emm) ### make sure there is a NA here
-
-	    #update value of i 
-	    i <- i + length(ids)
-	    cat("GenModel: Processed",i,"sequences\n")
-	}
-    
-    } else {  # with selection
-	cat("GenModel: Creating model for selection\n",sep="")
-
-	d <- getNSVs(db, rank="id", name=selection, table, limit=limit)
-	ids <- names(d)
-
-	if (length(d)==0) stop("GenModel called with 0 sequences")
-
-	d <- .make_stream(d)
-	build(emm, d)
-
-	l <- last_clustering(emm)
-	clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-	names(clusterInfo) <- ids
-	reset(emm)
-	nSequences <- length(selection)
-	cat("GenModel: Processed ",nSequences ," sequences\n")
     }
 
-    rank <- BioTools:::.pmatchRank(db, rank)
+    i<-0
+    total<-0
+    while(i<nSequences){
+	
+	#get 100 sequences at a time
+	if(is.null(selection))
+	    d <- getSequences(db, rank, name, table=table, limit=c(i,100))
+	else	
+	    d <- getSequences(db, rank="id", name=selection, 
+		table=table, limit=c(i,100))
+    
+	
+	ids <- names(d)
+	d <- .make_stream(d)
+	
+	# Kullback can not handle 0 counts!
+	if(measure=="Kullback") d <- d + 1
+	
+	#get actual number of sequences
+	build(emm, d)
+	l <- last_clustering(emm)
+	clusterInfo <- .getClusterInfo(clusterInfo, l, i)
+	names(clusterInfo)[(i+1):(i+length(ids))] <- ids
+
+	reset(emm) ### make sure there is a NA here
+
+	#update value of i 
+	i <- i + length(ids)
+	cat("GenModel: Processed",i,"sequences\n")
+    }
+
 
     if(!is.null(name) && !is.null(rank)) {
-      hierarchy <- getHierarchy(db, rank, name)
-      if (length(name) > 1)
-      hierarchy <- as.data.frame(hierarchy)
-      rankName <- hierarchy[rank]
+	hierarchy <- getHierarchy(db, rank, name)
+	if (length(name) > 1)
+	    hierarchy <- as.data.frame(hierarchy)
+	rankName <- hierarchy[rank]
     }else{
-      rankName <- NA
-      hierarchy <- NA
+	rankName <- NA
+	hierarchy <- NA
     }
 
-    
-    
     genModel <- list(name=rankName, rank=rank, 
 	    nSequences=nSequences, model=emm, 
 	    hierarchy=hierarchy, measure=measure, threshold=threshold, 
 	    window=window, word=word, overlap=overlap, 
 	    last_window=last_window)
+    
     if (showClusterInfo) genModel$clusterInfo <- clusterInfo
     class(genModel) <- "GenModel"	
     
-    rm(db)
     genModel		
 }
 
@@ -254,20 +243,4 @@ recluster <- function(x, method=recluster_kmeans, ...) {
     ### FIXME: Is there something to fix in x
     x
 }
-
-
-
-# reads all fasta files in a directory into a db and 
-# creates NSV table with all sequences
-processSequences <- function(dir, db, metaDataReader=GreengenesMetaDataReader,
-	...) {
-    for(f in dir(dir, full.names=TRUE))
-    {
-	cat("Processing file: ",f,"\n")
-	addSequences(db, f, metaDataReader=metaDataReader)
-    }
-
-    createNSVTable(db, "NSV", ...)
-}
-
 

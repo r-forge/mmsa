@@ -110,8 +110,7 @@ where
     \code{\link[rEMM]{score}} in \pkg{rEMM}.
  }
 \examples{
-db<-createGenDB("example.sqlite")
-processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
+db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 
 ### create a model for Genus Syntrophomonas
 model <- GenModelDB(db, rank="Genus", name="Syntrophomonas", table="NSV")
@@ -127,6 +126,5 @@ scoreSequence(model, random_sequence, method ="product", plus_one=TRUE)
 
 ### clean up
 closeGenDB(db)
-unlink("example.sqlite")
 }
 \keyword{model}

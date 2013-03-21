@@ -98,11 +98,12 @@ addSequences(db,
 	package="QuasiAlign"))
 
 ## add the table with the counts for all sequences in the GenDB
-createNSVTable(db, table="NSV")
+## we convert ony 5 sequences (limit) to save time
+createNSVTable(db, table="NSV", limit=10)
 db
 
 ### get NSVs for the first sequence
-s <- getNSVs(db, table="NSV")
+s <- getSequences(db, table="NSV", limit=5)
 s
 
 ### select the first element (sequence)
