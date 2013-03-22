@@ -1,5 +1,8 @@
 modelStatesPlot <- function (model, states=NULL, numStates=5, ylab=TRUE, ...)
 {
+		if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+			    stop("Model needs to be built with saveClusterInfo=TRUE!")
+    
 		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
 		xrange <- max(sapply(model$clusterInfo, length))*window
@@ -66,6 +69,8 @@ modelStatesPlot <- function (model, states=NULL, numStates=5, ylab=TRUE, ...)
 
 modelStatesBarPlot <- function(model, ...)
 {
+		if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+			    stop("Model needs to be built with saveClusterInfo=TRUE!")
 
 		ci <- model$clusterInfo
 		#min is the largest number of segments in any sequence
@@ -99,6 +104,8 @@ modelStatesBarPlot <- function(model, ...)
 
 modelStatesLinePlot <- function(model, title=TRUE, ...)
 {
+		if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+			    stop("Model needs to be built with saveClusterInfo=TRUE!")
 		window <- as.integer(model$window)
 		#xrange is the max number of windows from all the sequences
 		xrange <- min(sapply(model$clusterInfo, length))*window
@@ -164,6 +171,8 @@ modelStatesLinePlot <- function(model, title=TRUE, ...)
 
 compareSequences <- function(model, sequences, ...)
 {
+		if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+			    stop("Model needs to be built with saveClusterInfo=TRUE!")
 		#xrange is the max number of windows from all the sequences
 		xrange <- max(sapply(model$clusterInfo, FUN=function(x) length(x)))
 		#yrange is the number of sequences
@@ -228,6 +237,8 @@ compareSequences <- function(model, sequences, ...)
 
 findLargestCommon <- function(model, limit=NULL)
 {
+		if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+			    stop("Model needs to be built with saveClusterInfo=TRUE!")
 	largestCommon <- list()
 	ci <- model$clusterInfo
 	if(!is.null(limit)) 

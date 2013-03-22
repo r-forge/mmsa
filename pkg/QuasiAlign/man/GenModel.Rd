@@ -13,10 +13,12 @@ GenModel models sequences by clusters of similar NSVs and the transition
 information between the clusters.
 }
 \usage{
-GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, showClusterInfo=TRUE)
+GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30, 
+    saveClusterInfo=FALSE)
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
-    threshold=30, selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE)
+    threshold=30, selection=NULL, limit=NULL, random=FALSE, 
+    saveClusterInfo=FALSE)
 
 getModelDetails(model, state=NULL, db=NULL)
 getModelSequences(db, model, state, table="sequences")
@@ -35,7 +37,7 @@ getModelSequences(db, model, state, table="sequences")
 	\item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account.} 
 	\item{model}{GenModel object returned by the GenModel and GenModelDB classes.} 
 	\item{state}{state in the model about which details are required.} 
-	\item{showClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
+	\item{saveClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
 	\item{random}{Used to select a random sample from the DB. Should be used for small selections.} 
 
 	\item{...}{arguments passed on to the next method. For \code{prune}
@@ -43,26 +45,29 @@ getModelSequences(db, model, state, table="sequences")
 	The most important parameter is \code{count_threshold}. All
 	clusters with a count of less or equal the threshold are pruned.}
 }
-\value{
-	{\code{GenModel()}, \code{GenModelDB()} and \code{prune} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).}
-	{\code{getModelDetails()} returns a list of states with the id of sequences in each state \code{getModelSequences()} returns a list of sequences in the model state specified by the modelState paramter.}
 
-}
 \details{
 	genModel group of functions are  used after a gene sequence has been
 	converted to NSV format.  After creating the model,
 	\code{getModelDetails} and \code{getModelSequences} can be
-	used to obtain meta information. 
+	used to obtain meta information. Note that for using these two functions the model needs to be built with \code{saveClusterInformation=TRUE}.
 
 	Also a plot function is provided for GenModel. Additional parameters
 	are passed on to plot in package \pkg{rEMM}.
+}
+\value{
+\code{GenModel()}, \code{GenModelDB()} and \code{prune} return an object of class GenModel (a list  containing the model, rank, rankName, and number of sequences used in creating the model).
+
+\code{getModelDetails()} returns a list of states with the id of sequences in each state \code{getModelSequences()} returns a list of sequences in the model state specified by the modelState parameter. 
+
 }
 \seealso{\code{\link[rEMM]{prune}} in package \pkg{rEMM}}
 \examples{
 db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 
 ### create a model for Genus Syntrophomonas
-model <- GenModelDB(db, rank="Genus", name="Syntrophomonas") 
+model <- GenModelDB(db, rank="Genus", name="Syntrophomonas", 
+    saveClusterInfo=TRUE) 
 model
 
 plot(model)

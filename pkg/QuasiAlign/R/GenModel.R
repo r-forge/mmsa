@@ -1,35 +1,31 @@
 GenModel <- function(x, rank=NULL, name = NULL, 
 	measure="Manhattan", threshold=30, 
-	showClusterInfo=TRUE) {
+	saveClusterInfo=FALSE) {
 
     d <- .make_stream(x)
-    clusterInfo <- list(length(x))
-    
     if(measure=="Kullback") d <- d + 1
 
     emm <- EMM(measure=measure,threshold=threshold)
     build(emm, d)
     
-    l<-last_clustering(emm)
+    ### cluster info
+    if (saveClusterInfo) clusterInfo <- clusterInfo <- .getClusterInfo(list(), 
+	    last_clustering(emm), attr(x,"id"), 0)
+    else clusterInfo <- NA
 
-    clusterInfo <- .getClusterInfo(clusterInfo,l,0)
-    names(clusterInfo) <- attr(x,"id")
-    genModel <- list(name=name, rank=rank, nSequences=length(x),
+    structure(list(name=name, rank=rank, nSequences=length(x),
 	    model=emm, measure=measure, threshold=threshold, 
-	    window=attr(x,"window"), word=attr(x,"word"), 
+	    window=attr(x,"window"), 
+	    word=attr(x,"word"), 
 	    overlap=attr(x,"overlap"),
-		last_window=attr(x,"last_window"))
-
-    if (showClusterInfo) genModel$clusterInfo <- clusterInfo
-    
-    class(genModel) <- "GenModel"	
-    genModel		
+	    last_window=attr(x,"last_window"),
+	    clusterInfo=clusterInfo), class="GenModel")
 }
 
 # creates an model from sequences in the db 
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
 	measure="Manhattan", threshold=30, 
-	selection=NULL, limit=NULL, random=FALSE, showClusterInfo=TRUE) {
+	selection=NULL, limit=NULL, random=FALSE, saveClusterInfo=FALSE) {
     
     rank <- BioTools:::.pmatchRank(db, rank)
 
@@ -46,13 +42,6 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     #if (meta$type[index]!="NSV")
     #	stop("Not an NSV table")
 
-    #get metadata about the table
-    meta <- subset(metaGenDB(db),name==table)[1, "annotation"]
-    x <- unlist(strsplit(meta,";"))	
-    window <- as.integer(sub("window=","",x[3]))
-    overlap <- as.integer(sub("overlap=","",x[4]))
-    word <- as.integer(sub("word=","",x[5]))
-    last_window <- as.logical(sub("last_window=","",x[6]))	
 
     if(is.null(selection)) {
 	nSequences <- nSequences(db, rank, name, table=table)
@@ -61,8 +50,6 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	nSequences <- length(selection)
     }
     
-    #clusterinfo stores the last_clustering details
-    clusterInfo <- list(nSequences)
     
     #check for random (selection is NULL)
     if(random) {   
@@ -82,16 +69,22 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 		paste(name, collapse=",") ,"\n",sep="")
     }
 
+    #clusterinfo stores the last_clustering details
+    if(saveClusterInfo) clusterInfo <- list(nSequences)
+    else clusterInfo <- NA
+
+    # loop
     i<-0
     total<-0
     while(i<nSequences){
 	
 	#get 100 sequences at a time
+	toGet <- min(100, nSequences-i) 
 	if(is.null(selection))
-	    d <- getSequences(db, rank, name, table=table, limit=c(i,100))
+	    d <- getSequences(db, rank, name, table=table, limit=c(i,toGet))
 	else	
 	    d <- getSequences(db, rank="id", name=selection, 
-		table=table, limit=c(i,100))
+		table=table, limit=c(i,toGet))
     
 	
 	ids <- names(d)
@@ -102,9 +95,11 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	
 	#get actual number of sequences
 	build(emm, d)
-	l <- last_clustering(emm)
-	clusterInfo <- .getClusterInfo(clusterInfo, l, i)
-	names(clusterInfo)[(i+1):(i+length(ids))] <- ids
+    
+	if(saveClusterInfo) 
+	    clusterInfo <- .getClusterInfo(clusterInfo,
+		last_clustering(emm), ids, i)
+
 
 	reset(emm) ### make sure there is a NA here
 
@@ -123,6 +118,14 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	rankName <- NA
 	hierarchy <- NA
     }
+    
+    #get metadata about the table
+    meta <- subset(metaGenDB(db),name==table)[1, "annotation"]
+    meta <- sapply(unlist(strsplit(meta,";")), strsplit, "=")	
+    window <- as.integer(meta$window[2])
+    overlap <- as.integer(meta$overlap[2])
+    word <- as.integer(meta$word[2])
+    last_window <- as.logical(meta$last_window[2])	
 
     genModel <- list(name=rankName, rank=rank, 
 	    nSequences=nSequences, model=emm, 
@@ -130,7 +133,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 	    window=window, word=word, overlap=overlap, 
 	    last_window=last_window)
     
-    if (showClusterInfo) genModel$clusterInfo <- clusterInfo
+    if (saveClusterInfo) genModel$clusterInfo <- clusterInfo
     class(genModel) <- "GenModel"	
     
     genModel		
@@ -140,6 +143,9 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
 #	By default, returns all states as a list, if a modelState is specified. returns only the sequences that are part of that state
 getModelDetails <- function(model, state=NULL, db=NULL)
 {	
+    if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+	stop("Model needs to be built with saveClusterInfo=TRUE!")
+    
     rank = model$rank 
     if(!is.null(state)) {
 	occ <- lapply(model$clusterInfo, FUN=function(y) which(y==state))
@@ -176,6 +182,9 @@ getModelDetails <- function(model, state=NULL, db=NULL)
 #
 getModelSequences <- function(db, model, state, table="sequences")
 {	
+    if(is.null(model$clusterInfo) || is.na(model$clusterInfo))
+	stop("Model needs to be built with saveClusterInfo=TRUE!")
+    
     #get the ids that are part of the model state as a list
     ids<-getModelDetails(model, state, db)
 
@@ -194,7 +203,7 @@ getModelSequences <- function(db, model, state, table="sequences")
 }
 
 #takes a model and returns the clusterInfo i.e. how many states and which sequence goes to which cluster
-.getClusterInfo <- function(clusterInfo, last_clustering, offset)
+.getClusterInfo <- function(clusterInfo, last_clustering, ids, offset)
 {
     #states are separated by NAs, so get position of NAs
     startStates <- which(is.na(last_clustering))
@@ -206,9 +215,13 @@ getModelSequences <- function(db, model, state, table="sequences")
 	    end<-length(last_clustering)
 	else
 	    end<-startStates[j+1]-1
+	
 	clusterInfo[[offset+j]]<-as.integer(last_clustering[start:end])
     }
-    return(clusterInfo) 
+   
+    names(clusterInfo)[(offset+1):(offset+length(ids))] <- ids
+    
+    return(clusterInfo)
 }
 
 ### print basic info about a model

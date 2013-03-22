@@ -693,8 +693,13 @@ testn <- getSequences(db, rank="id", name=test, table="NSV")
 testn
 
 pred <- predict(classifier, testn)
+pred
 
 true <- getRank(db, rank="phylum", whereRank="id", whereName=test)
+true
+
+table(pred$class, true)
+
 #confusionMatrix(pred$class, true)
 @
 
@@ -704,13 +709,15 @@ removeGenClassifier(classifier)
 
 \subsection{Visualizing Sequences and NSVs}
 One of the unique advantages of QuasiAlign is that it is able to cluster similar sequences very rapidly and accurately as compared to other methods such as multiple sequence alignment.
-In this section, we will show how QuasiAlign can be used to plot sequences and visualize similar portions or segments of sequences. Since we already have clusters and associated sequence details available as metadata information in the model, visualization is extremely fast and rapid. Thus it is a very powerful and efficient alternative to multiple sequence alignment. It can provide a visual clue about similar portions of sequences or areas of a sequence which are highly conserved across species.
+In this section, we will show how QuasiAlign can be used to plot sequences and visualize similar portions or segments of sequences. Additional clustering information is stored if the model is build with \code{saveClusterInfo=TRUE}.
+The stored information allows us to visualize alignment information between multible sequences extremely quickly.
+Thus it is a very powerful and efficient alternative to multiple sequence alignment. It can provide a visual clue about similar portions of sequences or areas of a sequence which are highly conserved across species.
 
 Each model has associated metadata which gives a list of sequences. Each list contains a vector of states to which the corresponding segments are classified to.
 Here is an example:
 
 <<>>=
-model <- GenModelDB(db, rank="Gen", name="Syntro")
+model <- GenModelDB(db, rank="Gen", name="Syntro", saveClusterInfo=TRUE)
 model$clusterInfo
 @
 
