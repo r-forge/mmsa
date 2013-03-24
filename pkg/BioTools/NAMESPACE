@@ -22,6 +22,10 @@ export(
 	### BLAST
 	BLAST,
 
+	### boxshade
+	boxshade,
+	boxshade_help,
+
 	### visualizations for BioStrings
 	plot.DNAStringSet,
 	plot.DNAMultipleAlignment,
