@@ -18,7 +18,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-.findExecuable <- function(exe) {
+.findExecutable <- function(exe) {
     path <- Sys.which(exe)
     if(all(path=="")) stop("Executable for ", paste(exe, collapse=" or "), " not found!", call.=FALSE)
     

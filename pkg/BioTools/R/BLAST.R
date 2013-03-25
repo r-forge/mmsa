@@ -36,7 +36,7 @@ BLAST <- function(x, db=NULL, BLAST_args="") {
 
     writeXStringSet(x, infile, append=FALSE, format="fasta")
 
-    system(paste(.findExecuable("blastn"), "-db", db,
+    system(paste(.findExecutable("blastn"), "-db", db,
 		    "-query", infile, "-out", outfile, "-outfmt 6", BLAST_args))
 
     ## read and parse rdp output

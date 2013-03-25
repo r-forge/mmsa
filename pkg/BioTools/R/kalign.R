@@ -35,7 +35,7 @@ kalign <- function(x, param=NULL) {
     writeXStringSet(x, infile, append=FALSE, format="fasta")
 
     ## call clustalw (needs to be installed and in the path!)
-    system(paste(.findExecuable("kalign"), infile, outfile, "-f fasta", param))
+    system(paste(.findExecutable("kalign"), infile, outfile, "-f fasta", param))
 
     if(is(x, "DNAStringSet")) 
 	r <- readDNAMultipleAlignment(outfile, format="fasta")
@@ -47,6 +47,6 @@ kalign <- function(x, param=NULL) {
 }
 
 kalign_help <- function() {
-    system(paste(.findExecuable("kalign"), "-h"))
+    system(paste(.findExecutable("kalign"), "-h"))
 }
 

@@ -17,10 +17,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-boxshade <- function(x, file, dev="ps", param="-thr=0.5 -cons -ruler -def") {
+boxshade <- function(x, file, dev="pdf", param="-thr=0.5 -cons -ruler -def",
+	pdfCrop=TRUE) {
     devs <- c(ps=1, eps=2, hpgl=3, rtf=4, crt=5, ansi=6, vt=7,
 	    ascii="b", fig="c", pict="d", html="e")
 
+    dev <- tolower(dev)
+    
+    ## pdf?
+    if(dev == "pdf") {
+	pdf <- TRUE
+	if(pdfCrop) dev <- "eps"
+	else dev <- "ps"
+    } else pdf <- FALSE
+    
     if(dev %in% names(devs)) dev <- devs[[dev]]
 
     ## get temp files and change working directory
@@ -35,14 +45,23 @@ boxshade <- function(x, file, dev="ps", param="-thr=0.5 -cons -ruler -def") {
     write.phylip(x, filepath=infile)
 
     ## call boxshade (needs to be installed and in the path!)
-    system(paste(.findExecuable(c("boxshade", "box")), 
+    system(paste(.findExecutable(c("boxshade", "box")), 
 		    " -in=", infile, " -type=5",
 		    " -out=", file, " -dev=", dev, 
 		    param, sep=""))
+
+    if(pdf) {
+	file.rename(file, temp_file)
+	system(paste(.findExecutable(c("ps2pdf")), 
+			if(pdfCrop) "-dEPSCrop" else "", 
+			temp_file, file))  
+	unlink(temp_file)
+    }
+
 }
 
 boxshade_help <- function() {
-    system(paste(.findExecuable(c("boxshade", "box")), 
+    system(paste(.findExecutable(c("boxshade", "box")), 
 		    "-help"))
 }
 
