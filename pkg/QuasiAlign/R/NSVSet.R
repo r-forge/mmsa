@@ -105,13 +105,17 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	n <- limit
     } 
 
-    ### process 50 sequences on each core
-    block <- 50
+    ### process block sequences on each core
+    block <- 100
     
+    ### so we write the result to file and then read it back
+    tmp_dir <- paste(db$dbName, "_chunks", sep="")
+    dir.create(tmp_dir)
+
     res <- foreach(start=seq(0, n-1, by=block), .combine=rbind) %dopar% {
-	ok <- 0
-	fail <- 0
-	total <- 0
+#	ok <- 0
+#	fail <- 0
+#	total <- 0
 	
 	dbl <- reopenGenDB(db)
 	
@@ -120,32 +124,54 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	n <- createNSVSet(s,  window, overlap, word, last_window, allOffsets)
 	n <- lapply(n, FUN=function(x) base64encode(serialize(x, NULL)))
 
-	##dbBeginTransaction(dbl$db) ### no concurrent transactions
-	for(i in 1:length(n)) {
-	    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
-	    tr <- try(
-		    dbSendQuery(dbl$db,          
-			    statement = paste("INSERT INTO ", table,
-				    " VALUES (", dat, ")", sep=''))
-		    )
-	    
-	    if(!is(tr, "try-error")) ok <- ok+1
-	    else fail <- fail+1
-	    total <- total+1
-	}
-	##dbCommit(dbl$db) 
+	### concurrent write does not work for SQLite
+	### so we write the result to file and then read it back
+
+	### wait till we get a lock
+	#while(!dbBeginTransaction(dbl$db)) Sys.sleep(1)
+	#for(i in 1:length(n)) {
+	#    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
+	#    tr <- try(
+	#		    dbSendQuery(dbl$db,          
+	#			    statement = paste("INSERT INTO ", table,
+	#			    " VALUES (", dat, ")", sep=''))
+	#	    )
+	#    
+	#    if(!is(tr, "try-error")) ok <- ok+1
+	#    else fail <- fail+1
+	#    total <- total+1
+	#}
+	#dbCommit(dbl$db) 
+
+	n <- data.frame(id=I(names(s)), data=I(unlist(n)))
+	#    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
+	saveRDS(n, file=file.path(tmp_dir, start))
 
 	closeGenDB(dbl) ### this does not close the main db!
-	c(ok, fail, total)
+#	c(ok, fail, total)
+	nrow(n)
     }
     #end loop
+    
+    ### so we write the result to file and then read it back
+    ### write files sequential to db 
+    for(f in list.files(tmp_dir, full.names=TRUE)) {
+	n <- readRDS(file=f)
+	dbWriteTable(db$db, table, n, append = TRUE, row.names=FALSE)
+    }
+    unlink(tmp_dir, recursive=TRUE)
 
-    if(is.matrix(res)) res <- colSums(res)
-    names(res) <- c("ok", "fail", "total")
 
-    cat("CreateNSVTable: Read ", res["total"], " entries. Added ", 
-	    res["ok"] , " entries (",res["fail"]," failed).\n", sep="")
 
+#    if(is.matrix(res)) res <- colSums(res)
+#    names(res) <- c("ok", "fail", "total")
+     res <- sum(res)
+
+
+#    cat("CreateNSVTable: Read ", res["total"], " entries. Added ", 
+#	    res["ok"] , " entries (",res["fail"]," failed).\n", sep="")
+
+    cat("CreateNSVTable: Processed ", res, " sequences.\n", sep="") 
 }
 
 
