@@ -11,7 +11,7 @@ export(
 	createNSVSet,
 	createNSVTable,
 	dropNSVTable,
-	getNSVs,
+	#getNSVs,
 	
 	GenModel,
 	GenModelDB,

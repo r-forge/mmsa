@@ -618,10 +618,10 @@ model
 Once all models have been constructed, they can be used to score and classify
 new sequences. We can compare the new sequences against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
-Below, we use the \func{getNSVs} to get 5 random sequences from the NSV table and then score
+Below, we use the \func{getSequences} to get 5 random sequences from the NSV table and then score
 them against the model for ``Firmicutes'' using the function \func{scoreSequence}.
 <<>>=
-random_sequences <- getNSVs(db, table="NSV", limit=5, random=TRUE)
+random_sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
 random_sequences
 scoreSequence(model, random_sequences)
 @

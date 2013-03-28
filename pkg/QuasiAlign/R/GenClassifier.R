@@ -33,7 +33,9 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
 
     if(is(classifier_dir, "GenClassifier"))  
       classifier_dir  <- classifier_dir$classifier_dir
-    
+    else if(file.exists(classifier_dir)) 
+	stop("Directory/file exists! Choose a differnt directory!")
+
     ### make sure the directory is always lower case
     rank <- tolower(rank)
 
@@ -55,15 +57,12 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
     cat("TRUE", file=ff)
     close(ff)
 
-    #get All ranks
-    rankNames <- getRank(db, rank)
-
-
-    # handle selection (only use sequences in correct rank)
-    if(!is.null(selection))
-	selRnkName <- getRank(db, rank=rank, whereRank="id", 
+    #get rank names
+    if(is.null(selection))
+	rankNames <- getRank(db, rank)
+    else
+	rankNames <- getRank(db, rank=rank, whereRank="id", 
 	    whereName=selection)
-    
 
     i <- 1  ### FIXME: otherwise R CMD check complains about missing global binding 
     foreach (i = 1:length(rankNames)) %dopar% {

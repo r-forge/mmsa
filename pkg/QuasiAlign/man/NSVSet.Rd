@@ -3,7 +3,7 @@
 \alias{createNSVTable}
 \alias{createNSVSet}
 \alias{dropNSVTable}
-\alias{getNSVs}
+%\alias{getNSVs}
 \alias{getSequences}
 \alias{plot.NSVSet}
 \alias{c.NSVSet}
@@ -28,9 +28,9 @@ createNSVTable(db, table="NSV", rank=NULL, name=NULL,
 
 dropNSVTable(db, table)
 
-getNSVs(db,  rank=NULL, name=NULL,
-    table="NSV", limit=NULL, random=FALSE, start=1, length=NULL,
-    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
+#getNSVs(db,  rank=NULL, name=NULL,
+#    table="NSV", limit=NULL, random=FALSE, start=1, length=NULL,
+#    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
 
 getSequences(db,  rank=NULL, name=NULL,
     table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
@@ -73,12 +73,12 @@ processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
 	\code{dropNSVTable()} function drops the specified table 
 	from the database whose handle is provided as the first argument.	
 
-	NSVSets stored in a GenDB can be retrieved using \code{getNSVs} 
+	NSVSets stored in a GenDB can be retrieved using \code{getSequences} 
 	where table is
 	the name of the table used in \code{createNSVTable}.
-	For convenience we also provide a wrapper for 
-	\code{getSequences} which will return sequences or NSVs depending
-	on the given table.
+%	For convenience we also provide a wrapper for 
+%	\code{getSequences} which will return sequences or NSVs depending
+%	on the given table.
 
 	\code{plot} creates a barplot with the average p-mer counts
 	in the NSVSet.
