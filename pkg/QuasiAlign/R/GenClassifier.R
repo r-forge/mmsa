@@ -73,7 +73,7 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
 
 	# only use selected sequences in model
 	if(!is.null(selection)) {
-	    sel <- sel[selRnkName==n]  
+	    sel <- sel[rankNames==n]  
 	    rn <- NULL
 	} else rn <- n
 
