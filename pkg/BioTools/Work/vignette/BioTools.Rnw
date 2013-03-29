@@ -439,7 +439,7 @@ removeRDP(customRDP)
 
 \section{Sequence Retrieval with BLAST}
 
-<<eval=FALSE>>=
+<<>>=
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
         package="BioTools"))
 
@@ -447,9 +447,15 @@ seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
-## run BLAST (I have the NCBI database downloaded to ~/tmp/blast)
-cl <- BLAST(seq, db="~/tmp/blast/refseq_rna")
-cl[1:5, ]
+## load a BLAST database (replace db with the location + name of the BLAST DB)
+blast <- BLAST(db="~/tmp/blast/16SMicrobial")
+blast
+
+print(blast, info=TRUE)
+
+## query a sequence using BLAST
+cl <- predict(blast, seq[1,])
+cl[1:5,]
 @
 
 

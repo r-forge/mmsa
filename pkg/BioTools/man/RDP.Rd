@@ -5,7 +5,6 @@
 \alias{print.RDPClassifier}
 \alias{trainRDP}
 \alias{removeRDP}
-\alias{RDP_help}
 \alias{findAccuracy}
 \title{
 Ribosomal Database Project (RDP) Classifier for 16S rRNA
@@ -14,15 +13,15 @@ Ribosomal Database Project (RDP) Classifier for 16S rRNA
 Use the RDP classifier to classify 16S rRNA sequences.
 }
 \usage{
-RDP(classifier_dir = NULL)
+RDP(dir = NULL)
 \method{predict}{RDPClassifier}(object, newdata,
         confidence=.8, java_args="-Xmx1g", ...)
-trainRDP(x, classifier_dir="classifier", java_args="-Xmx1g")
+trainRDP(x, dir="classifier", java_args="-Xmx1g")
 removeRDP(object)
 findAccuracy(actual, predicted, rank)
 }
 \arguments{
-  \item{classifier_dir}{directory where the classifier information is stored.} 
+  \item{dir}{directory where the classifier information is stored.} 
   \item{object}{a RDPClassifier object.}
   \item{newdata}{new data to be classified as a DNAStringSet.}
   \item{confidence}{numeric; minimum confidence level for classification. Results with lower confidence are replaced by NAs. Set to 0 to disable.}
@@ -45,7 +44,7 @@ with the data for an existing classifier (created with \code{trainRDP()})
 can be supplied.
 
 \code{trainRDP()} creates a new classifier for the data in x and stores
-the classifier information in \code{classifier_dir}. The data in
+the classifier information in \code{dir}. The data in
 x needs to have annotations in the following format:
 
 "<Kingdom>;<Phylum>;<Class>;<Order>;<Family>;<Genus">

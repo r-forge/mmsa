@@ -21,6 +21,7 @@ export(
 
 	### BLAST
 	BLAST,
+	BLAST_help,
 
 	### boxshade
 	boxshade,
@@ -56,6 +57,9 @@ export(
 
 S3method(print, RDPClassifier)
 S3method(predict, RDPClassifier)
+
+S3method(print, BLAST)
+S3method(predict, BLAST)
 
 S3method(print, GenDB)
 

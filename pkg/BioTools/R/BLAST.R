@@ -17,9 +17,35 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-BLAST <- function(x, db=NULL, BLAST_args="") {
+BLAST  <- function(db = NULL) {
+    if(is.null(db)) stop("No BLAST database specified!")
+    db <- file.path(normalizePath(dirname(db)), basename(db))
+    if(length(Sys.glob(paste(db, "*", sep="")))<1) stop("BLAST database does not exit!")
 
-    if(is.null(db)) stop("Specify the database as argument db!")
+    structure(list(db = db), class="BLAST")
+}
+
+print.BLAST <- function(x, info=FALSE, ...) {
+    cat("BLAST Database\nLocation:", x$db, "\n")
+
+    if(info) {
+	out <- system(paste(.findExecutable("blastdbcmd"), "-db", x$db,
+			"-info"), intern=TRUE)
+	cat(paste(out, collapse="\n"))
+	cat("\n")
+    }
+}
+
+BLAST_help <- function() {
+    system(paste(.findExecutable(c("blastn")),
+		    "-help"))
+}
+
+
+predict.BLAST <- function(object, newdata, BLAST_args="", ...) {
+
+    db <- object$db
+    x <- newdata
 
     ## get temp files and change working directory
     wd <- tempdir()
@@ -47,4 +73,6 @@ BLAST <- function(x, db=NULL, BLAST_args="") {
     
     cl_tab
 }
+
+
 

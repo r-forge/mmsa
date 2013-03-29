@@ -138,14 +138,14 @@ addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader,
 		total <- total+1
 		if(verbose)
 		{	
-			if(total%%100 == 0) cat("Read", total, "entries (ok:", ok, 
+			if(total%%100 == 0) cat("Read", total, "sequences (ok:", ok, 
 				"/ fail:", fail,")\n")
 		}
 	}
 
     dbCommit(db$db)
     #close(f)
-    cat("Read", ok+fail, "entries. Added", ok , "entries.\n")
+    cat("Read", ok+fail, "sequences. Added", ok , "sequences.\n")
 }
 
 

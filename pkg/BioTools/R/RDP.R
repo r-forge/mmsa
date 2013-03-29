@@ -18,16 +18,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ### NULL is the default classifier
-RDP <- function(classifier_dir = NULL) {
-    if(!.isRDP(classifier_dir)) stop("Not a RDP classifier directory!")	
-    if(!is.null(classifier_dir)) 
-	classifier_dir <- normalizePath(classifier_dir)
+RDP <- function(dir = NULL) {
+    if(!.isRDP(dir)) stop("Not a RDP classifier directory!")	
+    if(!is.null(dir)) 
+	dir <- normalizePath(dir)
     
-    structure(list(classifier_dir = classifier_dir), class="RDPClassifier")
+    structure(list(dir = dir), class="RDPClassifier")
 }
 
 print.RDPClassifier <- function(x, ...) {
-    loc <- x$classifier_dir
+    loc <- x$dir
     if(is.null(loc)) loc <- "Default RDP classifier"
     cat("RDPClassifier\nLocation:", loc, "\n")
 }
@@ -35,7 +35,7 @@ print.RDPClassifier <- function(x, ...) {
 predict.RDPClassifier <- function(object, newdata, 
 	confidence=.8, java_args="-Xmx1g", ...) {
 
-    classifier <- object$classifier_dir
+    classifier <- object$dir
     x <- newdata
 
     ## check 
@@ -88,14 +88,14 @@ predict.RDPClassifier <- function(object, newdata,
     cl
 }
 
-trainRDP <- function(x, classifier_dir="classifier", java_args="-Xmx1g") 
+trainRDP <- function(x, dir="classifier", java_args="-Xmx1g") 
 {
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
-    if (file.exists("classifier_dir/")) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
+    if (file.exists(dir)) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
     
-    dir.create("classifier")
+    dir.create(dir)
 
-    writeXStringSet(x,file.path(classifier_dir,"train.fasta"))
+    writeXStringSet(x,file.path(dir,"train.fasta"))
     l<-strsplit(names(x),"Root;")
     annot<-sapply(l,FUN=function(x) x[2])
     h<-matrix(ncol=6,nrow=0)
@@ -137,26 +137,26 @@ trainRDP <- function(x, classifier_dir="classifier", java_args="-Xmx1g")
 	}
     }
     out<-apply(m,MARGIN=1,FUN=function(x) paste(x,collapse="*"))
-    write(out, file=file.path(classifier_dir,"train.txt"))
+    write(out, file=file.path(dir,"train.txt"))
     #create parsed training files
-    system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(classifier_dir,"train.txt"), file.path(classifier_dir,"train.fasta")," 1 version1 test ", classifier_dir),
+    system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(dir,"train.txt"), file.path(dir,"train.fasta")," 1 version1 test ", dir),
 	    ignore.stdout=TRUE, ignore.stderr=TRUE)
-    file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),classifier_dir)
+    file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),dir)
 
-    RDP(classifier_dir)
+    RDP(dir)
 }
 
 removeRDP <- function(object) {
     ### first check if it looks like a RDP directory!
-    if(!.isRDP(object$classifier_dir)) stop("The given RDPClassifier/directory does not look valid! Please remove the directory manually!")
+    if(!.isRDP(object$dir)) stop("The given RDPClassifier/directory does not look valid! Please remove the directory manually!")
 
 
-    unlink(object$classifier_dir, recursive=TRUE)
+    unlink(object$dir, recursive=TRUE)
 }
 
 
-.isRDP <- function(classifier_dir) is.null(classifier_dir) || 
-    file.exists(file.path(classifier_dir, "wordConditionalProbIndexArr.txt"))
+.isRDP <- function(dir) is.null(dir) || 
+    file.exists(file.path(dir, "wordConditionalProbIndexArr.txt"))
 
 
 
