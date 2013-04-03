@@ -18,10 +18,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ### NULL is the default classifier
-RDP <- function(dir = NULL) {
-    if(!.isRDP(dir)) stop("Not a RDP classifier directory!")	
-    if(!is.null(dir)) 
-	dir <- normalizePath(dir)
+RDP <- function(classifier_dir = NULL) {
+	if(!.isRDP(classifier_dir)) stop("Not a RDP classifier directory!")	
+    if(!is.null(classifier_dir)) 
+	classifier_dir <- normalizePath(classifier_dir)
     
     structure(list(dir = dir), class="RDPClassifier")
 }
@@ -93,12 +93,29 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
     if (file.exists(dir)) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
     
-    dir.create(dir)
-
-    writeXStringSet(x,file.path(dir,"train.fasta"))
+    dir.create(classifier_dir)
     l<-strsplit(names(x),"Root;")
     annot<-sapply(l,FUN=function(x) x[2])
-    h<-matrix(ncol=6,nrow=0)
+    removeIdx<-vector()
+	for(i in 1:length(x))
+	{
+		if(length(unlist(strsplit(annot[i],";")))<6 || grepl(";;",annot[i]) || grepl("unknown",annot[i]))
+			{
+				removeIdx<-c(removeIdx,i)
+			}
+	}
+	if(length(removeIdx)>0)
+	{ 
+		browser()
+		idsRemoved<-sapply(names(x),FUN=function(y) as.character(unlist(strsplit(y," "))[1]))
+		names(idsRemoved)<-NULL
+		idsRemoved<-idsRemoved[removeIdx]
+		x<-x[-removeIdx]
+		annot<-annot[-removeIdx]
+		cat("Warning ! Following sequences did not contain complete hierarchy information and have been removed :",idsRemoved,"\n")
+	}
+   	writeXStringSet(x,file.path(classifier_dir,"train.fasta"))
+	h<-matrix(ncol=6,nrow=0)
     colnames(h) <-c("Kingdom","Phylum","Class","Order","Family","Genus")
     for(i in 1:length(annot)) {h<-rbind(h,unlist(strsplit(annot[i],";"))[1:6])}
     m<-matrix(ncol=5,nrow=0)
@@ -139,8 +156,7 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
     out<-apply(m,MARGIN=1,FUN=function(x) paste(x,collapse="*"))
     write(out, file=file.path(dir,"train.txt"))
     #create parsed training files
-    system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(dir,"train.txt"), file.path(dir,"train.fasta")," 1 version1 test ", dir),
-	    ignore.stdout=TRUE, ignore.stderr=TRUE)
+	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(classifier_dir,"train.txt"), file.path(classifier_dir,"train.fasta")," 1 version1 test ", classifier_dir) ,ignore.stdout=TRUE, ignore.stderr=TRUE)
     file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),dir)
 
     RDP(dir)
