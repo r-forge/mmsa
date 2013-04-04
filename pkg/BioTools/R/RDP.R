@@ -106,7 +106,6 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
 	}
 	if(length(removeIdx)>0)
 	{ 
-		browser()
 		idsRemoved<-sapply(names(x),FUN=function(y) as.character(unlist(strsplit(y," "))[1]))
 		names(idsRemoved)<-NULL
 		idsRemoved<-idsRemoved[removeIdx]
