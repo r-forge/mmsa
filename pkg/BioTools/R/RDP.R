@@ -23,7 +23,7 @@ RDP <- function(classifier_dir = NULL) {
     if(!is.null(classifier_dir)) 
 	classifier_dir <- normalizePath(classifier_dir)
     
-    structure(list(dir = dir), class="RDPClassifier")
+    structure(list(dir = classifier_dir), class="RDPClassifier")
 }
 
 print.RDPClassifier <- function(x, ...) {
@@ -88,35 +88,42 @@ predict.RDPClassifier <- function(object, newdata,
     cl
 }
 
-trainRDP <- function(x, dir="classifier", java_args="-Xmx1g") 
+trainRDP <- function(x, classifier_dir="classifier", java_args="-Xmx1g") 
 {
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
-    if (file.exists(dir)) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
+    if (file.exists(classifier_dir)) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
     
     dir.create(classifier_dir)
     l<-strsplit(names(x),"Root;")
-    annot<-sapply(l,FUN=function(x) x[2])
-    removeIdx<-vector()
-	for(i in 1:length(x))
+    # annot is the hierarchy starting from kingdom down to genus  
+	annot<-sapply(l,FUN=function(x) x[2])
+    #removeIdx<-vector()
+	browser()
+	removeIdx <- as.integer(sapply(annot, FUN=function(y) { if(length(unlist(strsplit(y,";")))<6 || grepl(";;",y) || grepl("unknown",y)) 1 else 0}))
+	#for(i in 1:length(x))
+	#{
+	#	if(length(unlist(strsplit(annot[i],";")))<6 || grepl(";;",annot[i]) || grepl("unknown",annot[i]))
+	#		{
+	#			removeIdx<-c(removeIdx,i)
+	#		}
+	#}
+	
+	if(length(which(removeIdx==1))>0)
 	{
-		if(length(unlist(strsplit(annot[i],";")))<6 || grepl(";;",annot[i]) || grepl("unknown",annot[i]))
-			{
-				removeIdx<-c(removeIdx,i)
-			}
-	}
-	if(length(removeIdx)>0)
-	{ 
-		idsRemoved<-sapply(names(x),FUN=function(y) as.character(unlist(strsplit(y," "))[1]))
-		names(idsRemoved)<-NULL
-		idsRemoved<-idsRemoved[removeIdx]
+		removeIdx <- which(removeIdx==1)
+		#get greengenes ids to be removed
+		idsRemoved<-as.character(sapply(names(x),FUN=function(y) as.character(unlist(strsplit(y," "))[1])))[removeIdx]
+		#names(idsRemoved)<-NULL
+		#idsRemoved<-idsRemoved[removeIdx]
 		x<-x[-removeIdx]
 		annot<-annot[-removeIdx]
 		cat("Warning ! Following sequences did not contain complete hierarchy information and have been removed :",idsRemoved,"\n")
 	}
+	if (length(x) <=0) stop("No sequences with complete information found")
    	writeXStringSet(x,file.path(classifier_dir,"train.fasta"))
 	h<-matrix(ncol=6,nrow=0)
     colnames(h) <-c("Kingdom","Phylum","Class","Order","Family","Genus")
-    for(i in 1:length(annot)) {h<-rbind(h,unlist(strsplit(annot[i],";"))[1:6])}
+	for(i in 1:length(annot)) {h<-rbind(h,unlist(strsplit(annot[i],";"))[1:6])}
     m<-matrix(ncol=5,nrow=0)
     #first row of the file
     f<-"0*Root*-1*0*rootrank"
@@ -153,12 +160,12 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
 	}
     }
     out<-apply(m,MARGIN=1,FUN=function(x) paste(x,collapse="*"))
-    write(out, file=file.path(dir,"train.txt"))
+    write(out, file=file.path(classifier_dir,"train.txt"))
     #create parsed training files
 	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(classifier_dir,"train.txt"), file.path(classifier_dir,"train.fasta")," 1 version1 test ", classifier_dir) ,ignore.stdout=TRUE, ignore.stderr=TRUE)
-    file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),dir)
+    file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),classifier_dir)
 
-    RDP(dir)
+    RDP(classifier_dir)
 }
 
 removeRDP <- function(object) {
