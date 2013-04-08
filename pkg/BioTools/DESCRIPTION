@@ -7,6 +7,6 @@ Author:  Michael Hahsler and Anurag Nagar
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
 Description: Interfaces several popular tools for sequence alignment (clustalw, kalign), data base search (BLAST) and classification (RDP). Also provides a database to manage 16S rRNA sequences. Based on Biostrings (from Bioconductor). This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 Depends: Biostrings (>= 2.26.2), DBI, RSQLite, seqLogo, proxy
-SystemRequirements: rdp-classifier, clustalw, kalign, ncbi-blast+
+SystemRequirements: rdp-classifier, clustalw, kalign, ncbi-blast+, boxshade
 Enhances: Biostrings
 License: GPL-2
