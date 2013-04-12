@@ -97,18 +97,10 @@ trainRDP <- function(x, classifier_dir="classifier", java_args="-Xmx1g")
     l<-strsplit(names(x),"Root;")
     # annot is the hierarchy starting from kingdom down to genus  
 	annot<-sapply(l,FUN=function(x) x[2])
-    #removeIdx<-vector()
-	browser()
+	#get the indices of sequences that are to be removed because they have incomplete hierarchy information
 	removeIdx <- as.integer(sapply(annot, FUN=function(y) { if(length(unlist(strsplit(y,";")))<6 || grepl(";;",y) || grepl("unknown",y)) 1 else 0}))
-	#for(i in 1:length(x))
-	#{
-	#	if(length(unlist(strsplit(annot[i],";")))<6 || grepl(";;",annot[i]) || grepl("unknown",annot[i]))
-	#		{
-	#			removeIdx<-c(removeIdx,i)
-	#		}
-	#}
 	
-	if(length(which(removeIdx==1))>0)
+	if(any(removeIdx==1))
 	{
 		removeIdx <- which(removeIdx==1)
 		#get greengenes ids to be removed
