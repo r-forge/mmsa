@@ -39,8 +39,10 @@ boxshade <- function(x, file, dev="pdf", param="-thr=0.5 -cons -ruler -def",
     temp_file <- tempfile(tmpdir = wd)
     on.exit({
 		file.remove(Sys.glob(paste(temp_file, ".*", sep=""))) 
-	    })
+		setwd(dir) 
+    })
 
+    setwd(wd)
     infile <- paste(temp_file, ".PHY", sep="")
     write.phylip(x, filepath=infile)
 

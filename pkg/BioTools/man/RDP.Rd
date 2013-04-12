@@ -38,6 +38,7 @@ You need to set an environment
 variable called "RDP_JAR_PATH" with the path to the RDP classifier jar file.
 You can set this variable using \code{Sys.setenv(RDP_JAR_PATH="/your_path/rdp_classifier-2.x.jar"} 
 and test if it is set correctly with \code{Sys.getenv("RDP_JAR_PATH"}.
+Note that on Windows the path will look like \code{"c:/your_path/rdp_classifier-2.x.jar"}.
 
 \code{RDP()} creates a default classifier. Alternatively, a directory 
 with the data for an existing classifier (created with \code{trainRDP()}) 

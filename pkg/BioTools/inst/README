@@ -1,0 +1,41 @@
+Install external software packages for BioTools
+
+Linux (Ubuntu/Debian):
+* Install clustal, kalign and boxshade
+* BLAST: 
+    - Install blast+
+    - Download NCBI BLAST databases from ftp://ftp.ncbi.nlm.nih.gov/blast/db/
+* RDP: 
+    - Download and extract rdp_classifier 
+	from http://sourceforge.net/projects/rdp-classifier/
+    - Set environment variable RDP_JAR_PATH to point to the jar or
+	use Sys.setenv(RDP_JAR_PATH="/your_path/rdp_classifier-2.x.jar") in R
+
+OS X:
+* Install ClustalW from http://www.clustal.org/
+* Install kalign from ???
+* Boxshade is currenly not available for OS X 
+  (you can compile it with free pascal compiler) 
+* BLAST: Install blast+ 
+  from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/
+* RDP: same as Linux
+
+Windows:
+* Download clustalw.exe, kalign.exe 
+    (e.g., from http://www.tcoffee.org/Packages/Binaries/windows/)
+* Boxshade is currenly not available for Windows
+* BLAST: 
+    - Download and install blast+ 
+	from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/
+    - Download NCBI BLAST databases 
+	from ftp://ftp.ncbi.nlm.nih.gov/blast/db/
+* RDP: see instructions for Linux
+
+* Set path variable:
+    - From the Desktop, right-click My Computer and click Properties.
+    - Click Advanced System Settings link in the left column.
+    - In the System Properties window click the Environment Variables button.
+    - Add the folder with the executables to the path variable (separated by ;)
+    - Try the following in R: Sys.which("clustalw")
+
+
