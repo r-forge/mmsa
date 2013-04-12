@@ -139,12 +139,12 @@ Typically, these tools have a command-line interface
 and the input and output data is stored in files using various formats.
 Also the parameters supplied to the command-line interface are different.
 All this makes using and comparing several approaches time consuming and
-error prone. The R-based Bioconductor project~\citep{BioC} 
+error prone. The R-based Bioconductor project~\citep{sequence:BioC} 
 provides important infrastructure to handle and manipulate bioinformatics
 data. The \pkg{Biostrings} package in particular provides 
 infrastructure for DNA, RNA and protein sequences as well as 
 (multiple) alignments. Also algorithms for sequence alignment are included.
-However, for multiple sequence alignment and using BLAST 
+However, for multiple sequence alignment using BLAST 
 the user needs to export the data into a file and then run the needed tool
 manually and re-import the results.
 Also, \pkg{Biostrings} stores sets of sequences in memory and does not 
@@ -154,9 +154,9 @@ In \pkg{BioTools} we provide a simple interface to a growing
 set of popular tools. The tools are called directly from within R and no manual
 data export or import is needed. Currently we
 interface \emph{clustalw, kalign, RDP} and  \emph{clustalw}.
-\pkg{BioTools} also provides database backed sequence management. Where
+\pkg{BioTools} also provides database backed sequence management where
 large amounts of sequences and classification information can be stored and
-used for selective sequence retrieval.
+used for selective and efficient sequence retrieval.
 
 %%% FIXME: Paper structure
 
@@ -338,6 +338,16 @@ unlink("example.sqlite")
 
 \section{Multiple Sequence Alignment}
 
+Multiple Sequence Alignment (MSA) involves comparing and aligning more than two sequences to each other and also possibly to many others in a sequence database. The aim  is to discover regions of high similarity for all the sequences taken together. The sequences are generally related such as those from the same species or same phylum.
+
+Although, computationally complex, MSA is quite often what biologists need to identify and characterize sequences from a given group. Sequences might also share an evolutionary relationship, such as having a common ancestor. Such sequences are said to be homologous. Similarly, biologists  might be interested in the similarity of genes from different organisms and want to compare their sequences. Another area of application is to find regions which are conserved for a given species or genus. Such conserved regions can be used for identification and classification of organisms. 
+
+MSA is a NP-hard problem \cite{ch2:MSAComplexity, ch2:MSAComplexity2} and is  computationally more complex than pairwise alignment. Various algorithms that are used for pairwise alignment, such as dynamic programming, can also be used for MSA but have much greater run time requirements. To obtain results in reasonable time, various heuristics have been proposed such as Progressive Alignment, Iterative Refinement methods, and Hidden Markov Models \cite{ch2:MSAAlgorithms}. Out of these, progressive alignment is the most commonly used in many tools for MSA such as Clustal\cite{ch2:clustal}. 
+
+Current methods for Clustal are through an online interface through the The European Bioinformatics Institute website at http://www.ebi.ac.uk/Tools/msa/clustalw2/ or through a webservice also at the same website. There is no current tool that can be run through the command line for a batch of sequences. Our package addresses this need by providing an interface that can be used for DNA Sequences. 
+
+The \pkg{BioTools} provides a rich set of functionality for MSA operations including visualization options. The commands below will illustrate that in detail. 
+
 \subsection{clustalw}
 <<>>=
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
@@ -395,6 +405,9 @@ al
 
 \subsection{kalign}
 
+Another popular technique for MSA is based on the KAlign algorithm \cite{kalign}. It uses a progressive method for sequence alignment by first calculating pairwise distances between sequences and then constructing a guide tree from these pairwise alignments. The guide tree is used to progressively create the multiple sequence alignment profile. KAlign uses the Wu-Manber approximate string matching algorithm \cite{Wu-Manber} for distance calculation. 
+KAlign has been evaluated to be faster and more efficient than other methods \cite{kalign}  due to the use of the approximate string matching algorithm and  efficient guide tree generation.
+
 <<>>=
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
         package="BioTools"))
@@ -406,7 +419,12 @@ al
 @
 
 \section{Classification with RDP}
-\subsection{Using the defaul RDP classifier}
+
+The Ribosomal Database Project (RDP) provides various  tools and services to the scientific community for data related to 16S rRNA sequences. Among other tools, it provides a hierarchical browser and a classifier that can be used to assign sequences to taxonomies. The classifier uses a Na\ddot{i}ve Bayesian approach to quickly and accurately classify sequences. The classifier uses an alignment-free approach and compares the word frequency distribution with word size of 8\cite{RDP}.
+
+The RDP classifier needs to be trained first before it can be used. The default classifier comes trained with sequences from the microbial 16S rRNA gene. 
+
+\subsection{Using the default RDP classifier}
 Use the default classifier
 <<>>=
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
