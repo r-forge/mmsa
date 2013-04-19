@@ -13,7 +13,7 @@ Linux (Ubuntu/Debian):
 
 OS X:
 * Install ClustalW from http://www.clustal.org/
-* Install kalign from ???
+* Install kalign from http://msa.sbc.su.se/cgi-bin/msa.cgi by downloading the source of Kalign (current).
 * Boxshade is currenly not available for OS X 
   (you can compile it with free pascal compiler) 
 * BLAST: Install blast+ 
