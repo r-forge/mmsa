@@ -214,7 +214,11 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
 		    BioTools:::.getWhere(db, rank, name, partialMatch,
 			    removeUnknownSpecies), limit)
 	    )
-
+ 	if (!is.null(rank) && rank=="id")
+    {
+        res<-res[match(name,res$id),]
+    }
+	
     if (nrow(res) == 0) stop("No rows found in the database")
 
     #get metadata about the table
