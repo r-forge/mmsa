@@ -66,8 +66,13 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 		    table, ".id ", 
 		    .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limit)
 	    )
-
-    if (nrow(res) == 0) stop("No rows found in the database")
+	cat("Rank = ",rank,"\n")
+	if (!is.null(rank) && rank=="id")
+	{
+		 if (!is.null(name))
+			res<-res[match(name,res$id),]	
+	}
+	if (nrow(res) == 0) stop("No rows found in the database")
     ret <- DNAStringSet(res$data)
     if (annotation=="id")
 	names(ret) <- res$id
@@ -87,7 +92,6 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	attr(ret,"name")<-res$fullRank
     }
 
-    rm(db)
     ret
 }
 

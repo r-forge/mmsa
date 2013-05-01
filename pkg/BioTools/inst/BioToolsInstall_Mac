@@ -1,4 +1,4 @@
-downloadDir<-"BioToolsInstall"
+downloadDir<-"~/BioToolsInstall"
 
 download.file("http://www.clustal.org/download/current/clustalw-2.1-macosx.dmg",file.path(dowloadDir,"clustalw-2.1-macosx.dmg"),mode='wb')
 #system("hdiutil mount clustalw-2.1-macosx.dmg")
