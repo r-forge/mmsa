@@ -66,7 +66,6 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 		    table, ".id ", 
 		    .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limit)
 	    )
-	cat("Rank = ",rank,"\n")
 	if (!is.null(rank) && rank=="id")
 	{
 		 if (!is.null(name))
