@@ -40,35 +40,34 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 
     if (!is.null(rank))
 	if(rank=="id") partialMatch <- FALSE
-    if(is.null(limit)) limit <- "" 
-    else limit <- paste(" LIMIT ",paste(limit,collapse=","))
+    if(is.null(limit)) limitSQL <- "" 
+    else limitSQL <- paste(" LIMIT ",paste(limit,collapse=","))
 
 	if(random)  
-	limit <- paste(" ORDER BY RANDOM() ",limit)
+		limitSQL <- paste(" ORDER BY RANDOM() ",limitSQL)
     #get chunks of sequences, important for clustering
     #make length SQL compatible
     if (is.null(length)) 
-	lengthFilter= "data"
+		lengthFilter= "data"
     else
-	lengthFilter = paste("substr(sequences.data,",start,",",length,")",
-	    sep="")
+		lengthFilter = paste("substr(sequences.data,",start,",",length,")",sep="")
 
     if (!is.null(rank)) {    
-	fullRank<-.pmatchRank(db,rank)
-	#Do this so that the column order appears as [order] since order is a SQL keyword
-	fullRankSQL<-paste("classification.[",fullRank,"]",sep="")
-    }
+			fullRank<-.pmatchRank(db,rank)
+			#Do this so that the column order appears as [order] since order is a SQL keyword
+			fullRankSQL<-paste("classification.[",fullRank,"]",sep="")
+	}
     else fullRankSQL <-"-1"
 
 	res <- dbGetQuery(db$db, 
 	    statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
 		    " INNER JOIN classification ON classification.id = ",
 		    table, ".id ", 
-		    .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limit)
+		    .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limitSQL)
 	    )
-	if (!is.null(rank) && rank=="id")
+	if (!is.null(rank) && rank=="id" && nrow(res)==length(name))
 	{
-		 if (!is.null(name))
+		if (!is.null(name))
 			res<-res[match(name,res$id),]	
 	}
 	if (nrow(res) == 0) stop("No rows found in the database")
@@ -77,18 +76,18 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	names(ret) <- res$id
     else if (annotation=="rdp")
     {
-	h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE)[,1:6]
-	if (class(h)=="matrix")
-	    hierarchy <- apply(h,MARGIN=1,FUN=function(x) paste(x,collapse=";"))
-	hierarchy <- gsub(";unknown","",hierarchy)
-	hierarchy <- gsub(" \\(class\\)","",hierarchy)
-	hierarchy <- paste("Root",hierarchy,sep=";")
-	hierarchy <- paste(res$id,hierarchy)	
-	names(ret) <- hierarchy
+			h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE)[,1:6]
+			if (class(h)=="matrix")
+				hierarchy <- apply(h,MARGIN=1,FUN=function(x) paste(x,collapse=";"))
+			hierarchy <- gsub(";unknown","",hierarchy)
+			hierarchy <- gsub(" \\(class\\)","",hierarchy)
+			hierarchy <- paste("Root",hierarchy,sep=";")
+			hierarchy <- paste(res$id,hierarchy)	
+			names(ret) <- hierarchy
     }
     if(!is.null(rank)){
-	attr(ret,"rank")<-fullRank
-	attr(ret,"name")<-res$fullRank
+			attr(ret,"rank")<-fullRank
+			attr(ret,"name")<-res$fullRank
     }
 
     ret

@@ -92,40 +92,43 @@ predict.RDPClassifier <- function(object, newdata,
     cl
 }
 
-trainRDP <- function(x, dir="classifier", java_args="-Xmx1g") 
+trainRDP <- function(x, dir="classifier", rank="genus", java_args="-Xmx1g") 
 {
     if(Sys.getenv("RDP_JAR_PATH") =="") stop("Environment variable 'RDP_JAR_PATH needs to be set!'")
     if (file.exists(dir)) stop("Classifier directory already exists! Choose a different directory or use removeRDP().")
-    
+	taxonomyNames <-c("Kingdom","Phylum","Class","Order","Family","Genus","Species")
+	rankNumber <- pmatch(tolower(rank),tolower(taxonomyNames))
     dir.create(dir)
     l<-strsplit(names(x),"Root;")
-    # annot is the hierarchy starting from kingdom down to genus  
+    # annot is the hierarchy starting from kingdom down to genus (or desired rank)  
 	annot<-sapply(l,FUN=function(x) x[2])
+	# Make names of x so that it only has hierarchy info upto the desired rank
+	names(x)<-sapply(strsplit(names(x),";"),FUN=function(y) {paste(y[1:(rankNumber+1)],collapse=";")})
 	#get the indices of sequences that are to be removed because they have incomplete hierarchy information
-	removeIdx <- as.integer(sapply(annot, FUN=function(y) { if(length(unlist(strsplit(y,";")))<6 || grepl(";;",y) || grepl("unknown",y)) 1 else 0}))
+	removeIdx <- as.integer(sapply(annot, FUN=function(y) { if(length(unlist(strsplit(y,";")))<rankNumber || grepl(";;",y) || grepl("unknown",y)) 1 else 0}))
 	
 	if(any(removeIdx==1))
 	{
 		removeIdx <- which(removeIdx==1)
 		#get greengenes ids to be removed
 		idsRemoved<-as.character(sapply(names(x),FUN=function(y) as.character(unlist(strsplit(y," "))[1])))[removeIdx]
-		#names(idsRemoved)<-NULL
-		#idsRemoved<-idsRemoved[removeIdx]
 		x<-x[-removeIdx]
 		annot<-annot[-removeIdx]
 		cat("Warning ! Following sequences did not contain complete hierarchy information and have been removed :",idsRemoved,"\n")
 	}
 	if (length(x) <=0) stop("No sequences with complete information found")
-   	writeXStringSet(x,file.path(dir,"train.fasta"))
-	h<-matrix(ncol=6,nrow=0)
-    colnames(h) <-c("Kingdom","Phylum","Class","Order","Family","Genus")
-	for(i in 1:length(annot)) {h<-rbind(h,unlist(strsplit(annot[i],";"))[1:6])}
+   	#writeXStringSet(x,file.path(dir,"train.fasta"))
+	h<-matrix(ncol=rankNumber,nrow=0)
+    #colnames(h) <-c("Kingdom","Phylum","Class","Order","Family","Genus")
+    colnames(h) <- taxonomyNames[1:rankNumber]
+	for(i in 1:length(annot)) {h<-rbind(h,unlist(strsplit(annot[i],";"))[1:rankNumber])}
     m<-matrix(ncol=5,nrow=0)
     #first row of the file
     f<-"0*Root*-1*0*rootrank"
     m<-rbind(m,unlist(strsplit(f,split="\\*")))
     taxNames <- colnames(h)
-    for(i in 1:nrow(h))
+   	badHierarchy<-vector()
+	for(i in 1:nrow(h))
     {
 	for(j in 1:ncol(h))	
 	{
@@ -148,8 +151,13 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
 	    else if (length(which(m[,2]==taxonName & m[,5]==rank)) > 0)
 	    {
 		row <- which(m[,2]==taxonName & m[,5]==rank)
-		#cat("Row =",row,"\n")
-		#print(m[row,1])
+		#error check -> is parent tax id same for both or not?
+		#if not, remove the sequence
+		if (parentTaxId!=m[row,3])
+		{
+			#x<-x[-i]
+			badHierarchy<-c(badHierarchy,i)
+		}
 		previousTaxId <- m[row,1]
 	    }
 	    #end seach
@@ -158,7 +166,14 @@ trainRDP <- function(x, dir="classifier", java_args="-Xmx1g")
     out<-apply(m,MARGIN=1,FUN=function(x) paste(x,collapse="*"))
     write(out, file=file.path(dir,"train.txt"))
     #create parsed training files
-	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(dir,"train.txt"), file.path(dir,"train.fasta")," 1 version1 test ", dir) ,ignore.stdout=TRUE, ignore.stderr=TRUE)
+	if(length(badHierarchy)>0)
+	{
+		warning("Following sequences had bad sequence hierarchy information, so removing: ",names(x)[badHierarchy],"\n")
+		x<-x[-badHierarchy]
+   	}
+	writeXStringSet(x,file.path(dir,"train.fasta"))
+	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(dir,"train.txt"), file.path(dir,"train.fasta")," 1 version1 test ", dir)) 
+#,ignore.stdout=TRUE, ignore.stderr=TRUE)
     file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),dir)
 
     RDP(dir)
