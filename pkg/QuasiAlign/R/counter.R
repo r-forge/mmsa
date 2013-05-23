@@ -52,7 +52,7 @@
 				start<-start+1
 				end<-end+1
 		}
-		rearrangedIdx<-unlist(lapply(1:window,FUN=function(j){c(seq(j, length(x)-window+1, by=100),NA)}))
+		rearrangedIdx<-unlist(lapply(1:window,FUN=function(j){c(seq(j, length(x)-window+1, by=window),NA)}))
 		ret <- fmatrix[rearrangedIdx,]	
 	}
 	ret
