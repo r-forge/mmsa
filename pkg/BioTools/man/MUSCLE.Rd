@@ -1,34 +1,35 @@
-\name{mafft}
-\alias{mafft}
-\alias{mafft_help}
+\name{MUSCLE}
+\alias{MUSCLE}
+\alias{MUSCLE_help}
 \title{
-Run Multiple Sequence Alignment (MAFFT) on a Set of Sequences
+Run Multiple Sequence Alignment (MUSCLE) on a Set of Sequences
 }
 \description{
-Executes mafft on a set of sequences to obtain a multiple sequence
+Executes MUSLCE on a set of sequences to obtain a multiple sequence
 alignment. 
 }
 \usage{
-mafft(x, param="--auto")
-mafft_help()
+MUSCLE(x, param="")
+MUSCLE_help()
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{an object of class XStringSet (e.g., DNAStringSet) with the sequences to be aligned.}
-  \item{param}{character string with the command line parameters (see output of \code{mafft_help()}).}
+  \item{param}{character string with the command line parameters (see output of \code{MUSCE_help()}).}
 
 }
 \details{
-The mafft software has to be installed (Debian/Ubuntu package: mafft) and 
-be executable by the system. Try \code{Sys.which("mafft")} to 
+The MUSCLE software has to be installed (Debian/Ubuntu package: muscle) and 
+be executable by the system. Try \code{Sys.which("muscle")} to 
 see if the program is properly installed.
 }
 \value{
 An object of class DNAMultipleAlignment (see \pkg{BioStrings}).
 }
 \references{
-Katoh, Standley 2013 (Molecular Biology and Evolution 30:772-780)
-MAFFT multiple sequence alignment software version 7: improvements in performance and usability. 
+Edgar, R.C. (2004) MUSCLE: multiple sequence alignment with high accuracy and high throughput, Nucleic Acids Res. 32(5):1792-1797
+
+Edgar, R.C. (2004) MUSCLE: a multiple sequence alignment method with reduced time and space complexity, BMC Bioinformatics, (5) 113 
 }
 \examples{
 \dontrun{
@@ -37,7 +38,7 @@ dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BioTools"))
 dna
 
-al <- mafft(dna) 
+al <- MUSCLE(dna) 
 al
 
 ### inspect alignment
@@ -51,7 +52,7 @@ rna <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="BioTools"))
 rna 
 
-al <- mafft(rna) 
+al <- MUSCLE(rna) 
 al  
 
 ### Proteins 
@@ -59,7 +60,7 @@ aa <- readAAStringSet(system.file("examples/Protein_example.fasta",
 	package="BioTools"))
 aa 
 
-al <- mafft(aa)
+al <- MUSCLE(aa)
 al
 }
 }
