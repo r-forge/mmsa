@@ -34,3 +34,5 @@ download.file("http://downloads.sourceforge.net/project/rdp-classifier/rdp-class
 download.file("http://mafft.cbrc.jp/alignment/software/mafft-7.050-signed.pkg",file.path(downloadDir,"mafft-7.050-signed.pkg"),mode='wb')
 cmd <- paste("sudo installer -pkg",file.path(downloadDir,"mafft-7.050-signed.pkg"),"-target /")
 system(cmd)
+
+setwd(origDir)
