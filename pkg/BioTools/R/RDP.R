@@ -41,7 +41,7 @@ predict.RDPClassifier <- function(object, newdata,
     ## check 
     if(Sys.getenv("RDP_JAR_PATH") =="") {
 	### ceck if it was installed with the install script!
-	rdp <- Sys.glob("~/BioToolsInstall/rdp_classifier-*/rdp_classifier-*.jar")	
+	rdp <- Sys.glob("~/BioTools/rdp_classifier*/rdp_classifier*.jar")	
 	if(length(rdp) <1) stop("Environment variable 'RDP_JAR_PATH needs to be set or run install script!'")
 	Sys.setenv("RDP_JAR_PATH"=tail(rdp, 1))
     }

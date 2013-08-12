@@ -5,4 +5,4 @@ tex:
 	texi2dvi --pdf BioTools.tex
 
 copy:
-	cp BioTools.pdf ../../inst/doc
+	cp BioTools.pdf ../../vignettes
