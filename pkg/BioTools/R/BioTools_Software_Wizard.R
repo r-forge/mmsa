@@ -46,7 +46,7 @@ BioTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE,
       download.file("http://downloads.sourceforge.net/project/rdp-classifier/rdp-classifier/rdp_classifier_2.5.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Frdp-classifier%2Ffiles%2Frdp-classifier%2F&use_mirror=iweb",
                     "rdp_classifier_2.5.zip", mode='wb')
       unzip("rdp_classifier_2.5.zip")
-      Sys.setenv(RDP_JAR_PATH=file.path(dir,"rdp_classifier_2.5","rdp_classifier_2.5.jar"))
+      Sys.setenv(RDP_JAR_PATH=file.path(dir,"rdp_classifier_2.5","rdp_classifier-2.5.jar"))
     }
   }
   
@@ -58,10 +58,10 @@ BioTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE,
                     "clustalw-2.1.msi", mode='wb')
       system("msiexec /i clustalw-2.1.msi")
     } else if(os=="DARWIN") {
-    	download.file("http://www.clustal.org/download/current/clustalw-2.1-macosx.dmg",file.path(dir,"clustalw-2.1-macosx.dmg"),mode='wb')
-	system(paste("sudo hdiutil mount",file.path(dir,"clustalw-2.1-macosx.dmg")))
-	system("sudo cp -R /Volumes/clustalw-2.1-macosx /Applications")
-	system("sudo hdiutil unmount /Volumes/clustalw-2.1-macosx")
+    download.file("http://www.clustal.org/download/current/clustalw-2.1-macosx.dmg",file.path(dir,"clustalw-2.1-macosx.dmg"),mode='wb')
+	system(paste("hdiutil mount",file.path(dir,"clustalw-2.1-macosx.dmg")))
+	system("cp -R /Volumes/clustalw-2.1-macosx /Applications")
+	system("hdiutil unmount /Volumes/clustalw-2.1-macosx")
     } else cat("Please install package 'clustal' manually (in package manager)!\n")
   }
   
@@ -74,12 +74,15 @@ BioTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE,
       untar("kalign.tar.gz")
       cat("Please follow instructions in the file ",file.path(dir,"kalign","README"))
     } else if(os=="DARWIN") {
-      cat("Installing kalign\n")
+      	cat("Installing kalign\n")
     	download.file("http://msa.sbc.su.se/downloads/kalign/current.tar.gz",file.path(dir,"kalign.tar.gz"),mode='wb')
-	untar(file.path(dir,"kalign.tar.gz"),exdir=file.path(dir,"kalign"))
-	system(file.path(dir,"kalign/configure"))
-	system(file.path(dir,"kalign/make"))
-	system(paste("sudo make",file.path(dir,"install")))	
+		untar(file.path(dir,"kalign.tar.gz"),exdir=file.path(dir,"kalign"))
+		setwd("kalign")
+		system("./configure")
+		system("make")
+		system("osascript -e 'do shell script \"sudo make install\" with administrator privileges'")
+		#system(paste("sudo make install"))
+		setwd("..")	
      } else
      cat("Please install 'kalign' manually (in package manager)!\n")
   }
@@ -88,8 +91,9 @@ BioTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE,
     if(os=="Windows") {	
     cat("Please install package 'mafft' manually!\n")
     } else if(os=="DARWIN") {
-    	download.file("http://mafft.cbrc.jp/alignment/software/mafft-7.050-signed.pkg",file.path(dir,"mafft-7.050-signed.pkg"),mode='wb')
-	cmd <- paste("sudo installer -pkg",file.path(dir,"mafft-7.050-signed.pkg"),"-target /")
+    download.file("http://mafft.cbrc.jp/alignment/software/mafft-7.050-signed.pkg",file.path(dir,"mafft-7.050-signed.pkg"),mode='wb')
+	cmd <- paste("installer -pkg",file.path(dir,"mafft-7.050-signed.pkg"),"-target /")
+	#system("osascript -e 'do shell script \"installer -pkg\" & 
 	system(cmd)
     }
   }
