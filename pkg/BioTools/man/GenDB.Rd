@@ -54,8 +54,10 @@ metaGenDB(db, table=NULL)
 	the database, and \code{closeGenDB()} closes an open connection to a
 	database.
 }	
-%\seealso{
-%}
+\seealso{
+  \code{\link{Sequences}},
+  \code{\link{GenClass16S_Greengenes}}
+}
 \examples{
 db <- createGenDB("example.sqlite")
 db

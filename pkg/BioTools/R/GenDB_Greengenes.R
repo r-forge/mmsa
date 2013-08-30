@@ -35,8 +35,9 @@ GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA,
 }
 
 
-GreengenesMetaDataReader <- function(annotation) {
+Annotation_Greengenes <- function(annotation, decode=TRUE) {
 
+  if(decode) { ### decode metadata
     fields <- c("k__", "p__", "c__", "o__", "f__", "g__", "s__", "otu_") 
     ## add out and org_name
 
@@ -56,7 +57,23 @@ GreengenesMetaDataReader <- function(annotation) {
 		val
 	    })
 
-    c(cl, org_name,id)
-}
+    ret <- c(cl, org_name,id)
+  
+  }else{ ### recreate meta data   
+    ret <- paste(
+      ">", annotation[,"Id"], " ", annotation[,"Org_name"],
+      " k__", annotation[,"Kingdom"], 
+      " p__", annotation[,"Phylum"],            
+      " c__", annotation[,"Class"], 
+      " o__", annotation[,"Order"], 
+      " f__", annotation[,"Family"],
+      " g__", annotation[,"Genus"], 
+      " s__", annotation[,"Species"], 
+      " otu_", annotation[,"Otu"], 
+      sep="")
+  }
+  
+  ret
+  }
 
 

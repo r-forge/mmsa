@@ -243,7 +243,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
 getSequences <- function(db,  rank=NULL, name=NULL,
 	table="sequences", limit=NULL, random=FALSE, start=1, 
 	length=NULL, partialMatch=TRUE, removeUnknownSpecies=FALSE, 
-	annotation="id") {
+	annotation=Annotation_Id) {
 
     ### FIXME: check metadata table
     type <- metaGenDB(db, table)[,"type"]
@@ -260,12 +260,12 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 
 # reads all fasta files in a directory into a db and 
 # creates NSV table with all sequences
-processSequences <- function(dir, db, metaDataReader=GreengenesMetaDataReader,
+processSequences <- function(dir, db, annotation=Annotation_Greengenes,
 	...) {
     for(f in dir(dir, full.names=TRUE))
     {
 	cat("Processing file: ",f,"\n")
-	addSequences(db, f, metaDataReader=metaDataReader)
+	addSequences(db, f, annotation=annotation)
     }
 
     createNSVTable(db, "NSV", ...)

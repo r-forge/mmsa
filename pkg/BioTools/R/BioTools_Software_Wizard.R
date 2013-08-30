@@ -104,7 +104,7 @@ BioTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE,
       cat("Installing BLAST\n")
       download.file("ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.28+-win64.exe",
                     "ncbi-blast-2.28+-win64.exe", mode='wb')
-      System("ncbi-blast-2.28+-win64.exe")
+      system("ncbi-blast-2.28+-win64.exe")
     } else if(os=="DARWIN") {
 	download.file("ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.2.28+.dmg",file.path(dir,"ncbi-blast-2.2.28+.dmg"),mode='wb')
 	system("sudo hdiutil mount ncbi-blast-2.2.28+.dmg")

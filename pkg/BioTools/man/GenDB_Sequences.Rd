@@ -1,8 +1,9 @@
-\name{Sequences}
+\name{GenDB_Sequences}
 \alias{Sequences}
 \alias{getSequences}
 \alias{addSequences}
 \alias{nSequences}
+\alias{Annotation_Id}
 \title{Genetic Sequences}
 \description{
 Genetic sequences are stored in a GenDB (as character strings with meta
@@ -15,19 +16,20 @@ See NSVSet for more information.
 }
 \usage{
 addSequences(db, file,
-	    metaDataReader=GreengenesMetaDataReader, verbose=FALSE)
+	    annotation=Annotation_Greengenes, verbose=FALSE)
 	
 getSequences(db, rank=NULL, name=NULL, table="sequences",
 	    limit=NULL, random=FALSE, start=1, length=NULL,
-	    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
+	    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id)
 	
 nSequences(db, rank=NULL, name=NULL, table="sequences")
+
+#Annotation_Id(annotation, decode)
 }
 \arguments{
     \item{db}{Handle of the GenDB database.} 
     \item{file}{Complete path of existing FASTA format file containing
 	sequence information. }
-    \item{metaDataReader}{function to process the meta data from the FASTA documentation line. }
     \item{verbose}{logical; print progress information.}
     \item{rank}{Name of Rank to be filtered by. For example: "kingdom", "phylum", etc.}
     \item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
@@ -38,8 +40,9 @@ nSequences(db, rank=NULL, name=NULL, table="sequences")
     \item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
     \item{partialMatch}{logical; perform partial matching on the name.} 
     \item{removeUnknownSpecies}{logical; whether unknown species should be removed from the result.} 
-    \item{annotation}{Annotation of the returned sequences. Options are Greengenes id or RDP format.}
-
+    \item{annotation}{Annotation fromat. Options are Annotation_Id, 
+                      Annotation_Greengenes and Annotation_RDP.}
+%    \item{decode}{Used internally.}
 }
 \value{
 	\code{getSequences()} returns an object containing the sequences
@@ -68,7 +71,7 @@ nSequences(db, rank=NULL, name=NULL, table="sequences")
 \seealso{
     \code{\link{createGenDB}},
     \code{\link{openGenDB}},
-    \code{\link{GreengenesMetaDataReader}},
+    \code{\link{Annotation_Greengenes}},
     \code{\link[Biostrings]{DNAStringSet}}
 }
 \examples{
@@ -86,6 +89,17 @@ s
 
 ### get the classification hierarchy for a the sequences
 getHierarchy(db, "id", names(s))
+
+### get sequences with other annotation formats
+s <- getSequences(db, rank="Class", name="Clostridia", limit=5, 
+                  annotation=Annotation_Greengenes)
+s
+names(s)
+
+s <- getSequences(db, rank="Class", name="Clostridia", limit=5,
+                  annotation=Annotation_RDP)
+s
+names(s)
 
 ### clean up
 closeGenDB(db)

@@ -123,6 +123,7 @@ database driven sequence management for 16S rRNA.
 options(width = 70, prompt="R> ", digits=4)
 ### for sampling
 set.seed(1234)
+unlink("example.sqlite")
 @
 
 \section{Introduction}

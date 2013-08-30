@@ -1,7 +1,8 @@
-\name{Greengenes}
+\name{GenDB_Greengenes}
 \alias{GenClass16S}
 \alias{GenClass16S_Greengenes}
-\alias{GreengenesMetaDataReader}
+\alias{Annotation_Greengenes}
+\alias{Annotation_RDP}
 
 \title{Manage GenClass16S objects}
 \description{
@@ -10,7 +11,7 @@
 \usage{
 	GenClass16S_Greengenes(kingdom=NA, phylum=NA, class=NA, order=NA, 
 	    family=NA, genus=NA, species=NA, otu=NA, org_name=NA, id=NA) 
-	GreengenesMetaDataReader(annotation)	
+#	Annotation_Greengenes(annotation, decode)	
 }
 \arguments{
 	\item{kingdom}{Name of the kingdom to which the organism belongs. } 
@@ -23,17 +24,15 @@
 	\item{otu}{Name of the otu to which the organism belongs. } 
 	\item{org_name}{Name of the organism. } 
 	\item{id}{ID of the sequence from Greengenes. } 
-	\item{annotation}{description line for a sequence in FASTA format.}
+%	\item{annotation, decode}{Used internally.}
 }
 \details{
 \code{GenClass16S_Greengenes} creates a classification object for a 
 	sequence. The creator is also used for defining
 	the classification structure when a new GenDB is created.
 
-\code{GreengenesMetaDataReader} converts the description line found
-in Greengenes FASTA files into a \code{GenClass16S_Greengenes} object 
-suitable to be stored in a GenDB.
-The reader is used in \code{addSequences}.
+\code{Annotation_Greengenes} is used to decode and create Greengenes-format
+annotations.
 }
 \seealso{
 \code{\link{addSequences}},

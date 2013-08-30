@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-boxshade <- function(x, file, dev="pdf", param="-thr=0.5 -cons  -def",
+boxshade <- function(x, file, dev="pdf", param="-thr=0.5 -cons -def",
 	pdfCrop=TRUE) {
     devs <- c(ps=1, eps=2, hpgl=3, rtf=4, crt=5, ansi=6, vt=7,
 	    ascii="b", fig="c", pict="d", html="e")

@@ -16,11 +16,9 @@ BioTools_Software_Wizard(RDP = FALSE, clustal = FALSE, kalign = FALSE, MAFFT = F
 %%     ~~Describe \code{RDP} here~~
   }
 }
-\details{
+%\details{
 %%  ~~ If necessary, more details than the description above ~~
-}
-
-
+%}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 %\keyword{ ~kwd1 }

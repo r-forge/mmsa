@@ -31,7 +31,7 @@ nSequences <- function(db, rank=NULL, name=NULL, table="sequences") {
 
 getSequences <- function(db,  rank=NULL, name=NULL, 
 	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id") {
+	partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id) {
 
     # limit = number of sequences to limit	
     # random = whether the sequences should be random
@@ -72,19 +72,12 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	}
 	if (nrow(res) == 0) stop("No rows found in the database")
     ret <- DNAStringSet(res$data)
-    if (annotation=="id")
-	names(ret) <- res$id
-    else if (annotation=="rdp")
-    {
-			h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE)[,1:6]
-			if (class(h)=="matrix")
-				hierarchy <- apply(h,MARGIN=1,FUN=function(x) paste(x,collapse=";"))
-			hierarchy <- gsub(";unknown","",hierarchy)
-			hierarchy <- gsub(" \\(class\\)","",hierarchy)
-			hierarchy <- paste("Root",hierarchy,sep=";")
-			hierarchy <- paste(res$id,hierarchy)	
-			names(ret) <- hierarchy
-    }
+    
+    ### add names
+    h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE, 
+                      drop=FALSE)
+    names(ret) <- annotation(h, decode=FALSE)
+   
     if(!is.null(rank)){
 			attr(ret,"rank")<-fullRank
 			attr(ret,"name")<-res$fullRank
@@ -96,7 +89,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 
 ## read fasta files and add them to a DB
 
-addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader, 
+addSequences <- function(db, file, annotation=Annotation_Greengenes, 
 	verbose=FALSE) {
 
     if(!file.exists(file)) stop("File does not exist!")
@@ -116,7 +109,7 @@ addSequences <- function(db, file, metaDataReader=GreengenesMetaDataReader,
 	f <- readDNAStringSet(file)
 	for(i in 1:length(f)) {
 		annot<- names(f)[i]
-		cl <- metaDataReader(annot)
+		cl <- annotation(annot, decode=TRUE)
 		org_name<-cl[length(cl)]
 		cl <- paste("'",cl,"'", sep='', collapse=', ') 
 		dat<- f[[i]]

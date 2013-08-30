@@ -16,7 +16,7 @@ Use the RDP classifier to classify 16S rRNA sequences.
 RDP(dir = NULL)
 \method{predict}{RDPClassifier}(object, newdata,
         confidence=.8, java_args="-Xmx1g", ...)
-trainRDP(x, dir="classifier", java_args="-Xmx1g")
+trainRDP(x, dir="classifier", rank="genus", java_args="-Xmx1g")
 removeRDP(object)
 findAccuracy(actual, predicted, rank)
 }
@@ -29,7 +29,7 @@ findAccuracy(actual, predicted, rank)
   \item{x}{an object of class DNAStringSet with the 16S rRNA sequences for training.}
   \item{actual}{A data frame containing the actual classification.}
   \item{predicted}{A data frame containing the predicted classification.}
-  \item{rank}{Taxonomic rank at which the classification accuracy is to be examined.}
+  \item{rank}{Taxonomic rank at which the classification is learned/the accuracy is to be examined.}
   \item{...}{additional arguments (currently unused).}
 }
 \details{

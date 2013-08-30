@@ -44,7 +44,9 @@ export(
 	### GenDB
 	GenClass16S,
 	GenClass16S_Greengenes,
-	GreengenesMetaDataReader,
+	Annotation_Greengenes,
+	Annotation_RDP,
+	Annotation_Id,
 	
 	addSequences,
 	createGenDB,

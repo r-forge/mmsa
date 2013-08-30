@@ -21,11 +21,33 @@
 ## classification hierarchy for 16S
 GenClass16S <- function(domain=NA, phylum=NA, class=NA, order=NA, 
 	family=NA, genus=NA, species=NA, strain=NA, id=NA) {
-
-    c(Domain=domain, Phylum=phylum, Class=class,
-	    Order=order, Family=family, Genus=genus, Species=species,
-	    Strain=strain, id=id)
+ 
+    c(Domain=as.character(domain), 
+      Phylum=as.character(phylum), 
+      Class=as.character(class),
+	    Order=as.character(order), 
+      Family=as.character(family), 
+      Genus=as.character(genus), 
+      Species=as.character(species),
+	    Strain=as.character(strain), 
+      id=as.character(id)
+      )
 }
+
+
+### this is a helper to create sequences with only the id as names
+Annotation_Id <- function(annotation, decode) {
+  if(decode) { ### decode metadata
+    stop("Not a decoder")
+  }else{ ### recreate meta data   
+    ret <- annotation[,"Id"]
+  }
+  
+  ret
+}
+
+
+
 
 ### get classification info
 getTaxonomyNames <- function(db) dbListFields(db$db, "classification")
@@ -110,8 +132,14 @@ getRank(db, rank="id", whereRank, whereName, table, all=TRUE, partialMatch, remo
 getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     hierarchy <- getTaxonomyNames(db)
 
+    ### shortcut if rank is a DNAStringSet produced with get_sequences
+    if(is(rank, "DNAStringSet")) {
+      name <- names(rank)
+      rank <- "id"
+    }
+    
     if(missing(name)|| missing(rank)) stop("no name and/or rank given!")
-
+    
     .getHierarchy <- function(db, rank, name) {
 	#convert rank to number, eg: kingdom=1, phylum=2
 	rankNum <- which(tolower(hierarchy)==tolower(.pmatchRank(db,rank)))

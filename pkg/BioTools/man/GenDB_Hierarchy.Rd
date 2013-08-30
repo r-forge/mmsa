@@ -1,4 +1,4 @@
-\name{Hierarchy}
+\name{GenDB_Hierarchy}
 \alias{getRank}
 \alias{getIDs}
 \alias{getTaxonomyNames}

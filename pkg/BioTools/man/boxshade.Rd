@@ -8,7 +8,7 @@ Boxshade: Shading Multiple Aligned Sequences}
 Executes boxshade on a multiple sequence alignment. 
 }
 \usage{
-boxshade(x, file, dev="pdf", param="-thr=0.5 -cons -ruler -def",
+boxshade(x, file, dev="pdf", param="-thr=0.5 -cons -def",
     pdfCrop=TRUE)
 boxshade_help()
 }

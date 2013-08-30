@@ -3,7 +3,7 @@
 \alias{createNSVTable}
 \alias{createNSVSet}
 \alias{dropNSVTable}
-%\alias{getNSVs}
+\alias{getNSVs}
 \alias{getSequences}
 \alias{plot.NSVSet}
 \alias{c.NSVSet}
@@ -34,9 +34,9 @@ dropNSVTable(db, table)
 
 getSequences(db,  rank=NULL, name=NULL,
     table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
+    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id)
 
-processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
+processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 }
 \arguments{
 	\item{x}{An object of class DNAStringSet.} 
@@ -55,9 +55,8 @@ processSequences(dir, db, metaDataReader=GreengenesMetaDataReader, ...)
 	\item{start}{Start position for the subsequence.}
 	\item{length}{ignored.}
 	\item{partialMatch}{logical; perform partial matching on the name for rank.}
-	\item{annotation}{Annotation of the returned sequences. Options are Greengenes id or RDP format.}
 	\item{dir}{Directory which contains the FASTA format files which are to be read in.}
-	\item{metaDataReader}{Reader function used to interpret the FASTA meta information (see \pkg{BioTools}). }
+	\item{annotation}{Reader for annotation format (see \pkg{BioTools}). }
 	\item{...}{additional aruments are passed on. }
 }
 \details{
