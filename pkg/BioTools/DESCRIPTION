@@ -1,7 +1,7 @@
 Package: BioTools
 Type: Package
 Title: Tools based on Biostrings (alignment, classification, database)
-Version: 0.0-1
+Version: 0.0-2
 Date: 20xx-xx-xx
 Author:  Michael Hahsler and Anurag Nagar
 Maintainer: Michael Hahsler <mhahsler@lyle.smu.edu>, Anurag Nagar <andynagar@yahoo.com>
