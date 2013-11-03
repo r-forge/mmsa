@@ -1,4 +1,8 @@
 import(Biostrings)
+import(DBI)
+import(RSQLite)
+import(seqLogo)
+import(proxy)
 
 export( 
 	### clustal
@@ -62,8 +66,12 @@ export(
 	getHierarchy,
 
 	nSequences,
-	getSequences
-)
+	getSequences,
+
+  random_sequences,
+  mutations,
+  NSVdist
+  )
 
 S3method(print, RDPClassifier)
 S3method(predict, RDPClassifier)

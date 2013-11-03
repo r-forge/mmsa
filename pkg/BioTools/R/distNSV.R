@@ -17,20 +17,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-### implement simrank similarity defined in
-### Santis et al, Simrank: Rapid and sensitive general-purpose k-mer 
-### search tool, BMC Ecology 2011, 11:11
 
-simRank <- function(x, k=7) {
+NSVdist <- function(x, k=3, method="l1") {
     x <- DNAStringSet(x)
-    
-    x.kmer <- oligonucleotideFrequency(x, k) >0
-
-    shared <- tcrossprod(x.kmer)
-    sum.kmer <- rowSums(x.kmer)
-    
-    min <- outer(sum.kmer, sum.kmer, function(x, y) pmin(x,y)) 
-
-    as.simil(shared/min)
+    x.kmer <- oligonucleotideFrequency(x, k)
+    proxy::dist(x.kmer, method=method)
 }
 

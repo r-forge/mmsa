@@ -1,0 +1,107 @@
+#######################################################################
+# BioTools - Interfaces to several sequence alignment and 
+# classification tools
+# Copyright (C) 2012 Michael Hahsler and Anurag Nagar
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+s2c <- function(x) {
+  x <- as.character(x)
+  sapply(1:nchar(x), function(p) substr(x,p,p))
+}
+
+c2s <- function(x) paste(x, collapse='') 
+
+
+### create random sequences
+
+random_sequences <- function(len, number=1, prob=NULL, 
+                            alphabet = c("DNA", "RNA", "AA")) {
+  alphabet <- match.arg(alphabet)
+  
+  .rand_string <- function(len, prob, alpha) c2s(sample(alpha, 
+                  len, replace=TRUE, prob=prob))  
+
+  s <- switch(alphabet,
+              DNA = DNAStringSet(replicate(number, .rand_string(len, prob, Biostrings::DNA_BASES))),
+              RNA = RNAStringSet(replicate(number, .rand_string(len, prob, Biostrings::RNA_BASES))),
+              AA = AAStringSet(replicate(number, .rand_string(len, prob, Biostrings::AA_ALPHABET[1:20])))
+  )
+  
+  names(s) <- 1:length(s)
+  s
+}
+
+
+
+mutations <- function(x, number=1, change=0.01, insertion=0.01, 
+                      deletion=0,01, prob=NULL) {
+  
+  if(is(x, "XStringSet") && length(x)!=1) stop("x has to be a single sequence!")
+  if(is(x, "XStringSet")) {
+    name <- paste(names(x[1]), '_', sep='')
+    x <- x[[1]]
+  }else name <- ""
+  
+  alpha <- alphabet(x, baseOnly=TRUE)
+  xs <- s2c(as.character(x))
+  n <- length(xs)
+  
+  ### estimate letter frequencies
+  if(is.null(prob)) {
+    prob <- letterFrequency(x, letters=alphabet(x, baseOnly=TRUE), as.prob=TRUE)
+  }
+     
+  .mut <- function(xs, change, insertion, deletion, prob) {
+    ### change
+    ### correct for equal base exchange
+    if(change>0) {
+      m <- runif(n) < change
+      xs[m] <- sample(alpha, sum(m), replace=TRUE, prob=prob)
+    }
+    
+    ### deletion
+    if(deletion>0) {
+      keep <- which(runif(n) > deletion)
+      xs <- xs[keep]
+    }
+    
+    ### insertion
+    if(insertion>0) {
+      ni <- rbinom(1, n, insertion)
+      for(i in 1:ni) {
+        pos <- sample(0:length(xs),1)
+        if(pos==0) xs <- c(sample(alpha, 1, prob=prob), xs)
+        else if(pos==length(xs)) xs <- c(xs, sample(alpha, 1, prob=prob))
+        else xs <- c(xs[1:pos], sample(alpha, 1, prob=prob), 
+                     xs[(pos+1L):length(xs)])
+      }
+    }
+    c2s(xs)
+  }
+  
+  xs <- replicate(number, .mut(xs, change, insertion, deletion, prob), 
+                  simplify=FALSE)
+  
+  r <- (switch(class(x),
+         DNAString = DNAStringSet(lapply(xs, DNAString)), 
+         RNAString = RNAStringSet(lapply(xs, RNAString)),
+         AAString = AAStringSet(lapply(xs, AAString)) 
+         ))
+
+
+  names(r) <- paste(name, 1:length(r), sep="mutation_")
+  r
+}
