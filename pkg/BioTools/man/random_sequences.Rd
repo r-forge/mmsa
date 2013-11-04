@@ -1,5 +1,5 @@
-\name{random_sequence}
-\alias{random_sequence}
+\name{random_sequences}
+\alias{random_sequences}
 \title{
 Create a Set of Random Sequences
 }
@@ -7,7 +7,7 @@ Create a Set of Random Sequences
 Creates a set of random DNA, RNA or AA sequences.
 }
 \usage{
-random_sequence(len, number=1, prob=NULL, type=c("DNA", "RNA", "AA"))
+random_sequences(len, number=1, prob=NULL, type=c("DNA", "RNA", "AA"))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -38,7 +38,7 @@ m
 stringDist(c(s,m))
 
 ### multiple sequence alignment
-dontrun{
+\dontrun{
 clustal(c(s,m))
 }
 }

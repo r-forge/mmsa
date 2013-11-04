@@ -27,16 +27,20 @@ A dist object.
 %\references{
 %}
 \examples{
-s <- mutations(random_sequences(100), 100)
+s <- mutations(random_sequences(100), 100, .01, .01, .01)
 s
 
 dNSV <- NSVdist(s)
-d
+dNSV
 
 ### relationship with edit distance
 dEdit <- stringDist(s)
 
-plot(jitter(dNSV/2/3), jitter(dEdit), xlim=c(0,10), ylim=c(0,10))
-abline(0,1, col="red", lwd=2)
+df <- data.frame(dNSV=as.vector(dNSV), dEdit=as.vector(dEdit))
+plot(sapply(df, jitter), cex=.1)
+### add lower bound (2*k, for Manhattan distance)
+abline(0,1/(2*3), col="red", lwd=2)
+### add regression line
+abline(lm(dEdit~dNSV, data=df), col="blue", lwd=2)
 }
 \keyword{model}

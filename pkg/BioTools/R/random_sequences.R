@@ -28,13 +28,13 @@ c2s <- function(x) paste(x, collapse='')
 ### create random sequences
 
 random_sequences <- function(len, number=1, prob=NULL, 
-                            alphabet = c("DNA", "RNA", "AA")) {
-  alphabet <- match.arg(alphabet)
+                            type = c("DNA", "RNA", "AA")) {
+  type <- match.arg(type)
   
   .rand_string <- function(len, prob, alpha) c2s(sample(alpha, 
                   len, replace=TRUE, prob=prob))  
 
-  s <- switch(alphabet,
+  s <- switch(type,
               DNA = DNAStringSet(replicate(number, .rand_string(len, prob, Biostrings::DNA_BASES))),
               RNA = RNAStringSet(replicate(number, .rand_string(len, prob, Biostrings::RNA_BASES))),
               AA = AAStringSet(replicate(number, .rand_string(len, prob, Biostrings::AA_ALPHABET[1:20])))
@@ -47,7 +47,7 @@ random_sequences <- function(len, number=1, prob=NULL,
 
 
 mutations <- function(x, number=1, change=0.01, insertion=0.01, 
-                      deletion=0,01, prob=NULL) {
+                      deletion=0.01, prob=NULL) {
   
   if(is(x, "XStringSet") && length(x)!=1) stop("x has to be a single sequence!")
   if(is(x, "XStringSet")) {
@@ -66,10 +66,16 @@ mutations <- function(x, number=1, change=0.01, insertion=0.01,
      
   .mut <- function(xs, change, insertion, deletion, prob) {
     ### change
-    ### correct for equal base exchange
     if(change>0) {
-      m <- runif(n) < change
-      xs[m] <- sample(alpha, sum(m), replace=TRUE, prob=prob)
+      m <- which(runif(n) < change)
+      #xs[m] <- sample(alpha, sum(m), replace=TRUE, prob=prob)
+      ### this correctd for equal base exchange
+      while(length(m)>0) {
+        newLetters <- sample(alpha, length(m), replace=TRUE, prob=prob)
+        oldM <- m
+        m <- m[xs[m] == newLetters]
+        xs[oldM] <- newLetters
+      }
     }
     
     ### deletion

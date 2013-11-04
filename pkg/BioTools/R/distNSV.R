@@ -18,9 +18,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-NSVdist <- function(x, k=3, method="l1") {
+NSVdist <- function(x, k=3, method="Manhattan") {
     x <- DNAStringSet(x)
     x.kmer <- oligonucleotideFrequency(x, k)
+    
+    if(pmatch(tolower(method), "kullback", nomatch=0)) x.kmer <- x.kmer+1
+    
     proxy::dist(x.kmer, method=method)
 }
 
