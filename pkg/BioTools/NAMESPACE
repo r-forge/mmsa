@@ -4,6 +4,8 @@ import(RSQLite)
 import(seqLogo)
 import(proxy)
 
+importFrom(ape, dist.dna, as.DNAbin)
+
 export( 
 	### clustal
 	clustal,
@@ -70,7 +72,16 @@ export(
 
   random_sequences,
   mutations,
-  NSVdist
+  
+  distNSV,  
+  distSimRank,
+  distApe,
+  distKMer,
+  distCV,
+  distFFP,
+  distEdit,
+  distAlignment
+  
   )
 
 S3method(print, RDPClassifier)

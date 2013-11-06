@@ -17,10 +17,12 @@ simRank(x, k = 7)
   \item{k}{ size of used k-mers.
 }
 }
-%\details{
-%}
+\details{
+\code{distSimRank()} returns 1-\code{simRank()}.
+}
 \value{
-A similarity object of class "simil" (see \pkg{proxy}).
+\code{simRank()} returns a similarity object of class "simil" (see \pkg{proxy}).
+\code{distSimRank()} returns a dist object.
 }
 \references{
 Santis et al, Simrank: Rapid and sensitive general-purpose k-mer 

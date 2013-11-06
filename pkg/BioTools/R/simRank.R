@@ -21,6 +21,9 @@
 ### Santis et al, Simrank: Rapid and sensitive general-purpose k-mer 
 ### search tool, BMC Ecology 2011, 11:11
 
+### The similarity between sequences Q and S are the number of unique k-mers 
+### shared, divided by the smallest total unique k-mer count in either Q or S. 
+
 simRank <- function(x, k=7) {
     x <- DNAStringSet(x)
     
@@ -33,4 +36,7 @@ simRank <- function(x, k=7) {
 
     as.simil(shared/min)
 }
+
+
+  
 
