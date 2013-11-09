@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
+### Feature Frequency Profile
 distFFP <- function(x, k=3, method="JSD", normalize=TRUE) {
 
   ## Jensen–Shannon divergence between rows
@@ -68,9 +68,28 @@ distFFP <- function(x, k=3, method="JSD", normalize=TRUE) {
 }
 
 ### Composition Vector
-### FIXME: Subtract the baseline distribtion of k-mers
+### 
 distCV <- function(x, k=3) {
-  distFFP(x, k, method="Cosine", normalize=FALSE)
+  x <- DNAStringSet(x)
+  x.kmer <- oligonucleotideFrequency(x, k)
+  x.kmer <- sweep(x.kmer, 1, rowSums(x.kmer), "/") ### normalize
+  
+  ### k-1 and k-2 mers
+  x.kmer1 <- oligonucleotideFrequency(x, k-1)
+  x.kmer1 <- sweep(x.kmer1, 1, rowSums(x.kmer1), "/") ### normalize
+  x.kmer2 <- oligonucleotideFrequency(x, k-2)
+  x.kmer2 <- sweep(x.kmer2, 1, rowSums(x.kmer2), "/") ### normalize
+  
+  
+  x.kmer <- x.kmer - sapply(colnames(x.kmer), FUN=function(n) {
+      p0 <- x.kmer1[,substr(n, 1L,k-1L), drop=FALSE] * 
+        x.kmer1[,substr(n, 2L,k), drop=FALSE] / 
+        x.kmer2[,substr(n, 2L,k-1L), drop=FALSE]
+    
+      p0[is.nan(p0)] <- 0
+    })
+  
+  proxy::dist(x.kmer, method="Cosine")
 
 }
 

@@ -27,12 +27,55 @@ c2s <- function(x) paste(x, collapse='')
 
 ### create random sequences
 
-random_sequences <- function(len, number=1, prob=NULL, 
+random_sequences <- function(len, number=1, prob=NULL,
                             type = c("DNA", "RNA", "AA")) {
   type <- match.arg(type)
+  alpha <- switch(type,
+              DNA = Biostrings::DNA_BASES,
+              RNA = Biostrings::RNA_BASES,
+              AA = AA_ALPHABET[1:20]
+  )
   
-  .rand_string <- function(len, prob, alpha) c2s(sample(alpha, 
-                  len, replace=TRUE, prob=prob))  
+  #.rand_string <- function(...) stop("No sequence creator selected.")
+  
+  if(is.null(prob)){
+    .rand_string <- function(len, prob, alpha) c2s(sample(alpha, len, 
+                                                          replace=TRUE, 
+                                                          prob=prob)) 
+  }else{ ### with specified probabilities
+    if(is.matrix(prob)) { ### transition matrix
+      # prob <- oligonucleotideTransitions(seqs, as.prob=TRUE)
+      
+      if(!all(sort((rownames(prob)))==sort(alpha)) 
+         || !all(sort((colnames(prob)))==sort(alpha))) 
+        stop(paste("Illegal or missing names in transition matrix.\n",
+             "Expecting values for", paste(alpha, collapse=", ")))
+      
+      prob <- prob[alpha, alpha]  
+      
+      .rand_string <- function(len, prob, alpha) {
+        s <- character(len)
+        s[1L] <- sample(alpha, 1L, prob=colMeans(prob))
+  
+        for(i in 2:len) s[i] <- sample(alpha, 1L, prob=prob[s[i-1L],])
+        
+        c2s(s)
+      }
+      
+    }else{ ### vector with letter frequencies
+      names(prob) <- toupper(names(prob))
+      prob <- prob[alpha]
+      if(any(is.na(prob))) 
+        stop(paste("Illegal or missing names in probability vector.\n",
+                 "Expecting values for", paste(alpha, collapse=", ")))
+      
+      .rand_string <- function(len, prob, alpha) c2s(sample(alpha, len, 
+                                                            replace=TRUE, 
+                                                            prob=prob)) 
+    }
+  }
+  
+ 
 
   s <- switch(type,
               DNA = DNAStringSet(replicate(number, .rand_string(len, prob, Biostrings::DNA_BASES))),
@@ -59,9 +102,13 @@ mutations <- function(x, number=1, change=0.01, insertion=0.01,
   xs <- s2c(as.character(x))
   n <- length(xs)
   
-  ### estimate letter frequencies
+  ### estimate letter frequencies or use given probabilities
   if(is.null(prob)) {
     prob <- letterFrequency(x, letters=alphabet(x, baseOnly=TRUE), as.prob=TRUE)
+  }else{
+    names(prob) <- toupper(names(prob))
+    prob <- prob[alpha]
+    if(any(is.na(prob))) stop("illegal or missing names in prob.")
   }
      
   .mut <- function(xs, change, insertion, deletion, prob) {

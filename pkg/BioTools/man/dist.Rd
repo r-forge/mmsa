@@ -53,8 +53,8 @@ as the Jensen-Shannon divergence (JSD) between FFPs (Sims and Kim, 2011).}
 
 \item{\emph{Composition Vector} (\code{distCV}): A CV is a vector with the
 frequencies of each k-mer in the sequency minus the expected frequency 
-of random background nice obtained from a Markov Model (not implemented yet!).
-The cosine distance is used between CVs. (Gao and Qi, 2007).}
+of random background of neutral mutations obtained from a Markov Model.
+The cosine distance is used between CVs. (Qi et al, 2007).}
 
 \item{\emph{Numerical Summarization Vector} (\code{distNSV}): An NSV is 
 frequency distribution of all possible k-mers in a sequence. 
@@ -72,10 +72,10 @@ unique k-mers in both sequences).}
 between sequences.}
 
 \item{\emph{Distance based on alignment score} (\code{distAlignment}): 
-see \code{stringDist} in \pkg{Biostrings}.}
+see \code{\link[Biostrings]{stringDist}} in \pkg{Biostrings}.}
 
 \item{\emph{Evolutionary distances} (\code{distApe}): 
-see \code{dna.dist} in \pkg{ape}.}
+see \code{\link[ape]{dist.dna}} in \pkg{ape}.}
 }
 }
 \value{
@@ -85,6 +85,10 @@ A dist object.
 Sims, GE; Kim, SH (2011 May 17). "Whole-genome phylogeny of Escherichia coli/Shigella group by feature frequency profiles (FFPs).". Proceedings of the National Academy of Sciences of the United States of America 108 (20): 8329-34. PMID 21536867.
 
 Gao, L; Qi, J (2007 Mar 15). "Whole genome molecular phylogeny of large dsDNA viruses using composition vector method.". BMC evolutionary biology 7: 41. PMID 17359548.
+
+Qi J, Wang B, Hao B: Whole Proteome Prokaryote Phylogeny
+without Sequence Alignment: A K-String Composition
+Approach. Journal of Molecular Evolution 2004, 58:1-11.
 
 Anurag Nagar; Michael Hahsler (2013). "Fast discovery and visualization of conserved regions in DNA sequences using quasi-alignment." BMC Bioinformatics, 14(Suppl. 11), 2013
 }

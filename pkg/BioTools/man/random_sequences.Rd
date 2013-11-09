@@ -13,9 +13,12 @@ random_sequences(len, number=1, prob=NULL, type=c("DNA", "RNA", "AA"))
 \arguments{
   \item{len}{sequence length}
   \item{number}{number of sequences in the set}
-  \item{prob}{a vector with letter probabilities. 4 for DNA and RNA and 20
-  for AA. The letter order is given by DNA_BASES, RNA_BASES and AA_ALPHABET 
-  (first 20 letters). }
+  \item{prob}{a named vector with letter probabilities or a transition 
+              probability matrix (as produced by 
+              \code{\link{oligonucleotideTransitions}}). 
+              4 letters for DNA and RNA and 20
+              for AA (see \code{DNA_BASES}, \code{RNA_BASES} and the first 20
+              letters in \code{AA_ALPHABET}). }
   \item{type}{sequence type}
 }
 %\details{
@@ -24,11 +27,22 @@ random_sequences(len, number=1, prob=NULL, type=c("DNA", "RNA", "AA"))
 A XStringSet.
 }
 \examples{
-### create random sequences
-seqs <- random_sequences(100, 10)
+### create random sequences (using given letter frequencies)
+seqs <- random_sequences(100, number=10, prob=c(a=.5, c=.3, g=.1, t=.1))
 seqs
 
-### calculate edit distance
-stringDist(seqs)
+### check letter frequencies
+summary(oligonucleotideFrequency(seqs, width=1, as.prob=TRUE))
+
+### creating random sequences using a random dinocleodite transition matrix
+prob <-  matrix(runif(16), nrow=4, ncol=4, dimnames=list(DNA_BASES, DNA_BASES))
+prob <- prob/rowSums(prob)
+  
+seqs <- random_sequences(100, number=10, prob=prob)
+seqs
+
+### check dinocleodite transition probabilities
+prob
+oligonucleotideTransitions(seqs, as.prob=TRUE)
 }
 \keyword{model}

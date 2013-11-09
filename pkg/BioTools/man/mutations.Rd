@@ -15,9 +15,10 @@ mutations(x, number=1, change=0.01, insertion=0.01, deletion=0.01, prob=NULL)
   \item{x}{A XString or an XStringSet of length 1.}
   \item{number}{number of sequences to create.}
   \item{change, insertion, deletion}{probability of this operation.}
-  \item{prob}{a vector with letter probabilities. 4 for DNA and RNA and 20
-  for AA. The letter order is given by DNA_BASES, RNA_BASES and AA_ALPHABET 
-  (first 20 letters). The default is to estimate the probabilities from the sequence in x. }
+  \item{prob}{a named vector with letter probabilities. 4 for DNA and RNA and 20
+  for AA (see \code{DNA_BASES}, \code{RNA_BASES} and the first 20
+          letters in \code{AA_ALPHABET}). 
+  The default is to estimate the probabilities from the sequence in x. }
 }
 %\details{
 %}
