@@ -108,6 +108,7 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
     ### process block sequences on each core
     block <- 100
     
+    ### concurrent write does not work for SQLite
     ### so we write the result to file and then read it back
     tmp_dir <- paste(db$dbName, "_chunks", sep="")
     dir.create(tmp_dir)
@@ -124,27 +125,7 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	n <- createNSVSet(s,  window, overlap, word, last_window, allOffsets)
 	n <- lapply(n, FUN=function(x) base64encode(serialize(x, NULL)))
 
-	### concurrent write does not work for SQLite
-	### so we write the result to file and then read it back
-
-	### wait till we get a lock
-	#while(!dbBeginTransaction(dbl$db)) Sys.sleep(1)
-	#for(i in 1:length(n)) {
-	#    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
-	#    tr <- try(
-	#		    dbSendQuery(dbl$db,          
-	#			    statement = paste("INSERT INTO ", table,
-	#			    " VALUES (", dat, ")", sep=''))
-	#	    )
-	#    
-	#    if(!is(tr, "try-error")) ok <- ok+1
-	#    else fail <- fail+1
-	#    total <- total+1
-	#}
-	#dbCommit(dbl$db) 
-
 	n <- data.frame(id=I(names(s)), data=I(unlist(n)))
-	#    dat <- paste("'",c(names(s)[i], n[[i]]),"'", sep='', collapse=', ')
 	saveRDS(n, file=file.path(tmp_dir, start))
 
 	closeGenDB(dbl) ### this does not close the main db!
@@ -153,21 +134,17 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
     }
     #end loop
     
-    ### so we write the result to file and then read it back
-    ### write files sequential to db 
+    ### write files sequential back to db 
     for(f in list.files(tmp_dir, full.names=TRUE)) {
 	n <- readRDS(file=f)
 	dbWriteTable(db$db, table, n, append = TRUE, row.names=FALSE)
     }
     unlink(tmp_dir, recursive=TRUE)
-
-
+     
+    res <- sum(res)
 
 #    if(is.matrix(res)) res <- colSums(res)
 #    names(res) <- c("ok", "fail", "total")
-     res <- sum(res)
-
-
 #    cat("CreateNSVTable: Read ", res["total"], " entries. Added ", 
 #	    res["ok"] , " entries (",res["fail"]," failed).\n", sep="")
 
@@ -249,7 +226,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
     type <- metaGenDB(db, table)[,"type"]
     if(length(type) !=1) stop("table does not exist!")    
 
-    if (type=="sequence") getX <- BioTools:::getSequences
+    if (type=="sequence") getX <- BioTools::getSequences
     else getX <- getNSVs
 
     getX(db,  rank, name,
