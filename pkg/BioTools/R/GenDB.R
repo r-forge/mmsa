@@ -90,22 +90,13 @@ closeGenDB <- function(db) {
 }
 
 reopenGenDB <- function(db, ...) {
-    db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
     db <- list(
-	    db=dbConnect(db$drv, dbname = db$dbName), 
+	    db=dbConnect(db$drv, dbname = db$dbName, ...), 
 	    dbName=db$dbName, drv=db$drv)
     class(db) <- "GenDB"
     db
 }
 
-#reopenGenDB <- function(db, ...) {
-#    db_new<-dbConnect(db$drv, dbname = db$dbName, ...);
-#    db <- list(
-#	    db=db_new, 
-#	    dbName=db$dbName, drv=db$drv)
-#    class(db_new) <- "GenDB"
-#    db_new
-#}
 
 listGenDB <- function(db) setdiff(dbListTables(db$db), 
 	c("classification", "metaData"))

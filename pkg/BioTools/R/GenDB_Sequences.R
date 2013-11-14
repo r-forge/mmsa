@@ -59,13 +59,14 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	}
     else fullRankSQL <-"-1"
 
-	res <- dbGetQuery(db$db, 
-	    statement = paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
-		    " INNER JOIN classification ON classification.id = ",
-		    table, ".id ", 
-		    .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limitSQL)
-	    )
-	if (!is.null(rank) && rank=="id" && nrow(res)==length(name))
+    statement <- paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
+                       " INNER JOIN classification ON classification.id = ",
+                       table, ".id ", 
+                       .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limitSQL)
+    
+	res <- dbGetQuery(db$db, statement = statement)
+
+    if (!is.null(rank) && rank=="id" && nrow(res)==length(name))
 	{
 		if (!is.null(name))
 			res<-res[match(name,res$id),]	
@@ -73,11 +74,12 @@ getSequences <- function(db,  rank=NULL, name=NULL,
 	if (nrow(res) == 0) stop("No rows found in the database")
     ret <- DNAStringSet(res$data)
     
-    ### add names
-    h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE, 
-                      drop=FALSE)
-    names(ret) <- annotation(h, decode=FALSE)
-   
+    ### add names: this is super slow....
+    #h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE, 
+    #                  drop=FALSE)
+    #names(ret) <- annotation(h, decode=FALSE)
+    names(ret) <- res$id
+    
     if(!is.null(rank)){
 			attr(ret,"rank")<-fullRank
 			attr(ret,"name")<-res$fullRank

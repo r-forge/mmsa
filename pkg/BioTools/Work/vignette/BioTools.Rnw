@@ -161,6 +161,13 @@ used for selective and efficient sequence retrieval.
 
 %%% FIXME: Paper structure
 
+
+\section{Needed Software}
+Database comes with R
+
+\code{BioTools_Software_Wizard} tries to download and install the needed 
+software (RDP, clustal, kalign, MAFFT, BLAST and boxshade).
+
 \section{GenDB: Sequence storage an management}
 \pkg{BioTools} provides
 a databases (GenDB) which can be used
@@ -419,6 +426,35 @@ al <- kalign(dna)
 al
 @
 
+\subsection{MUSCLE}
+
+<<>>=
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+  package="BioTools"))
+dna
+
+al <- MUSCLE(dna) 
+al
+
+### inspect alignment
+detail(al)
+@
+
+
+\subsection{MAFFT}
+<<>>=
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+  package="BioTools"))
+dna
+
+al <- mafft(dna) 
+al
+
+### inspect alignment
+detail(al)
+@
+
+
 \section{Classification with RDP}
 
 The Ribosomal Database Project (RDP) provides various  tools and services to the scientific community for data related to 16S rRNA sequences. Among other tools, it provides a hierarchical browser and a classifier that can be used to assign sequences to taxonomies. The classifier uses a Naive Bayesian approach to quickly and accurately classify sequences. The classifier uses an alignment-free approach and compares the word frequency distribution with word size of 8\cite{RDP}.
@@ -478,8 +514,80 @@ cl[1:5,]
 @
 
 
-%\section{Other components}
-%% FIXME: Simrank
+\section{Creating Random Sequences}
+
+Creating random sequences given letter probabilities.
+<<>>=
+seqs <- random_sequences(100, number=10, prob=c(a=.5, c=.3, g=.1, t=.1))
+seqs
+@
+
+Creating random sequences using dinocleodite trandition probabilities
+<<>>=
+prob <-  matrix(runif(16), nrow=4, ncol=4, dimnames=list(DNA_BASES, DNA_BASES))
+prob <- prob/rowSums(prob)
+  
+seqs <- random_sequences(100, number=10, prob=prob)
+seqs
+@
+
+Creates a set of sequences which are random mutations (with base changes, insertions and deletions) for a given DNA, RNA or AA sequence.
+<<>>=
+s <- random_sequences(100, number=1)
+s
+
+### create 10 sequences with 1 percent base changes, insertions and deletions
+m <- mutations(s, 10, change=0.01, insertion=0.01, deletion=0.01)
+m
+
+clustal(c(s,m))
+@
+
+
+
+\section{Calculating Distances between Sequences}
+Calculating distances between sequences is important for many bioinformatics
+applications. The following distance metrics are available in \pkg{BioTools}: 
+
+\begin{itemize}
+\item Feature frequency profile (distFFP): A FFP is the normalized (by the number of k-mers in the sequence) count of each possible k-mer in a sequence. The distance is defined as the Jensen-Shannon divergence (JSD) between FFPs (Sims and Kim, 2011).
+
+\item Composition Vector (distCV): A CV is a vector with the frequencies of each k-mer in the sequency minus the expected frequency of random background nice obtained from a Markov Model (not implemented yet!). The cosine distance is used between CVs. (Qi et al, 2007).
+
+\item Numerical Summarization Vector (distNSV): An NSV is frequency distribution of all possible k-mers in a sequence. The Manhattan distance is used between NSVs (Nagar and Hahsler, 2013).
+
+\item Distance between sets of k-mers (distkMer): Each sequence is represented as a set of k-mers. The Jaccard (binary) distance is used between sets (number of unique shared k-mers over the total number of unique k-mers in both sequences).
+
+\item Distance based on SimRank (distSimRank): 1-simRank (see simRank).
+
+\item Edit (Levenshtein) Distance (distEdit): Edit distance between sequences.
+
+\item Distance based on alignment score (distAlignment): see stringDist in Biostrings.
+
+\item Evolutionary distances (distApe): see dist.dna in ape.
+\end{itemize}
+
+
+<<>>=
+s <- mutations(random_sequences(100), 100)
+s
+
+### calculate NSV distance
+dNSV <- distNSV(s)
+
+### relationship with edit distance
+dEdit <- distEdit(s)
+
+df <- data.frame(dNSV=as.vector(dNSV), dEdit=as.vector(dEdit))
+plot(sapply(df, jitter), cex=.1)
+### add lower bound (2*k, for Manhattan distance)
+abline(0,1/(2*3), col="red", lwd=2)
+### add regression line
+abline(lm(dEdit~dNSV, data=df), col="blue", lwd=2)
+
+### check correlation
+cor(dNSV,dEdit)
+@
 
 
 \section{Conclusion}
