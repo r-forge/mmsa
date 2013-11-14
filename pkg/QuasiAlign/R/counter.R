@@ -2,7 +2,7 @@
 .counter <- function(x, window=100L, overlap=0L, word=3L, 
                      last_window=FALSE, allOffsets=FALSE) {
   
-  x <- DNAString(x)
+  if(!is(x, "DNAString")) stop("x needs to be a DNAString!")
   
   if (!allOffsets){
     if(length(x) < window) {
@@ -28,8 +28,11 @@
                                          nchar=end[i]-start[i]+1L), 
                                word)))
     return(mat)
-  
-  }else{ ### all offsets
+  }
+
+  ### allOffset is TRUE or 1
+  if((is.logical(allOffsets) && allOffsets) || allOffsets==1) { 
+    
     if(last_window) warning("last_window is ignored for allOffsets")
     
     ### create matrix and get count for initial segment
@@ -41,8 +44,7 @@
     n <- length(xc)
     
     ### create count matrix
-    ##mat <- matrix(NA_integer_, nrow=n-window+1L, ncol=4^word)
-    mat <- matrix(NA_integer_, nrow=n+1L, ncol=4^word)
+    mat <- matrix(NA_integer_, nrow=n+1L, ncol=4^word) #n-window+1 + window NAs
     colnames (mat) <- names(freq)
     mat[1,] <- freq
     
@@ -74,15 +76,19 @@
     return(mat)
   }
   
+  ### allOffset is a number
+  if(last_window) warning("last_window is ignored for allOffsets")
+  
+  mat <- sapply(seq(1L, window, by=allOffsets), FUN=function(i) {
+      s <- DNAString(x, start=i)
+      rbind(.counter(s, window=window, overlap=overlap, word=word, 
+               last_window=FALSE, allOffsets=FALSE), NA_integer_)
+      })
+  
+  mat <- do.call(rbind, mat)
+  return(mat)
+  
 }
-
-### test: 
-## all(oligonucleotideFrequency(DNAString(train[[1]], start=101,nchar=100), width=3) ==  trainNSV[[1]][2,])
-
-
-
-
-#end
 
 
 # count individual sequences
