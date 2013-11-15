@@ -9,7 +9,7 @@ GenModel <- function(x, rank=NULL, name = NULL,
     build(emm, d)
     
     ### cluster info
-    if (saveClusterInfo) clusterInfo <- clusterInfo <- .getClusterInfo(list(), 
+    if (saveClusterInfo) clusterInfo <- .getClusterInfo(list(), 
 	    last_clustering(emm), attr(x,"id"), 0)
     else clusterInfo <- NA
 

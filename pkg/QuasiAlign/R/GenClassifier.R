@@ -25,67 +25,62 @@ removeGenClassifier <- function(object) {
 }
 
 
+### FIXME: add pruning option!
+
 # Creates models in classifier_dir directory for all names in rank.  If selection is
 # specified, then it uses only those sequences for creating the model
 trainGenClassifier <- function(classifier_dir, db, rank = "Phylum", 
 	table="NSV", selection=NULL, limit=NULL, add=FALSE, ...) 
 {
 
-    if(is(classifier_dir, "GenClassifier"))  
-      classifier_dir  <- classifier_dir$classifier_dir
-    else if(file.exists(classifier_dir)) 
-	stop("Directory/file exists! Choose a differnt directory!")
-
-    ### make sure the directory is always lower case
-    rank <- tolower(rank)
-
-    ### check if classifier_dir exists
-    ### create rank subdir
-    rankDir <- file.path(classifier_dir,rank)
-    if(!file.exists(classifier_dir)) dir.create(classifier_dir)
-    
-    
-    if(file.exists(rankDir) && !add) {
-      warning("Existing models for this rank are deleted (use add)!", 
-	      immediate.=TRUE)
-      unlink(rankDir, recursive=TRUE)
-    }
-    dir.create(rankDir)
-    
+  if(is(classifier_dir, "GenClassifier"))  
+    classifier_dir  <- classifier_dir$classifier_dir
+  else if(file.exists(classifier_dir) && !add) 
+    stop("Directory/file exists! Set add=TRUE, remove old classifier, or choose a differnt directory!")
+  
+  ### check if classifier_dir exists
+  if(!file.exists(classifier_dir)) {
+    dir.create(classifier_dir)
     # mark as Genclassifier
     ff <- file(file.path(classifier_dir, "isGenClassifier"), "w")
     cat("TRUE", file=ff)
     close(ff)
-
-    #get rank names
-    if(is.null(selection))
-	rankNames <- getRank(db, rank)
-    else
-	rankNames <- getRank(db, rank=rank, whereRank="id", 
-	    whereName=selection)
-
-    i <- 1  ### FIXME: otherwise R CMD check complains about missing global binding 
-    foreach (i = 1:length(rankNames)) %dopar% {
-	dbl <- reopenGenDB(db) ### reopen for multicore
-	
-	n <- rankNames[i]
-	sel <- selection
-
-	# only use selected sequences in model
-	if(!is.null(selection)) {
-	    sel <- sel[rankNames==n]  
-	    rn <- NULL
-	} else rn <- n
-
-	emm <- GenModelDB(dbl, rank=rank, name=rn, table=table,
-		selection=sel, limit=limit, ...)
-	
-	n<-gsub("/","",n)
-	saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
-	closeGenDB(dbl)
-    }
-
-    GenClassifier(classifier_dir)
+  }
+  
+  ### create rank subdir
+  rank <- tolower(rank)
+  rankDir <- file.path(classifier_dir,rank)
+  if(!file.exists(rankDir)) dir.create(rankDir)
+  
+  #get rank names
+  if(is.null(selection))
+    rankNames <- getRank(db, rank)
+  else
+    rankNames <- unique(rankNames_sel <- getRank(db, rank=rank , whereRank="id", 
+                                                 whereName=selection))
+  
+  i <- 1  ### FIXME: otherwise R CMD check complains about missing global binding 
+  foreach (i = 1:length(rankNames)) %dopar% {
+    dbl <- reopenGenDB(db) ### reopen for multicore
+    
+    n <- rankNames[i]
+    sel <- selection
+    
+    # only use selected sequences in model
+    if(!is.null(selection)) {
+      sel <- sel[rankNames_sel==n]  
+      rn <- NULL
+    } else rn <- n
+    
+    emm <- GenModelDB(dbl, rank=rank, name=rn, table=table,
+                      selection=sel, limit=limit, ...)
+    
+    n<-gsub("/","",n)
+    saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
+    closeGenDB(dbl)
+  }
+  
+  GenClassifier(classifier_dir)
 }
 
 
@@ -94,7 +89,7 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
 # of rankNames output is a data.frame containing the similarity scores,
 # predicted value and the actual value
 predict.GenClassifier <- function(object, newdata, rank="Phylum", 
-	method="supported_transitions", ...) {
+	method="supported_transitions", match_cluster="exact", ...) {
 #classify<-function(modelDir, NSVList, rank, method="supported_transitions")
 #{
 
@@ -114,7 +109,7 @@ predict.GenClassifier <- function(object, newdata, rank="Phylum",
 	cat("classify: Creating score matrix for", modelNames[i],"\n")
 	model<-readRDS(modelFiles[i])
 	sapply(NSVList, FUN = function(x) scoreSequence(model, 
-			x, method=method, plus_one=TRUE))
+			x, method=method, match_cluster=match_cluster, ...))
     }    
     colnames(classificationScores) <- modelNames
     

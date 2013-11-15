@@ -396,7 +396,7 @@ db
 
 The command below uses a FASTA file provided by the package, hence we use
 \func{system.file} instead of just a string with the file name.
-<<>>= 
+<<addSequences>>= 
 addSequences(db,
   system.file("examples/phylums/Firmicutes.fasta", package="QuasiAlign"))
 @
@@ -416,7 +416,7 @@ In the function call above we used the default values for most of the
 parameters such as word, overlap, and last\_window.  Custom parameter settings 
 and filter
 criteria can be easily specified in the following way:
-<<>>=
+<<createNSVTable>>=
 createNSVTable(db, table = "NSV_genus_Thermosinus", 
     rank = "genus", name = "Thermosinus", 
     window = 100, overlap = 0, word = 3, last_window = FALSE)
@@ -434,7 +434,7 @@ will be ignored.
 When a new sequence or NSV table is created, its name and meta information is 
 stored in the metaData table. The meta data can be queried using the
 \func{metaGenDB} function.
-<<>>=
+<<metaGenDB>>=
 metaGenDB(db)
 @
 The annotation column contains information about how the NSVs were created.
@@ -444,7 +444,7 @@ The annotation column contains information about how the NSVs were created.
 The sequences in the NSV tables can be queried and filtered
 using \func{getSequences} in the same way as regular sequences, however,
 the result is an object of class NSVSet.
-<<>>=
+<<NSV>>=
 NSVs <- getSequences(db, rank="Genus", name="Desulfosporomusa", table="NSV")
 NSVs
 @
@@ -484,7 +484,7 @@ plot(NSVs[1:5,1])
 
 Finally, we can close a GenDB after we are done working with it. The database
 can later be reopened using \func{openGenDB}.
-<<>>=
+<<closeGenDB>>=
 closeGenDB(db)
 @
 
@@ -503,7 +503,7 @@ The convenience function \func{processSequences} loads all FASTA
 files from a directory into the database and then converts them into NSVs.
 
 
-<<>>=
+<<processSequences>>=
 db<-createGenDB("example.sqlite")
 processSequences(system.file("examples/phylums", package="QuasiAlign"), db)
 @
@@ -516,7 +516,7 @@ the NSVs.
 The NSVs created in the previous section can be used for model generation. The
 models can be created at for all 
 sequences in the database or for any set of sequences selected using filters.
-<<>>=
+<<GenModelDB>>=
 model <- GenModelDB(db, rank="Genus", name="Desulfosporomusa", table="NSV",
     measure="Manhattan", threshold =30)
 model
@@ -620,7 +620,7 @@ new sequences. We can compare the new sequences against just one model or all
 the models stored in a directory using \func{scoreSequence}. 
 Below, we use the \func{getSequences} to get 5 random sequences from the NSV table and then score
 them against the model for ``Firmicutes'' using the function \func{scoreSequence}.
-<<>>=
+<<scoreSequence>>=
 random_sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
 random_sequences
 scoreSequence(model, random_sequences)
@@ -628,7 +628,7 @@ scoreSequence(model, random_sequences)
 
 The default method for scoring a sequence against a model is the \textit{supported\_transitions} method. It can be changed by the \textit{method} parameter in the \func{scoreSequence}. To find the actual classification, we can use the Greengenes ids of the sequences. The code snippet below illustrated this:
 
-<<>>=
+<<accuracy>>=
 ids <- names(random_sequences)
 hierarchy <- getHierarchy(db, rank="id",name=ids)
 hierarchy[,"Phylum"]
@@ -646,14 +646,15 @@ score matrix and the actual and predicted ranks.
 unknown <- getSequences(db, table="NSV", rank="Phylum", 
                         limit=10, random=TRUE)
 pred <- predict(classifier, unknown, rank="Phylum")
-pred
+head(pred$score)
+head(pred$class)
 @
 
 Compare the predictions with the true class labels.
 <<>>=
-true<- getRank(db, rank="Phylum", whereRank="id", whereName=names(unknown))
-true
-table(predicted = pred$class, true)
+actual<- getRank(db, rank="Phylum", whereRank="id", whereName=names(unknown))
+head(actual)
+confusionMatrix(pred$class, reference=actual)
 @
 
 The default method for \func{classify} is \verb|supported_transitions|, but other methods can also be easily used. 
@@ -692,15 +693,16 @@ classifier
 testn <- getSequences(db, rank="id", name=test, table="NSV")
 testn
 
-pred <- predict(classifier, testn)
-pred
+pred <- predict(classifier, testn, match="weighted")
+head(pred$score)
+head(pred$class)
 
-true <- getRank(db, rank="phylum", whereRank="id", whereName=test)
-true
+actual <- getRank(db, rank="phylum", whereRank="id", whereName=test)
+head(actual)
 
-table(pred$class, true)
+table(pred$class, actual)
 
-#confusionMatrix(pred$class, true)
+confusionMatrix(pred$class, reference=actual)
 @
 
 <<>>=

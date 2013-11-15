@@ -1,16 +1,14 @@
 scoreSequence <- function(x, newdata, 
 	method = "supported_transitions",
-	match_cluster="nn", plus_one = TRUE,
-	initial_transition = FALSE) {
+	match_cluster="exact",...) {
 
 
     if(is(newdata, "NSVSet")) {
 	return(sapply(newdata, FUN=function(s) 
-			scoreSequence(x, s, method, match_cluster, 
-				plus_one, initial_transition)))
+			scoreSequence(x, s, method, match_cluster, ...)))
     }
 
-    rEMM::score(x$model, newdata, method, match_cluster, 
-	    plus_one, initial_transition)
+    rEMM::score(x$model, newdata, method=method, 
+                match_cluster=match_cluster, ...)
 }
 

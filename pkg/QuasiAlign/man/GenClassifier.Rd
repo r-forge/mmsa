@@ -2,6 +2,7 @@
 \alias{GenClassifier}
 \alias{print.GenClassifier}
 \alias{predict.GenClassifier}
+\alias{predict}
 \alias{removeGenClassifier}
 \alias{trainGenClassifier}
 \docType{data}
@@ -16,7 +17,7 @@ removeGenClassifier(object)
 trainGenClassifier(classifier_dir, db, rank = "Phylum",
         table="NSV", selection=NULL, limit=NULL, add=FALSE, ...)
 \method{predict}{GenClassifier}(object, newdata, rank="Phylum",
-        method="supported_transitions", ...)
+        method="supported_transitions", match_cluster="exact", ...)
 }
 \arguments{
 	\item{classifier_dir}{directory to store the classifier data.}
@@ -31,6 +32,7 @@ trainGenClassifier(classifier_dir, db, rank = "Phylum",
   \item{newdata}{Sequences to be classified as a NSVSet.}
 	\item{method}{Method used to compute the similarity score between
 	the model and a new sequence (see \code{score} in \pkg{rEMM} for available scoring methods).}
+	\item{match_cluster}{How are NSVs matched against the model clusters ("exact", "nn" or "weighted").}
 	\item{...}{additional arguments are passed on to \code{GenModelDB}.}
 }
 \value{\code{predict} returns a list with classification results.}

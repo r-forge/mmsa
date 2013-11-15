@@ -21,19 +21,26 @@
         end <- c(end, length(x))
       }
     }
+  
+    mat <- oligonucleotideFrequency(DNAStringSet(
+      lapply(1:length(start), FUN=function(i) DNAString(
+        letter(x, start[i]:(end[i]))))), width=word)
     
-    mat <- t(sapply(1:length(start), FUN=function(i) 
-      oligonucleotideFrequency(DNAString(x,
-                                         start=start[i],
-                                         nchar=end[i]-start[i]+1L), 
-                               word)))
+    
+    #mat <- t(sapply(1:length(start), FUN=function(i) 
+    #  oligonucleotideFrequency(DNAString(x,
+    #                                     start=start[i],
+    #                                     nchar=end[i]-start[i]+1L), 
+    #                           word)))  
+    
     return(mat)
   }
-
+  
   ### allOffset is TRUE or 1
   if((is.logical(allOffsets) && allOffsets) || allOffsets==1) { 
     
     if(last_window) warning("last_window is ignored for allOffsets")
+    if(overlap!=0) warning("overlap is ignored for allOffsets")
     
     ### create matrix and get count for initial segment
     freq <- oligonucleotideFrequency(DNAString(x, start=1L, nchar=window), word)
@@ -78,10 +85,12 @@
   
   ### allOffset is a number
   if(last_window) warning("last_window is ignored for allOffsets")
+  if(overlap!=0) warning("overlap is ignored for allOffsets")
   
-  mat <- sapply(seq(1L, window, by=allOffsets), FUN=function(i) {
-      s <- DNAString(x, start=i)
-      rbind(.counter(s, window=window, overlap=overlap, word=word, 
+  mat <- lapply(seq(1L, window, by=allOffsets), FUN=function(i) {
+      #s <- DNAString(x, start=i) 
+      s <- DNAString(letter(x, i:nchar(x))) ### this is faster
+      rbind(.counter(s, window=window, overlap=0L, word=word, 
                last_window=FALSE, allOffsets=FALSE), NA_integer_)
       })
   
