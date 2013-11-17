@@ -58,7 +58,7 @@ state is dominant among the given window.
 db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 
 # model has to be built with saveClusterInfo=TRUE
-model <- GenModelDB(db, rank="Gen", name="Syntro", table="NSV", 
+model <- GenModelDB(db, rank="Gen", name="Syntro\%", table="NSV", 
     saveClusterInfo=TRUE) 
 model
 

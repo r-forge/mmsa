@@ -152,87 +152,74 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 }
 
 
-dropNSVTable <-  function(db, table) {
-    dbSendQuery(db$db,
-	    statement = paste("DROP TABLE ", table, sep='')
-	    )
-    dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name='", 
-		    table,"'",sep=''))
-    dbCommit(db$db)
-    invisible(NULL)
-}
-
 getNSVs <- function(db,  rank=NULL, name=NULL, 
-	table="NSV", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id") {
+	table="NSV", limit=NULL, random=FALSE, start=NULL, length=NULL, 
+  removeUnknownSpecies=FALSE, annotation="id") {
 
     # limit = number of sequences to limit	
     # random = whether the sequences should be random
     # start = start of the chunk eg: 1
     # length = length of the chunk eg: 100 (should be called width?)
+  
+  if(!is.null(limit)) 
+    limit <- paste(" LIMIT ", paste(limit,collapse=","))
+  else limit <- "" 
+  
+  if(random) limit <- paste(" ORDER BY RANDOM() ", limit)
+  
+  if (!is.null(rank)) {    
+    fullRank<-BioTools:::.pmatchRank(db, rank)
+    #Do this so that the column order appears as 'order' since ORDER is a SQL keyword
+    fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
+  }
+  else fullRankSQL <-"-1"
+  
+  res <- dbGetQuery(db$db, statement = paste("SELECT ", table, 
+                                             ".data AS data, classification.id AS id, ", 
+                                             fullRankSQL ," AS fullRank  FROM sequences ", 
+                                             " INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
+                                             BioTools:::.getWhere(db, rank, name,
+                                                                  removeUnknownSpecies), 
+                                             limit, sep="")
+  )
 
-    if (!is.null(rank) && rank=="id") partialMatch <- FALSE
-    if(is.null(limit)) limit <- "" 
-    else limit <- paste(" LIMIT ", paste(limit,collapse=","))
-
-	if(random) limit <- paste(" ORDER BY RANDOM() ", limit)
-
-    if (!is.null(rank)) {    
-	fullRank<-BioTools:::.pmatchRank(db,rank)
-	#Do this so that the column order appears as [order] since order is a SQL keyword
-	fullRankSQL<-paste("classification.[",fullRank,"]",sep="")
-    }
-    else fullRankSQL <-"-1"
-
-	res <- dbGetQuery(db$db, 
-	    statement = paste("SELECT ", table, ".data AS data, classification.id AS id, ", 
-		    fullRankSQL ," AS fullRank  FROM sequences ", 
-		    " INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
-		    BioTools:::.getWhere(db, rank, name, partialMatch,
-			    removeUnknownSpecies), limit)
-	    )
- 	#if (!is.null(rank) && rank=="id")
-    #{
-    #    res<-res[match(name,res$id),]
-    #}
-	#
-    if (nrow(res) == 0) stop("No rows found in the database")
-
-    #get metadata about the table
-    meta<-as.character(subset(metaGenDB(db),name==table)["annotation"])
-    x<-unlist(strsplit(meta,";"))	
-    window <-as.numeric(sub("window=","",x[3]))
-    overlap <- as.numeric(sub("overlap=","",x[4]))
-    word <-as.numeric(sub("word=","",x[5]))
-    last_window <-sub("last_window=","",x[6])
-
-	ret <- lapply(res$data,decodeSequence)
-    names(ret) <- res$id
-
-    rm(db)
-
-    NSVSet(ret, window=window,overlap=overlap, word=word, 
-	    last_window=last_window, rank=rank, name=name)
+  if (nrow(res) == 0) stop("No rows found in the database")
+  
+  #get metadata about the table
+  meta <- as.character(subset(metaGenDB(db),name==table)["annotation"])
+  meta <- sapply(unlist(strsplit(meta,";")), strsplit, "=")	
+  meta <- structure(sapply(meta, "[", 2), names=sapply(meta, "[", 1)) 
+  
+  ret <- lapply(res$data,decodeSequence)
+  names(ret) <- res$id
+  
+  NSVSet(ret, 
+         window=as.integer(meta["window"]),
+         overlap=as.integer(meta["overlap"]), 
+         word=as.integer(meta["word"]), 
+         last_window=as.logical(meta["last_window"]), 
+         rank=meta["rank"], 
+         name=meta["name"])
 }
 
 
 ### overwrite getSequences so it can decode NSVs
 getSequences <- function(db,  rank=NULL, name=NULL,
-	table="sequences", limit=NULL, random=FALSE, start=1, 
-	length=NULL, partialMatch=TRUE, removeUnknownSpecies=FALSE, 
-	annotation=Annotation_Id) {
-
-    ### FIXME: check metadata table
-    type <- metaGenDB(db, table)[,"type"]
-    if(length(type) !=1) stop("table does not exist!")    
-
-    if (type=="sequence") getX <- BioTools::getSequences
-    else getX <- getNSVs
-
-    getX(db,  rank, name,
-	table, limit, random, start, 
-	length, partialMatch, removeUnknownSpecies, 
-	annotation)
+                         table="sequences", limit=NULL, random=FALSE, start=NULL, 
+                         length=NULL, removeUnknownSpecies=FALSE, 
+                         annotation=Annotation_Id) {
+  
+  ### FIXME: check metadata table
+  type <- metaGenDB(db, table)[,"type"]
+  if(length(type) !=1) stop("table does not exist!")    
+  
+  if (type=="sequence") getX <- BioTools::getSequences
+  else getX <- getNSVs
+  
+  getX(db,  rank, name,
+       table, limit, random, start, 
+       length, removeUnknownSpecies, 
+       annotation)
 }
 
 # reads all fasta files in a directory into a db and 

@@ -16,7 +16,6 @@ export(
 	NSVSet,
 	createNSVSet,
 	createNSVTable,
-	dropNSVTable,
 	getNSVs,
 	
 	GenModel,

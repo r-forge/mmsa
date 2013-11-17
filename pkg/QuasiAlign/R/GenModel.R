@@ -24,119 +24,102 @@ GenModel <- function(x, rank=NULL, name = NULL,
 
 # creates an model from sequences in the db 
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
-	measure="Manhattan", threshold=30, 
-	selection=NULL, limit=NULL, random=FALSE, saveClusterInfo=FALSE) {
+                       measure="Manhattan", threshold=30, 
+                       selection=NULL, limit=NULL, random=FALSE, saveClusterInfo=FALSE) {
+  
+  rank <- BioTools:::.pmatchRank(db, rank)
+  
+  if(random && !is.null(selection)) 
+    stop("Cannot use random and selection!")
+  
+  #check if table exists in db
+  if (!(table %in% listGenDB(db)))
+    stop("Could not find table in database")
+  
+  if(!is.null(selection))  nSequences <- length(selection)
+  else{
+    nSequences <- nSequences(db, rank, name, table=table)
+    if (!is.null(limit)) nSequences <- min(nSequences,limit)  
+  }
     
-    rank <- BioTools:::.pmatchRank(db, rank)
-
-    if(random && !is.null(selection)) 
-	stop("Cannot use random and selection!")
-
-    #check if table exists in db
-    if (!(table %in% listGenDB(db)))
-	stop("Could not find table in database")
-
-    #check if table is of type NSV	
-    #meta<-metaGenDB(db) #meta = table data in memory
-    #index<-which(meta$name==table)  #find index of table
-    #if (meta$type[index]!="NSV")
-    #	stop("Not an NSV table")
-
-
-    if(is.null(selection)) {
-	nSequences <- nSequences(db, rank, name, table=table)
-	if (!is.null(limit)) nSequences <- min(nSequences,limit)  
-    } else {
-	nSequences <- length(selection)
-    }
-    
-    
-    #check for random (selection is NULL)
-    if(random) {   
-	ids <- getIDs(db, whereRank=rank, whereName=name)
-	selection <- sample(ids, nSequences)
-    }
+  #check for random (selection is NULL)
+  if(random) {   
+    ids <- getIDs(db, whereRank=rank, whereName=name)
+    selection <- sample(ids, nSequences)
+  }
+  
+  
+  #emm
+  emm <- EMM(measure=measure,threshold=threshold)
   
 
-    #emm
-    emm <- EMM(measure=measure,threshold=threshold)
-
-    # no selection
-    if (is.null(selection)){
-	allRanks <- getRank(db,rank=rank)
-	name <- allRanks[pmatch(name,allRanks)]
-	cat("GenModel: Creating model for ",rank,": ",
-		paste(name, collapse=",") ,"\n",sep="")
-    }
-
-    #clusterinfo stores the last_clustering details
-    if(saveClusterInfo) clusterInfo <- list(nSequences)
-    else clusterInfo <- NA
-
-    # loop
-    i<-0
-    total<-0
-    while(i<nSequences){
-	
-	#get 100 sequences at a time
-	toGet <- min(100, nSequences-i) 
-	if(is.null(selection))
-	    d <- getSequences(db, rank, name, table=table, limit=c(i,toGet))
-	else	
-	    d <- getSequences(db, rank="id", name=selection, 
-		table=table, limit=c(i,toGet))
+  #clusterinfo stores the last_clustering details
+  if(saveClusterInfo) clusterInfo <- list(nSequences)
+  else clusterInfo <- NA
+  
+  # loop
+  i<-0
+  total<-0
+  while(i<nSequences){
     
-	
-	ids <- names(d)
-	d <- .make_stream(d)
-	
-	# Kullback can not handle 0 counts!
-	if(measure=="Kullback") d <- d + 1
-	
-	#get actual number of sequences
-	build(emm, d)
+    #get 100 sequences at a time
+    toGet <- min(100, nSequences-i) 
+    if(is.null(selection))
+      d <- getSequences(db, rank, name, table=table, limit=c(i,toGet))
+    else	
+      d <- getSequences(db, rank="id", name=selection, 
+                        table=table, limit=c(i,toGet))
     
-	if(saveClusterInfo) 
-	    clusterInfo <- .getClusterInfo(clusterInfo,
-		last_clustering(emm), ids, i)
-
-
-	reset(emm) ### make sure there is a NA here
-
-	#update value of i 
-	i <- i + length(ids)
-	cat("GenModel: Processed",i,"sequences\n")
-    }
-
-
-    if(!is.null(name) && !is.null(rank)) {
-	hierarchy <- getHierarchy(db, rank, name)
-	if (length(name) > 1)
-	    hierarchy <- as.data.frame(hierarchy)
-	rankName <- hierarchy[rank]
-    }else{
-	rankName <- NA
-	hierarchy <- NA
-    }
     
-    #get metadata about the table
-    meta <- subset(metaGenDB(db),name==table)[1, "annotation"]
-    meta <- sapply(unlist(strsplit(meta,";")), strsplit, "=")	
-    window <- as.integer(meta$window[2])
-    overlap <- as.integer(meta$overlap[2])
-    word <- as.integer(meta$word[2])
-    last_window <- as.logical(meta$last_window[2])	
+    ids <- names(d)
+    d <- .make_stream(d)
+    
+    # Kullback can not handle 0 counts!
+    if(measure=="Kullback") d <- d + 1
+    
+    #get actual number of sequences
+    build(emm, d)
+    
+    if(saveClusterInfo) 
+      clusterInfo <- .getClusterInfo(clusterInfo,
+                                     last_clustering(emm), ids, i)
+    
+    
+    reset(emm) ### make sure there is a NA here
+    
+    #update value of i 
+    i <- i + length(ids)
+    cat("GenModel: Processed",i,"sequences\n")
+  }
+  
+  
+  if(!is.null(name) && !is.null(rank)) {
+    hierarchy <- getHierarchy(db, rank, name)
+    if (length(name) > 1)
+      hierarchy <- as.data.frame(hierarchy)
+    rankName <- hierarchy[rank]
+  }else{
+    rankName <- NA
+    hierarchy <- NA
+  }
+  
+  #get metadata about the table
+  meta <- as.character(subset(metaGenDB(db),name==table)["annotation"])
+  meta <- sapply(unlist(strsplit(meta,";")), strsplit, "=")  
+  meta <- structure(sapply(meta, "[", 2), names=sapply(meta, "[", 1)) 
+  
+  genModel <- list(name=rankName, rank=rank, 
+                   nSequences=nSequences, model=emm, 
+                   hierarchy=hierarchy, measure=measure, threshold=threshold, 
+                   window=as.integer(meta["window"]),
+                   overlap=as.integer(meta["overlap"]), 
+                   word=as.integer(meta["word"]), 
+                   last_window=as.logical(meta["last_window"]))
 
-    genModel <- list(name=rankName, rank=rank, 
-	    nSequences=nSequences, model=emm, 
-	    hierarchy=hierarchy, measure=measure, threshold=threshold, 
-	    window=window, word=word, overlap=overlap, 
-	    last_window=last_window)
-    
-    if (saveClusterInfo) genModel$clusterInfo <- clusterInfo
-    class(genModel) <- "GenModel"	
-    
-    genModel		
+  if (saveClusterInfo) genModel$clusterInfo <- clusterInfo
+  class(genModel) <- "GenModel"	
+  
+  genModel		
 }
 
 #	Returns the model states and the ID and the segment number of the sequences that are part of that state in format id:segment.
@@ -154,7 +137,9 @@ getModelDetails <- function(model, state=NULL, db=NULL)
 	    return(
 		    data.frame(sequence=	
 			    rep(names(occ), times=sapply(occ, length)),
-			    segment=unlist(occ), rank=sapply(rep(names(occ), times=sapply(occ, length)), FUN=function(x) getRank(db,rank=rank, whereRank="id",whereName=x, all=TRUE,partialMatch=FALSE)),
+			    segment=unlist(occ), rank=sapply(rep(names(occ), times=sapply(occ, length)), 
+                                           FUN=function(x) getRank(db,rank=rank, 
+                                          whereRank="id",whereName=x, all=TRUE)),
 			    row.names=NULL, stringsAsFactors=FALSE)
 		    )
 	}
@@ -196,8 +181,7 @@ getModelSequences <- function(db, model, state, table="sequences")
     stateSequences <- lapply(1:length(sequence), 
 	    FUN=function(i) getSequences(db, rank="id",
 		    name=sequence[i], 
-		    table, start = start[i], length=window, 
-		    partialMatch=FALSE))
+		    table, start = start[i], length=window))
     
     do.call(c, stateSequences)
 }

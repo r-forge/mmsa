@@ -75,7 +75,7 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
     emm <- GenModelDB(dbl, rank=rank, name=rn, table=table,
                       selection=sel, limit=limit, ...)
     
-    n<-gsub("/","",n)
+    n <- gsub("/","",n)
     saveRDS(emm, file=paste(rankDir, "/", n, ".rds", sep=''))
     closeGenDB(dbl)
   }

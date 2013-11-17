@@ -592,6 +592,7 @@ and places them in the subdirectory phylum.
 <<eval=false>>=
 library("doParallel")
 registerDoParallel()
+library("caret")
 @
 
 <<trainClassifier>>=
@@ -599,7 +600,7 @@ db <- openGenDB(system.file("examples/16S.sqlite",package="QuasiAlign"))
 db
 
 classifier <- trainGenClassifier("models", db=db, rank="phylum", 
-                                 limit=30, random=TRUE)
+                                 limit=50, random=TRUE)
 classifier
 @
 
@@ -654,7 +655,7 @@ Compare the predictions with the true class labels.
 <<>>=
 actual<- getRank(db, rank="Phylum", whereRank="id", whereName=names(unknown))
 head(actual)
-confusionMatrix(pred$class, reference=actual)
+caret::confusionMatrix(pred$class, reference=factor(actual, levels=levels(pred$class)))
 @
 
 The default method for \func{classify} is \verb|supported_transitions|, but other methods can also be easily used. 
@@ -702,7 +703,7 @@ head(actual)
 
 table(pred$class, actual)
 
-confusionMatrix(pred$class, reference=actual)
+caret::confusionMatrix(pred$class, reference=actual)
 @
 
 <<>>=
@@ -719,7 +720,7 @@ Each model has associated metadata which gives a list of sequences. Each list co
 Here is an example:
 
 <<>>=
-model <- GenModelDB(db, rank="Gen", name="Syntro", saveClusterInfo=TRUE)
+model <- GenModelDB(db, rank="Gen", name="Syntro%", saveClusterInfo=TRUE)
 model$clusterInfo
 @
 

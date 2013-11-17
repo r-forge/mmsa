@@ -2,7 +2,6 @@
 \alias{NSVSet}
 \alias{createNSVTable}
 \alias{createNSVSet}
-\alias{dropNSVTable}
 \alias{getNSVs}
 \alias{getSequences}
 \alias{plot.NSVSet}
@@ -26,15 +25,13 @@ createNSVTable(db, table="NSV", rank=NULL, name=NULL,
     window=100, overlap=0, word=3, last_window=FALSE, 
     limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE)
 
-dropNSVTable(db, table)
-
 #getNSVs(db,  rank=NULL, name=NULL,
-#    table="NSV", limit=NULL, random=FALSE, start=1, length=NULL,
-#    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation="id")
+#    table="NSV", limit=NULL, random=FALSE, start=NULL, length=NULL,
+#    removeUnknownSpecies=FALSE, annotation="id")
 
 getSequences(db,  rank=NULL, name=NULL,
-    table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id)
+    table="sequences", limit=NULL, random=FALSE, start=NULL, length=NULL, 
+    removeUnknownSpecies=FALSE, annotation=Annotation_Id)
 
 processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 }
@@ -54,7 +51,6 @@ processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 	\item{random}{Get sequences in randomized order.}
 	\item{start}{Start position for the subsequence.}
 	\item{length}{ignored.}
-	\item{partialMatch}{logical; perform partial matching on the name for rank.}
 	\item{dir}{Directory which contains the FASTA format files which are to be read in.}
 	\item{annotation}{Reader for annotation format (see \pkg{BioTools}). }
 	\item{...}{additional aruments are passed on. }
@@ -69,8 +65,7 @@ processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 	Optional parameters whereRank and whereName parameters allow 
 	the conversion of only a subset of the entire sequences to NSV.
 
-	\code{dropNSVTable()} function drops the specified table 
-	from the database whose handle is provided as the first argument.	
+	To remove a created table use \code{dropTableGenDB(db, table)}.
 
 	NSVSets stored in a GenDB can be retrieved using \code{getSequences} 
 	where table is
@@ -116,7 +111,7 @@ s[, 1]
 plot(s[, 1])
 
 ### remove the table from the db
-dropNSVTable(db,"NSV")
+dropTableGenDB(db,"NSV")
 db
 
 ### clean up
