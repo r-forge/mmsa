@@ -302,12 +302,14 @@ Filtering also works for \func{getRank}.
 For example, we can find the genera within the order
 ``Thermoanaerobacterales''.
 <<>>=
-getRank(db, rank="Genus", 
-    whereRank="Order", whereName="Thermo")
+getRank(db, rank="Gen", 
+    whereRank="Ord", whereName="Thermo%")
 @
 
-Note that partial matching is performed from ``Thermo'' to 
-``Thermoanaerobacterales.'' Partial matching is available for ranks and 
+Note that partial matching is performed 
+for the ranks (i.e., from ``Gen'' to Genus and ``Ord'' to Order) and also
+for the name from ``Thermo\%'' to 
+Thermoanaerobacterales. Partial matching is available for ranks and 
 names in most operations in \pkg{BioTools}.
 
 We can also get the complete classification hierarchy for different ranks 
@@ -317,9 +319,9 @@ then for a list of names.
 <<>>=
 getHierarchy(db, rank="Genus", name="Thermaerobacter")
 
-getHierarchy(db, rank="Genus", name="Therm")
+getHierarchy(db, rank="Genus", name="Therm%")
 
-getHierarchy(db, rank="Genus", name=c("Acid", "Thermo"))
+getHierarchy(db, rank="Genus", name=c("Acid%", "Thermo%"))
 @
 
 To get individual sequences we can use again the unique sequence id.
@@ -340,9 +342,6 @@ for the database management system.
 <<>>=
 unlink("example.sqlite")
 @
-
-{\bf FIXME: Is there a purge function in DBI to do this?}
-
 
 \section{Multiple Sequence Alignment}
 

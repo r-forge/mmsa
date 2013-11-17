@@ -61,6 +61,7 @@ export(
 	closeGenDB,
 	listGenDB,
 	metaGenDB,
+  dropTableGenDB,
 
 	getTaxonomyNames,
 	getRank,

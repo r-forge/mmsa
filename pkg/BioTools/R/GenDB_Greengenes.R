@@ -57,10 +57,12 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
 		val
 	    })
 
-    ret <- c(cl, org_name,id)
-  
+ return(GenClass16S_Greengenes(cl[1], cl[2], cl[3], cl[4], cl[5], 
+		 cl[6], cl[7], cl[8], org_name, id))
+
+
   }else{ ### recreate meta data   
-    ret <- paste(
+    return(paste(
       ">", annotation[,"Id"], " ", annotation[,"Org_name"],
       " k__", annotation[,"Kingdom"], 
       " p__", annotation[,"Phylum"],            
@@ -70,10 +72,9 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
       " g__", annotation[,"Genus"], 
       " s__", annotation[,"Species"], 
       " otu_", annotation[,"Otu"], 
-      sep="")
+      sep=""))
   }
   
-  ret
   }
 
 

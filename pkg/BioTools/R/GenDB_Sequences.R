@@ -21,128 +21,137 @@
 ### Sequences are DNAStringSet
 
 ### GenDB
-nSequences <- function(db, rank=NULL, name=NULL, table="sequences") {
+nSequences <- function(db, rank=NULL, name=NULL, table="classification") {
     dbGetQuery(db$db, 
-	    statement = paste("SELECT COUNT(*) FROM ",table," t INNER JOIN classification ON t.id=classification.id ", 
+	    statement = paste("SELECT COUNT(*) FROM ",table,
+            " t INNER JOIN classification ON t.id=classification.id ", 
 		    .getWhere(db, rank, name)))[1,1]
 
 }
 
-
 getSequences <- function(db,  rank=NULL, name=NULL, 
-	table="sequences", limit=NULL, random=FALSE, start=1, length=NULL,
-	partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id) {
+	table="sequences", limit=NULL, random=FALSE, start=NULL, length=NULL,
+	removeUnknownSpecies=FALSE, annotation=Annotation_Id) {
 
     # limit = number of sequences to limit	
     # random = whether the sequences should be random
     # start = start of the chunk eg: 1
     # length = length of the chunk eg: 100 (should be called width?)
 
-    if (!is.null(rank))
-	if(rank=="id") partialMatch <- FALSE
-    if(is.null(limit)) limitSQL <- "" 
-    else limitSQL <- paste(" LIMIT ",paste(limit,collapse=","))
+  if(!is.null(limit)) limitSQL <- paste(" LIMIT ",paste(limit,collapse=","))
+  else limitSQL <- "" 
+  
+  if(random) limitSQL <- paste(" ORDER BY RANDOM() ", limitSQL)
+  
+  #get chunks of sequences, important for clustering
+  #make length SQL compatible
+  if (is.null(start) && is.null(length)) lengthFilter= "data"
+  else {
+    if(is.null(length)) length <- .Machine$integer.max
+    if(is.null(start)) start <- 1L
+    lengthFilter = paste("SUBSTR(sequences.data,",
+                         as.integer(start), ",",
+                         as.integer(length), ")", sep="")
+  }
 
-	if(random)  
-		limitSQL <- paste(" ORDER BY RANDOM() ",limitSQL)
-    #get chunks of sequences, important for clustering
-    #make length SQL compatible
-    if (is.null(length)) 
-		lengthFilter= "data"
-    else
-		lengthFilter = paste("substr(sequences.data,",start,",",length,")",sep="")
+  if (!is.null(rank)) {    
+    fullRank <- .pmatchRank(db,rank)
+    #Do this so that the column order appears as 'order' since ORDER is a SQL keyword
+    fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
+	}else fullRankSQL <-"-1"
 
-    if (!is.null(rank)) {    
-			fullRank<-.pmatchRank(db,rank)
-			#Do this so that the column order appears as [order] since order is a SQL keyword
-			fullRankSQL<-paste("classification.[",fullRank,"]",sep="")
-	}
-    else fullRankSQL <-"-1"
-
-    statement <- paste("SELECT ",lengthFilter ,"  AS data, classification.id AS id, ", fullRankSQL ," AS fullRank  FROM ", table ,
-                       " INNER JOIN classification ON classification.id = ",
-                       table, ".id ", 
-                       .getWhere(db, rank, name, partialMatch,removeUnknownSpecies), limitSQL)
-    
+  statement <- paste("SELECT ", lengthFilter, " AS data, classification.id AS id, ", 
+                     fullRankSQL ," AS fullRank  FROM ", table ,
+                     " INNER JOIN classification ON classification.id = ",
+                     table, ".id ", 
+                     .getWhere(db, rank, name, removeUnknownSpecies), 
+                     limitSQL, sep='')
+  
 	res <- dbGetQuery(db$db, statement = statement)
 
-    if (!is.null(rank) && rank=="id" && nrow(res)==length(name))
-	{
-		if (!is.null(name))
-			res<-res[match(name,res$id),]	
+  if (!is.null(rank) && rank=="id" && nrow(res)==length(name)) {
+		if (!is.null(name)) res<-res[match(name,res$id),]	
 	}
-	if (nrow(res) == 0) stop("No rows found in the database")
-    ret <- DNAStringSet(res$data)
+	
+  if (nrow(res) == 0) stop("No rows found in the database")
+  ret <- DNAStringSet(res$data)
+  
+  if(identical(annotation, Annotation_Id)) names(ret) <- res$id
+  else { ### this is slow
+    h <- getHierarchy(db, rank="id", name=res$id, 
+                      drop=FALSE)
+    names(ret) <- annotation(h, decode=FALSE)
+  }
     
-    ### add names: this is super slow....
-    #h <- getHierarchy(db, rank="id", name=res$id, partialMatch=FALSE, 
-    #                  drop=FALSE)
-    #names(ret) <- annotation(h, decode=FALSE)
-    names(ret) <- res$id
-    
-    if(!is.null(rank)){
-			attr(ret,"rank")<-fullRank
-			attr(ret,"name")<-res$fullRank
-    }
-
-    ret
+  if(!is.null(rank)){
+    attr(ret,"rank")<-fullRank
+    attr(ret,"name")<-res$fullRank
+  }
+  
+  ret
 }
 
-
-## read fasta files and add them to a DB
-
-addSequences <- function(db, file, annotation=Annotation_Greengenes, 
-	verbose=FALSE) {
-
-    if(!file.exists(file)) stop("File does not exist!")
-    if(file.info(file)$isdir) {
-	cat("Found directory. Adding whole directory.\n")
-	file <- list.files(file, full.names=TRUE, 
-		recursive=TRUE)
+## read fasta files or a DNAStringSet and add them to a DB
+addSequences <- function(db, sequences, table="sequences",
+                         annotation=Annotation_Greengenes, verbose=FALSE) {
+  
+  src <- deparse(substitute(sequences))
+  
+  if(!is(sequences, "DNAStringSet")) {
+    if(!file.exists(sequences)) stop("File does not exist!")
+    
+    if(file.info(sequences)$isdir) {
+      cat("Found directory. Adding whole directory.\n")
+      sequences <- list.files(sequences, full.names=TRUE, 
+                         recursive=TRUE)
     }
-
-
-    ok <- 0
-    fail <- 0
-    total <- 0
-
-    dbBeginTransaction(db$db)
-    #start
-	f <- readDNAStringSet(file)
-	for(i in 1:length(f)) {
-		annot<- names(f)[i]
-		cl <- annotation(annot, decode=TRUE)
-		org_name<-cl[length(cl)]
-		cl <- paste("'",cl,"'", sep='', collapse=', ') 
-		dat<- f[[i]]
-		dat<- tolower(as.character(dat[1:length(dat)]))
-		try(dbSendQuery(db$db,          
-			statement = paste("INSERT INTO classification VALUES(", 
-				cl,  ")", sep='')), silent=TRUE)
-		
-		tr <- try(dbSendQuery(db$db,          
-			statement = paste("INSERT INTO sequences VALUES('", 
-				org_name, "','", dat,  "')", sep='')), 
-				silent=TRUE)
-		
-		if(is(tr, "try-error")) { 
-		    if(verbose) cat("Adding", org_name, "failed -",
-			    attr(tr, "condition")$message, "\n")
-		    fail <- fail+1
-		}else ok <- ok+1
-		
-		
-		total <- total+1
-		if(verbose)
-		{	
-			if(total%%100 == 0) cat("Read", total, "sequences (ok:", ok, 
-				"/ fail:", fail,")\n")
-		}
-	}
-
-    dbCommit(db$db)
-    #close(f)
-    cat("Read", ok+fail, "sequences. Added", ok , "sequences.\n")
+    
+    sequences <- readDNAStringSet(sequences)
+  }
+  
+  ### does table exist?
+  if(!(table %in% listGenDB(db))) 
+    .createdatatableGenDB(db, table, "sequence", annotation=paste("source:", src))
+  
+  ok <- 0
+  fail <- 0
+  total <- 0
+  
+  dbBeginTransaction(db$db)
+  #start
+  for(i in 1:length(sequences)) {
+    cl <- annotation(names(sequences)[i], decode=TRUE)
+    id <- cl["Id"]
+    cl <- paste("'",cl,"'", sep='', collapse=', ') 
+    dat<- as.character(sequences[[i]])
+    
+    try(dbSendQuery(db$db,          
+                    statement = paste("INSERT INTO classification VALUES(", 
+                                      cl,  ")", sep='')), silent=TRUE)
+    
+    tr <- try(dbSendQuery(db$db,          
+                          statement = paste("INSERT INTO ", table, " VALUES('", 
+                                            id, "','", dat,  "')", sep='')), 
+              silent=TRUE)
+    
+    if(is(tr, "try-error")) { 
+      if(verbose) cat("Adding", id, "failed -",
+                      attr(tr, "condition")$message, "\n")
+      fail <- fail+1
+    }else ok <- ok+1
+    
+    
+    total <- total+1
+    if(verbose)
+    {	
+      if(total%%100 == 0) cat("Read", total, "sequences (ok:", ok, 
+                              "/ fail:", fail,")\n")
+    }
+  }
+  
+  dbCommit(db$db)
+  #close(f)
+  cat("Read", ok+fail, "sequences. Added", ok , "sequences.\n")
 }
 
 

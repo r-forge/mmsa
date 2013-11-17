@@ -1,4 +1,5 @@
 \name{GenDB_Hierarchy}
+\alias{GenDB_Hierarchy}
 \alias{getRank}
 \alias{getIDs}
 \alias{getTaxonomyNames}
@@ -13,11 +14,11 @@ level i.e. kingdom.
   }
 \usage{
 getTaxonomyNames(db)
-getHierarchy(db, rank, name, drop=TRUE, partialMatch=TRUE)
+getHierarchy(db, rank, name, drop=TRUE)
 getRank(db, rank = "Phylum", whereRank=NULL, whereName=NULL, table="sequences",  
-    all=FALSE, partialMatch=TRUE, count=FALSE, removeUnknown=FALSE)
+    all=FALSE, count=FALSE, removeUnknown=FALSE)
 getIDs(db, whereRank=NULL, whereName=NULL, table="sequences",  
-    partialMatch=TRUE, removeUnknown=FALSE)
+   removeUnknown=FALSE)
 }
 \arguments{
 	\item{db}{Handle of the database} 
@@ -26,7 +27,6 @@ getIDs(db, whereRank=NULL, whereName=NULL, table="sequences",
 	\item{whereName}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified. }
 	\item{table}{Table where the rank analysis is to be done. }
 	\item{all}{logical; List the rank for each sequence separately?}
-	\item{partialMatch}{logical; use partial matching on names.}
 	\item{name}{Name of the rank at which the hierarchy object is required.}
 	\item{count}{logical; List the counts of rank along with the name?}
 	\item{removeUnknown}{logical; Remove "unknown" ranks ?}
@@ -51,8 +51,12 @@ getIDs(db, whereRank=NULL, whereName=NULL, table="sequences",
 	containing the hierarchy from the rank specified to the top of the
 	classification tree.
 }
-%\seealso{
-%}
+\seealso{
+  \code{\link{GenDB}},
+  \code{\link{GenDB_Hierarchy}},
+  \code{\link{GenDB_Greengenes}},
+  \code{\link{Sequences}}
+}
 \examples{
 db <- openGenDB(system.file("examples/16S.sqlite",package="BioTools"))
 db
@@ -78,10 +82,10 @@ par(oldpar)
 getHierarchy(db, rank="genus", name="Syntrophomonas")
 
 ### get the hierarchy for all Genera starting with S
-getHierarchy(db, rank="genus", name="S")
+getHierarchy(db, rank="genus", name="S\%")
 
 ### get the hierarchy for all Genera starting with Se and Sy
-getHierarchy(db, rank="genus", name=c("Se", "Sy"))
+getHierarchy(db, rank="genus", name=c("Se\%", "Sy\%"))
 
 ### get hierarchy for a sequence using id
 getHierarchy(db, rank="id", name="13655")

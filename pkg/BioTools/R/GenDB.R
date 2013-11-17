@@ -17,6 +17,33 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+### helper
+
+.sq <-function(x) paste("'", x, "'", sep='')
+
+.createdatatableGenDB <- function(db, table, type, annotation="") {
+  if(length(grep(" ", table))) stop("Table name cannot contain spaces!")
+  
+  # data table stores the sequences as BLOB with id as PK
+  seq <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB"
+  tr <- try(
+    dbSendQuery(db$db, 
+                statement = paste("CREATE TABLE", .sq(table), 
+                                  "(id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB)")
+                ), silent=TRUE)    
+  if(is(tr, "try-error")) stop("Unable to create table ", table)
+  
+  #insert data into meta
+  tr <- try(
+    dbSendQuery(db$db,          
+                statement = paste("INSERT INTO metaData  VALUES (", .sq(table),
+                                  ",", .sq(type), ",", .sq(annotation),
+                                  ")")
+    ), silent=TRUE)
+  if(is(tr, "try-error")) stop("Unable to write metaData for table", table)
+
+}
+
 createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
 	 drv=NULL, ...) {
 
@@ -27,43 +54,28 @@ createGenDB <- function(dbName, classification=GenClass16S_Greengenes(),
     if(is.null(drv)) drv<-dbDriver("SQLite");
     db<-dbConnect(drv, dbname = dbName, ...);
 
-
-    #first table stores the Classification with org_name as PK
-    cl <- paste(paste("'",names(classification),"'", sep=''), "TEXT", 
-	    collapse=', ')
+    #first table stores the Classification with id as PK
+    cl <- paste(.sq(names(classification)), "TEXT", collapse=', ')
     cl <- paste(cl, "PRIMARY KEY") ## the lowest rank is the primary key
 
-    #first table is called classification and stores the class hierarchy
-    try(
+    # classification table stores the class hierarchy
+    tr <- try(
 	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE classification ( " ,
-			    cl, ")", sep=''))
+		    statement = paste("CREATE TABLE classification (",cl, ")"))
 	    )
-
-    #second table stores the sequences as BLOB with org_name as PK
-    seq <- "id TEXT PRIMARY KEY REFERENCES classification(id), data BLOB "
-    try(
-	    dbSendQuery(db, 
-		    statement = paste("CREATE TABLE sequences (",
-			    seq,  ")", sep=''))
-	    )
-
-
-    #third table stores the meta data
+    if(is(tr, "try-error")) stop("Unable to create classification table")
+    
+   # metaData table stores the meta data
     meta<-"name TEXT, type TEXT, annotation TEXT"
-    try(
-	    dbSendQuery(db, 
+    tr <- try(
+      dbSendQuery(db, 
 		    statement = paste("CREATE TABLE metaData (",
-			    meta,  ")", sep=''))
-	    )
-
-    #insert data into meta
-    try(
-
-	    dbSendQuery(db,          
-		    statement = paste("INSERT INTO metaData  VALUES ('sequences', 'sequence', '')", sep="")
-		    )
-	    )
+			    meta,  ")"))
+	    )    
+    if(is(tr, "try-error")) stop("Unable to create metaData table")
+    
+    ### start with no data table! 
+    #.createdatatableGenDB(db, "sequences", "sequence")    
 
     db <- list(db=db, dbName=dbName, drv=drv)
     class(db) <- "GenDB"
@@ -97,11 +109,6 @@ reopenGenDB <- function(db, ...) {
     db
 }
 
-
-listGenDB <- function(db) setdiff(dbListTables(db$db), 
-	c("classification", "metaData"))
-
-
 metaGenDB <- function(db, table=NULL) {
 	meta <- dbGetQuery(db$db,"SELECT * from metaData")
 
@@ -109,10 +116,29 @@ metaGenDB <- function(db, table=NULL) {
 	meta
     }
 
+listGenDB <- function(db) setdiff(dbListTables(db$db), 
+  c("classification", "metaData"))
+
+dropTableGenDB <-  function(db, table) {
+
+  if(any(tolower(table)==c("classification", "metaData"))) 
+    stop("Cannot drop these tables!")
+  dbSendQuery(db$db,
+              statement = paste("DROP TABLE", .sq(table))
+  )
+  dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name=",
+                                     .sq(table),sep=''))
+  dbCommit(db$db)
+  invisible(NULL)
+}
+
 print.GenDB <- function(x, ...) {
-    cat("Object of class GenDB with", nSequences(x), "sequences\n")
+    cat("Object of class GenDB with", nSequences(x, table="classification"), 
+        "sequences\n")
     cat("DB File:", x$dbName, "\n")
     cat("Tables: ")
     cat(paste(listGenDB(x), collapse=", "), "\n")
 }
+
+
 

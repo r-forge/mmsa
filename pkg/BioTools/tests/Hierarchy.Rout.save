@@ -1,7 +1,6 @@
 
-R version 2.15.3 (2013-03-01) -- "Security Blanket"
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
 Copyright (C) 2013 The R Foundation for Statistical Computing
-ISBN 3-900051-07-0
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,19 +20,27 @@ Type 'q()' to quit R.
 > library(BioTools)
 Loading required package: Biostrings
 Loading required package: BiocGenerics
+Loading required package: parallel
 
 Attaching package: ‘BiocGenerics’
 
-The following object(s) are masked from ‘package:stats’:
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from ‘package:stats’:
 
     xtabs
 
-The following object(s) are masked from ‘package:base’:
+The following objects are masked from ‘package:base’:
 
-    anyDuplicated, cbind, colnames, duplicated, eval, Filter, Find,
-    get, intersect, lapply, Map, mapply, mget, order, paste, pmax,
-    pmax.int, pmin, pmin.int, Position, rbind, Reduce, rep.int,
-    rownames, sapply, setdiff, table, tapply, union, unique
+    anyDuplicated, as.data.frame, cbind, colnames, duplicated, eval,
+    Filter, Find, get, intersect, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rep.int, rownames, sapply, setdiff, sort, table,
+    tapply, union, unique, unlist
 
 Loading required package: IRanges
 Loading required package: DBI
@@ -44,9 +51,17 @@ Loading required package: proxy
 
 Attaching package: ‘proxy’
 
-The following object(s) are masked from ‘package:stats’:
+The following objects are masked from ‘package:stats’:
 
     as.dist, dist
+
+Loading required package: ape
+
+Attaching package: ‘BioTools’
+
+The following object is masked from ‘package:ape’:
+
+    clustal
 
 > 
 > db <- openGenDB(system.file("examples/16S.sqlite",package="BioTools"))
@@ -83,9 +98,10 @@ The following object(s) are masked from ‘package:stats’:
 [3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
 [5] "Desulfotomaculum gibsoniae"      
 > getRank(db, rank="species", whereRank="genus", whereName="D")
-[1] "unknown"                          "Desulfotomaculum geothermicum"   
-[3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
-[5] "Desulfotomaculum gibsoniae"       "Dialister pneumosintes"          
+character(0)
+Warning message:
+In getRank(db, rank = "species", whereRank = "genus", whereName = "D") :
+  No matching name in rank found!
 > getRank(db, rank="species", whereRank="genus", 
 + 	whereName=c("Desulfotomaculum", "Syntrophomonas"))
 [1] "unknown"                          "Desulfotomaculum geothermicum"   
@@ -93,9 +109,14 @@ The following object(s) are masked from ‘package:stats’:
 [5] "Desulfotomaculum gibsoniae"       "Syntrophomonas wolfei"           
 > getRank(db, rank="species", whereRank="genus", 
 + 	whereName=c("De", "Sy"))
-[1] "unknown"                          "Desulfotomaculum geothermicum"   
-[3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
-[5] "Desulfotomaculum gibsoniae"       "Syntrophomonas wolfei"           
+character(0)
+Warning messages:
+1: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
+  No matching name in rank found!
+2: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
+  No matching name in rank found!
+3: In getRank(db, rank = "species", whereRank = "genus", whereName = c("De",  :
+  No matching name in rank found!
 > getRank(db, rank="species", whereRank="genus", whereName="Desulfotomaculum",
 + 	all=TRUE)
  [1] unknown                          Desulfotomaculum geothermicum   
@@ -145,25 +166,27 @@ In getRank(db, rank = "species", whereRank = "genus", whereName = "Doesnotexist"
                    Id 
                    NA 
 > getHierarchy(db, rank="genus", name="S")
-     Kingdom    Phylum       Class        Order           Family               
-[1,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Syntrophomonadaceae"
-[2,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Veillonellaceae"    
-     Genus            Species Otu Org_name Id
-[1,] "Syntrophomonas" NA      NA  NA       NA
-[2,] "Selenomonas"    NA      NA  NA       NA
+ [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
+ [9] Org_name Id      
+<0 rows> (or 0-length row.names)
+Warning message:
+In getRank(db, rank = rank, whereRank = rank, whereName = n) :
+  No matching name in rank found!
 > getHierarchy(db, rank="genus", name=c("Se", "Sy"))
-     Kingdom    Phylum       Class        Order           Family               
-[1,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Veillonellaceae"    
-[2,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Syntrophomonadaceae"
-     Genus            Species Otu Org_name Id
-[1,] "Selenomonas"    NA      NA  NA       NA
-[2,] "Syntrophomonas" NA      NA  NA       NA
+ [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
+ [9] Org_name Id      
+<0 rows> (or 0-length row.names)
+Warning messages:
+1: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
+  No matching name in rank found!
+2: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
+  No matching name in rank found!
 > getHierarchy(db, rank="genus", name="doesnotexist!")
  [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
  [9] Org_name Id      
 <0 rows> (or 0-length row.names)
 Warning message:
-In getRank(db, rank = rank, whereRank = rank, whereName = n, partialMatch = partialMatch) :
+In getRank(db, rank = rank, whereRank = rank, whereName = n) :
   No matching name in rank found!
 > getHierarchy(db, rank="id", name="13655")
                                                Kingdom 

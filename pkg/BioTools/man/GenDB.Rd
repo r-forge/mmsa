@@ -5,6 +5,7 @@
 \alias{closeGenDB}
 \alias{reopenGenDB}
 \alias{listGenDB}
+\alias{dropTableGenDB}
 \alias{metaGenDB}
 \alias{print.GenDB}
 \title{Gene Sequence databases}
@@ -17,8 +18,9 @@ createGenDB(dbName, classification=GenClass16S_Greengenes(), drv=NULL, ...)
 openGenDB(dbName, drv=NULL, ...)
 reopenGenDB(db, ...)
 closeGenDB(db)
-listGenDB(db) 
 metaGenDB(db, table=NULL) 
+listGenDB(db) 
+dropTableGenDB(db, table)
 }
 \arguments{
     \item{dbName}{Name of the database where the classification 
@@ -55,8 +57,9 @@ metaGenDB(db, table=NULL)
 	database.
 }	
 \seealso{
-  \code{\link{Sequences}},
-  \code{\link{GenClass16S_Greengenes}}
+  \code{\link{GenDB_Greengenes}},
+  \code{\link{GenDB_Hierarchy}},
+  \code{\link{Sequences}}
 }
 \examples{
 db <- createGenDB("example.sqlite")

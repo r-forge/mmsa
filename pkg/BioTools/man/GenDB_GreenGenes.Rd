@@ -1,4 +1,5 @@
 \name{GenDB_Greengenes}
+\alias{GenDB_Greengenes}
 \alias{GenClass16S}
 \alias{GenClass16S_Greengenes}
 \alias{Annotation_Greengenes}
@@ -35,8 +36,9 @@
 annotations.
 }
 \seealso{
-\code{\link{addSequences}},
-\code{\link{createGenDB}}
+  \code{\link{GenDB}},
+  \code{\link{GenDB_Hierarchy}},
+  \code{\link{Sequences}}
 }
 \examples{
 ### example of how to create a classification object

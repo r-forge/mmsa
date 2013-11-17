@@ -53,7 +53,7 @@ Annotation_Id <- function(annotation, decode) {
 getTaxonomyNames <- function(db) dbListFields(db$db, "classification")
 
 getRank <- function(db, rank="Phylum", whereRank=NULL, whereName=NULL, 
-	table="sequences", all=FALSE, partialMatch = TRUE, 
+	table="sequences", all=FALSE, 
 	count=FALSE, removeUnknown=FALSE) {
   
   
@@ -69,7 +69,6 @@ getRank <- function(db, rank="Phylum", whereRank=NULL, whereName=NULL,
 	if (whereRankPosition == .pmatchRank(db,"id",numeric=TRUE))
 	{
 	    all=TRUE
-	    partialMatch=FALSE
 	}
     }
     else whereRankPosition = 0
@@ -86,13 +85,13 @@ getRank <- function(db, rank="Phylum", whereRank=NULL, whereName=NULL,
     if(count)
 	statement <- paste("SELECT ", distinct, " classification.",cols,
 	    " , count(classification.", cols, ") AS count FROM ", table," t INNER JOIN classification ON t.id=classification.id  ", 
-	    .getWhere(db, whereRank, whereName, partialMatch), " GROUP BY classification.", cols, 
+	    .getWhere(db, whereRank, whereName), " GROUP BY classification.", cols, 
                      " ORDER BY count(classification.",cols, ") desc", sep="" )
     else
 	statement <- paste("SELECT ", distinct, " classification.",cols,
 	    getIDs,
 	    " FROM ",table," t INNER JOIN classification ON t.id=classification.id ", 
-	    .getWhere(db, whereRank, whereName, partialMatch), sep="")
+	    .getWhere(db, whereRank, whereName), sep="")
 
     ret <- dbGetQuery(db$db, statement = statement)
     
@@ -125,11 +124,11 @@ getRank <- function(db, rank="Phylum", whereRank=NULL, whereName=NULL,
 }
 
 getIDs <- function(db, whereRank=NULL, whereName=NULL, table="sequences",  
-	partialMatch = TRUE, removeUnknown=FALSE) 
-getRank(db, rank="id", whereRank, whereName, table, all=TRUE, partialMatch, removeUnknown)
+	 removeUnknown=FALSE) 
+getRank(db, rank="id", whereRank, whereName, table, all=TRUE, removeUnknown)
 
 
-getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
+getHierarchy <- function(db, rank, name, drop=TRUE){
     hierarchy <- getTaxonomyNames(db)
 
     ### shortcut if rank is a DNAStringSet produced with get_sequences
@@ -146,8 +145,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
 
 	cl <- sapply(1:rankNum, FUN=function(i) 
 		as.character(getRank(db, rank=hierarchy[i], 
-				whereRank=rank, whereName=name,
-				partialMatch=FALSE)))
+				whereRank=rank, whereName=name)))
 
 	m <- matrix(NA, nrow=1, ncol=length(hierarchy))
 	m[1:rankNum] <- unlist(cl)[1:rankNum]
@@ -157,8 +155,7 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     
     ### find all matching names
     name <- unlist(lapply(name, FUN=function(n) 
-		    	getRank(db, rank=rank, whereRank=rank, whereName=n, 
-			    partialMatch=partialMatch)))
+		    	getRank(db, rank=rank, whereRank=rank, whereName=n)))
     
     if(length(name) >0) { ### handle multiple names
     m <- t(sapply(name, FUN=function(x) 
@@ -188,46 +185,35 @@ getHierarchy <- function(db, rank, name, drop=TRUE, partialMatch=TRUE){
     if(numeric) m else fields[m]
 }
 
-.getWhere <- function(db, rank, name, partialMatch=TRUE, removeUnknownSpecies=FALSE) {
-    if(partialMatch) exact <- "%" else exact <- ""
-
-    if(is.null(rank) && is.null(name)) where <- ""
-    else if (length(name) <=1)  where <- paste("WHERE classification.'", .pmatchRank(db, rank), 
-		"' LIKE '", name, exact, "'", sep='')
-	
-	#more than one names are provided
-	else if (length(name) > 1) 
- 	{
-		rankExact <- .pmatchRank(db, rank)
-
-
-		### find all matching names
-		name <- unlist(lapply(name, FUN=function(n) 
-				getRank(db, rank=rank, whereRank=rank, 
-					whereName=n, 
-					partialMatch=partialMatch)))
+.getWhere <- function(db, rank, name, removeUnknownSpecies=FALSE) {
     
-		where <- paste("WHERE classification.'", rankExact, 
-			"' IN ('", paste(name,collapse="','"), "')", sep='')
-	
-	}
-	if (removeUnknownSpecies)
-		where <- paste(where, " AND classification.species NOT LIKE 'Unknown%' ")
-	where
-}
-
-### helper if we want to use a formula interface for where and name
-.formulaTowhere <- function(formula=NULL) {
-  if(is.null(formula)) {
-    rank<-NULL
-    name<- NULL
-  }else{
-  f <- as.character(eval(formula))
-  if(f[[1L]]!="~" || length(f)!=3) stop("Incorrect formula!")
- 
-    rank <- f[[2L]]
-    name <- unlist(strsplit(f[[3L]], split="\\s*\\+\\s*"))
+  if(is.null(rank) || is.null(name)) {
+    if(removeUnknownSpecies) return("classification.species NOT LIKE 'Unknown%'")
+    else return("")
   }
   
-  list(rank=rank, name=name)
+  ### partial match using %?
+  if(length(grep("%", name))) exact <- " LIKE " else exact <- "="
+  
+  if (length(name) <=1)  where <- paste("WHERE classification.'", 
+                                        .pmatchRank(db, rank), 
+                                        "'", exact, "'", name, "'", sep='')
+  
+  #more than one names are provided
+  else if (length(name) > 1) {
+    rankExact <- .pmatchRank(db, rank)
+    
+    ### find all matching names
+    name <- unlist(lapply(name, FUN=function(n) 
+      getRank(db, rank=rank, whereRank=rank, whereName=n)))
+    
+    where <- paste("WHERE classification.'", rankExact, 
+                   "' IN ('", paste(name,collapse="','"), "')", sep='')
+    
+  }
+  if (removeUnknownSpecies)
+    where <- paste(where, " AND classification.species NOT LIKE 'Unknown%' ")
+  
+  where
 }
+

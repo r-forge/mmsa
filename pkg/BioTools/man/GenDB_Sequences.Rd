@@ -1,4 +1,5 @@
 \name{GenDB_Sequences}
+\alias{GenDB_Sequences}
 \alias{Sequences}
 \alias{getSequences}
 \alias{addSequences}
@@ -15,30 +16,30 @@ Sequences can also be represented in NSV format.
 See NSVSet for more information.
 }
 \usage{
-addSequences(db, file,
+addSequences(db, sequences, table="sequences",
 	    annotation=Annotation_Greengenes, verbose=FALSE)
 	
 getSequences(db, rank=NULL, name=NULL, table="sequences",
-	    limit=NULL, random=FALSE, start=1, length=NULL,
-	    partialMatch=TRUE, removeUnknownSpecies=FALSE, annotation=Annotation_Id)
-	
-nSequences(db, rank=NULL, name=NULL, table="sequences")
+	    limit=NULL, random=FALSE, start=NULL, length=NULL,
+	    removeUnknownSpecies=FALSE, annotation=Annotation_Id)
+
+nSequences(db, rank=NULL, name=NULL, table="classification")
 
 #Annotation_Id(annotation, decode)
 }
 \arguments{
     \item{db}{Handle of the GenDB database.} 
-    \item{file}{Complete path of existing FASTA format file containing
-	sequence information. }
+    \item{sequences}{Complete path of existing FASTA format file containing
+	sequence information, a directory name with FASTA format files, or a DNAStringSet
+    with sufficient annotations in the name attribute.}
     \item{verbose}{logical; print progress information.}
-    \item{rank}{Name of Rank to be filtered by. For example: "kingdom", "phylum", etc.}
+    \item{rank}{Name of Rank to be filtered by. For example: "phylum", etc.}
     \item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
     \item{table}{Value of the table which stores sequences.}
     \item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
     \item{random}{Get sequences in randomized order.} 
     \item{start}{Start position for the subsequence.} 
     \item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
-    \item{partialMatch}{logical; perform partial matching on the name.} 
     \item{removeUnknownSpecies}{logical; whether unknown species should be removed from the result.} 
     \item{annotation}{Annotation fromat. Options are Annotation_Id, 
                       Annotation_Greengenes and Annotation_RDP.}
@@ -61,7 +62,10 @@ nSequences(db, rank=NULL, name=NULL, table="sequences")
 	\code{getSequences()} returns a list of sequences
 	satisfying a search criteria specified by the optional rank and name
 	parameters.  If no search criteria is specified, all the sequences are
-	returned. 
+	returned. Partial matching is used to match the rank name to the known 
+   rank names (e.g., P is matched to Phylum). Partial matching for name
+   is available with the wild card character % (e.g., De% matches all names
+   starting with De). 
 	
 	\code{nSequences()} counts the total number of sequences
 	present in a the sequence table of the database passed in as an
@@ -69,10 +73,10 @@ nSequences(db, rank=NULL, name=NULL, table="sequences")
 	function filters the results based on the search criteria.
 }
 \seealso{
-    \code{\link{createGenDB}},
-    \code{\link{openGenDB}},
-    \code{\link{Annotation_Greengenes}},
-    \code{\link[Biostrings]{DNAStringSet}}
+  \code{\link{GenDB}},
+  \code{\link{GenDB_Hierarchy}},
+  \code{\link{GenDB_Greengenes}},
+  \code{\link[Biostrings]{DNAStringSet}}
 }
 \examples{
 db <- createGenDB("example.sqlite")
@@ -80,7 +84,7 @@ addSequences(db,
     system.file("examples/Firmicutes.fasta",
         package="BioTools"))
 
-
+metaGenDB(db)
 nSequences(db)
 
 ### select some sequences
@@ -100,6 +104,11 @@ s <- getSequences(db, rank="Class", name="Clostridia", limit=5,
                   annotation=Annotation_RDP)
 s
 names(s)
+
+### partial matching (G matches Genus and De% matches all names starting with De)
+s <- getSequences(db, rank="G", name="De\%")
+s
+getRank(db, rank="Genus", whereRank="id", whereName=names(s), count=TRUE)
 
 ### clean up
 closeGenDB(db)
