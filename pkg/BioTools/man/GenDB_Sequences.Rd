@@ -5,6 +5,8 @@
 \alias{addSequences}
 \alias{nSequences}
 \alias{Annotation_Id}
+\alias{Annotation_Greengenes}
+\alias{Annotation_RDP}
 \title{Genetic Sequences}
 \description{
 Genetic sequences are stored in a GenDB (as character strings with meta
@@ -25,7 +27,9 @@ getSequences(db, rank=NULL, name=NULL, table="sequences",
 
 nSequences(db, rank=NULL, name=NULL, table="classification")
 
-#Annotation_Id(annotation, decode)
+Annotation_Id(annotation, decode)
+Annotation_Greengenes(annotation, decode=TRUE)  
+Annotation_RDP(annotation, decode=TRUE)
 }
 \arguments{
     \item{db}{Handle of the GenDB database.} 
@@ -36,14 +40,17 @@ nSequences(db, rank=NULL, name=NULL, table="classification")
     \item{rank}{Name of Rank to be filtered by. For example: "phylum", etc.}
     \item{name}{Name of Rank to be filtered by. For example: if rank="kingdom", name can be "Bacteria".}
     \item{table}{Value of the table which stores sequences.}
-    \item{limit}{Used to limit the number of sequnces that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
+    \item{limit}{Used to limit the number of sequences that are considered for generating the model,by default all sequences are taken into account. Default value of -1 takes all sequences into account} 
     \item{random}{Get sequences in randomized order.} 
     \item{start}{Start position for the subsequence.} 
     \item{length}{Length of the subsequence (\code{NULL} means the whole sequence).} 
     \item{removeUnknownSpecies}{logical; whether unknown species should be removed from the result.} 
-    \item{annotation}{Annotation fromat. Options are Annotation_Id, 
-                      Annotation_Greengenes and Annotation_RDP.}
-%    \item{decode}{Used internally.}
+    \item{annotation}{Annotation format. Options are Annotation_Id, 
+                      Annotation_Greengenes and Annotation_RDP. For the Annotation_x
+                      functions, annotation contains the FASTA file description 
+                      (obtained from a DNAStringSet via name).}
+          
+    \item{decode}{Decode or encode an annotation?}
 }
 \value{
 	\code{getSequences()} returns an object containing the sequences

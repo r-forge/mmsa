@@ -97,26 +97,20 @@ The following object is masked from ‘package:ape’:
 [1] "unknown"                          "Desulfotomaculum geothermicum"   
 [3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
 [5] "Desulfotomaculum gibsoniae"      
-> getRank(db, rank="species", whereRank="genus", whereName="D")
-character(0)
-Warning message:
-In getRank(db, rank = "species", whereRank = "genus", whereName = "D") :
-  No matching name in rank found!
+> getRank(db, rank="species", whereRank="genus", whereName="D%")
+[1] "unknown"                          "Desulfotomaculum geothermicum"   
+[3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
+[5] "Desulfotomaculum gibsoniae"       "Dialister pneumosintes"          
 > getRank(db, rank="species", whereRank="genus", 
 + 	whereName=c("Desulfotomaculum", "Syntrophomonas"))
 [1] "unknown"                          "Desulfotomaculum geothermicum"   
 [3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
 [5] "Desulfotomaculum gibsoniae"       "Syntrophomonas wolfei"           
-> getRank(db, rank="species", whereRank="genus", 
-+ 	whereName=c("De", "Sy"))
-character(0)
-Warning messages:
-1: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
-2: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
-3: In getRank(db, rank = "species", whereRank = "genus", whereName = c("De",  :
-  No matching name in rank found!
+> getRank(db, rank="S", whereRank="G", 
++ 	whereName=c("De%", "Sy%"))
+[1] "unknown"                          "Desulfotomaculum geothermicum"   
+[3] "Desulfotomaculum thermobenzoicum" "Desulfotomaculum acetoxidans"    
+[5] "Desulfotomaculum gibsoniae"       "Syntrophomonas wolfei"           
 > getRank(db, rank="species", whereRank="genus", whereName="Desulfotomaculum",
 + 	all=TRUE)
  [1] unknown                          Desulfotomaculum geothermicum   
@@ -130,11 +124,9 @@ Warning messages:
 [17] Desulfotomaculum acetoxidans     Desulfotomaculum acetoxidans    
 [19] unknown                          Desulfotomaculum gibsoniae      
 5 Levels: Desulfotomaculum acetoxidans ... unknown
-> getRank(db, rank="species", whereRank="genus", whereName="Doesnotexist")
+> ### this gives a warning
+> suppressWarnings(getRank(db, rank="species", whereRank="genus", whereName="Doesnotexist"))
 character(0)
-Warning message:
-In getRank(db, rank = "species", whereRank = "genus", whereName = "Doesnotexist") :
-  No matching name in rank found!
 > 
 > getIDs(db)
   [1] "1250"  "13651" "13652" "13654" "13655" "13657" "13658" "13659" "13661"
@@ -157,145 +149,201 @@ In getRank(db, rank = "species", whereRank = "genus", whereName = "Doesnotexist"
 > 
 > 
 > getHierarchy(db, rank="genus", name="Syntrophomonas")
-              Kingdom                Phylum                 Class 
-           "Bacteria"          "Firmicutes"          "Clostridia" 
-                Order                Family                 Genus 
-      "Clostridiales" "Syntrophomonadaceae"      "Syntrophomonas" 
-              Species                   Otu              Org_name 
-                   NA                    NA                    NA 
-                   Id 
-                   NA 
-> getHierarchy(db, rank="genus", name="S")
+   Kingdom     Phylum      Class         Order              Family
+1 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+2 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+3 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+4 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+5 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+6 Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+           Genus               Species      Otu
+1 Syntrophomonas               unknown otu_2196
+2 Syntrophomonas               unknown otu_2196
+3 Syntrophomonas Syntrophomonas wolfei otu_2198
+4 Syntrophomonas               unknown otu_2196
+5 Syntrophomonas               unknown otu_2196
+6 Syntrophomonas               unknown otu_2196
+                                    Org_name    Id
+1 AF050585.1contaminatedaquifercloneWCHB1-71 13685
+2      AB021306.1Syntrophomonassp.str.MGB-C1 13687
+3      AF022248.1Syntrophomonaswolfeistr.LYB 13688
+4 X99980.1Thermosyntrophalipolyticastr.JW265 13689
+5 AF050586.1contaminatedaquifercloneWCHB1-82 13690
+6         AF022249.1Syntrophomonassapovorans 13692
+> getHierarchy(db, rank="genus", name="S%")
+    Kingdom     Phylum      Class         Order              Family
+1  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+2  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+3  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+4  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+5  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+6  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+7  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+8  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+9  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+10 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+11 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+12 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+13 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+14 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+15 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+            Genus                 Species      Otu
+1  Syntrophomonas                 unknown otu_2196
+2  Syntrophomonas                 unknown otu_2196
+3  Syntrophomonas   Syntrophomonas wolfei otu_2198
+4  Syntrophomonas                 unknown otu_2196
+5  Syntrophomonas                 unknown otu_2196
+6  Syntrophomonas                 unknown otu_2196
+7     Selenomonas Selenomonas ruminantium otu_2225
+8     Selenomonas Selenomonas ruminantium otu_2225
+9     Selenomonas Selenomonas ruminantium otu_2225
+10    Selenomonas                 unknown otu_2223
+11    Selenomonas                 unknown otu_2223
+12    Selenomonas Selenomonas ruminantium otu_2225
+13    Selenomonas Selenomonas ruminantium otu_2225
+14    Selenomonas Selenomonas ruminantium otu_2225
+15    Selenomonas Selenomonas ruminantium otu_2225
+                                       Org_name    Id
+1    AF050585.1contaminatedaquifercloneWCHB1-71 13685
+2         AB021306.1Syntrophomonassp.str.MGB-C1 13687
+3         AF022248.1Syntrophomonaswolfeistr.LYB 13688
+4    X99980.1Thermosyntrophalipolyticastr.JW265 13689
+5    AF050586.1contaminatedaquifercloneWCHB1-82 13690
+6            AF022249.1Syntrophomonassapovorans 13692
+7       M62702.1Selenomonasruminantiumstr.GA192 13797
+8        AF161581.1Selenomonasruminantiumstr.K2 13799
+9         M62703.1Selenomonasruminantiumstr.HD4 13800
+10 Y09434.1Schwartziasuccinivoransstr.DSM10502T 13803
+11 AJ010963.1Centipedaperiodontiistr.DSM2778(T) 13806
+12  AB003379.1Selenomonasruminantiumstr.JCM6582 13812
+13                     AF001774.1rumencloneRFP7 13813
+14            AB009188.1rumencloneRFN3bacterium 13814
+15      AB017195.1Selenomonasruminantiumstr.S20 13816
+> getHierarchy(db, rank="genus", name=c("Se%", "Sy%"))
+    Kingdom     Phylum      Class         Order              Family
+1  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+2  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+3  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+4  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+5  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+6  Bacteria Firmicutes Clostridia Clostridiales Syntrophomonadaceae
+7  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+8  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+9  Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+10 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+11 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+12 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+13 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+14 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+15 Bacteria Firmicutes Clostridia Clostridiales     Veillonellaceae
+            Genus                 Species      Otu
+1  Syntrophomonas                 unknown otu_2196
+2  Syntrophomonas                 unknown otu_2196
+3  Syntrophomonas   Syntrophomonas wolfei otu_2198
+4  Syntrophomonas                 unknown otu_2196
+5  Syntrophomonas                 unknown otu_2196
+6  Syntrophomonas                 unknown otu_2196
+7     Selenomonas Selenomonas ruminantium otu_2225
+8     Selenomonas Selenomonas ruminantium otu_2225
+9     Selenomonas Selenomonas ruminantium otu_2225
+10    Selenomonas                 unknown otu_2223
+11    Selenomonas                 unknown otu_2223
+12    Selenomonas Selenomonas ruminantium otu_2225
+13    Selenomonas Selenomonas ruminantium otu_2225
+14    Selenomonas Selenomonas ruminantium otu_2225
+15    Selenomonas Selenomonas ruminantium otu_2225
+                                       Org_name    Id
+1    AF050585.1contaminatedaquifercloneWCHB1-71 13685
+2         AB021306.1Syntrophomonassp.str.MGB-C1 13687
+3         AF022248.1Syntrophomonaswolfeistr.LYB 13688
+4    X99980.1Thermosyntrophalipolyticastr.JW265 13689
+5    AF050586.1contaminatedaquifercloneWCHB1-82 13690
+6            AF022249.1Syntrophomonassapovorans 13692
+7       M62702.1Selenomonasruminantiumstr.GA192 13797
+8        AF161581.1Selenomonasruminantiumstr.K2 13799
+9         M62703.1Selenomonasruminantiumstr.HD4 13800
+10 Y09434.1Schwartziasuccinivoransstr.DSM10502T 13803
+11 AJ010963.1Centipedaperiodontiistr.DSM2778(T) 13806
+12  AB003379.1Selenomonasruminantiumstr.JCM6582 13812
+13                     AF001774.1rumencloneRFP7 13813
+14            AB009188.1rumencloneRFN3bacterium 13814
+15      AB017195.1Selenomonasruminantiumstr.S20 13816
+> ### this gives a warning
+> suppressWarnings(getHierarchy(db, rank="genus", name="doesnotexist!"))
  [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
  [9] Org_name Id      
 <0 rows> (or 0-length row.names)
-Warning message:
-In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
-> getHierarchy(db, rank="genus", name=c("Se", "Sy"))
- [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
- [9] Org_name Id      
-<0 rows> (or 0-length row.names)
-Warning messages:
-1: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
-2: In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
-> getHierarchy(db, rank="genus", name="doesnotexist!")
- [1] Kingdom  Phylum   Class    Order    Family   Genus    Species  Otu     
- [9] Org_name Id      
-<0 rows> (or 0-length row.names)
-Warning message:
-In getRank(db, rank = rank, whereRank = rank, whereName = n) :
-  No matching name in rank found!
 > getHierarchy(db, rank="id", name="13655")
-                                               Kingdom 
-                                            "Bacteria" 
-                                                Phylum 
-                                          "Firmicutes" 
-                                                 Class 
-                                          "Clostridia" 
-                                                 Order 
-                                       "Clostridiales" 
-                                                Family 
-                                      "Peptococcaceae" 
-                                                 Genus 
-                                    "Desulfotomaculum" 
-                                               Species 
-                    "Desulfotomaculum thermobenzoicum" 
-                                                   Otu 
-                                            "otu_2150" 
-                                              Org_name 
-"Y11573.1Desulfotomaculumthermoacetoxidansstr.DSM5813" 
-                                                    Id 
-                                               "13655" 
+   Kingdom     Phylum      Class         Order         Family            Genus
+1 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+                           Species      Otu
+1 Desulfotomaculum thermobenzoicum otu_2150
+                                              Org_name    Id
+1 Y11573.1Desulfotomaculumthermoacetoxidansstr.DSM5813 13655
 > getHierarchy(db, rank="id", name=ids)
-      Kingdom    Phylum       Class        Order           Family          
- [1,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [2,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [3,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [4,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [5,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [6,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [7,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [8,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
- [9,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[10,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[11,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[12,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[13,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[14,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[15,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[16,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[17,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[18,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[19,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-[20,] "Bacteria" "Firmicutes" "Clostridia" "Clostridiales" "Peptococcaceae"
-      Genus              Species                            Otu       
- [1,] "Desulfotomaculum" "unknown"                          "otu_2143"
- [2,] "Desulfotomaculum" "Desulfotomaculum geothermicum"    "otu_2146"
- [3,] "Desulfotomaculum" "unknown"                          "otu_2143"
- [4,] "Desulfotomaculum" "Desulfotomaculum thermobenzoicum" "otu_2150"
- [5,] "Desulfotomaculum" "unknown"                          "otu_2143"
- [6,] "Desulfotomaculum" "unknown"                          "otu_2143"
- [7,] "Desulfotomaculum" "unknown"                          "otu_2143"
- [8,] "Desulfotomaculum" "Desulfotomaculum thermobenzoicum" "otu_2150"
- [9,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[10,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[11,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[12,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[13,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[14,] "Desulfotomaculum" "Desulfotomaculum thermobenzoicum" "otu_2150"
-[15,] "Desulfotomaculum" "Desulfotomaculum thermobenzoicum" "otu_2150"
-[16,] "Desulfotomaculum" "Desulfotomaculum acetoxidans"     "otu_2144"
-[17,] "Desulfotomaculum" "Desulfotomaculum acetoxidans"     "otu_2144"
-[18,] "Desulfotomaculum" "Desulfotomaculum acetoxidans"     "otu_2144"
-[19,] "Desulfotomaculum" "unknown"                          "otu_2143"
-[20,] "Desulfotomaculum" "Desulfotomaculum gibsoniae"       "otu_2147"
-      Org_name                                                          
- [1,] "U33455.1Desulfotomaculumthermocisternumstr.ST90"                 
- [2,] "Y11567.1Desulfotomaculumgeothermicumstr.DSM3669"                 
- [3,] "AF069293.1Desulfotomaculumluciaestr.SLT"                         
- [4,] "Y11573.1Desulfotomaculumthermoacetoxidansstr.DSM5813"            
- [5,] "M96665.1Desulfotomaculumaustralicumstr.AB33"                     
- [6,] "U33456.1Desulfotomaculumsp.str.T93B"                             
- [7,] "U88891.1Desulfotomaculumhalophilumstr.SEBR3139"                  
- [8,] "L15628.1Desulfotomaculumthermobenzoicum"                         
- [9,] "Y11575.1Desulfotomaculumthermosapovoransstr.DSM6562"             
-[10,] "AJ012599.1SulfatereducingfieldsoilandonricerootsDesulfotomaculum"
-[11,] "Y14845.1Sporotomaculumhydroxybenzoicumstr.BTDSM5475"             
-[12,] "Y11569.1Desulfotomaculumkuznetsoviistr.DSM6115"                  
-[13,] "AF009646.1Desulfotomaculumkuznetsovii"                           
-[14,] "Y11574.1Desulfotomaculumthermobenzoicumstr.DSM6193"              
-[15,] "Y11578.1Desulfotomaculumsp.str.DSM7476"                          
-[16,] "Y11566.1Desulfotomaculumacetoxidansstr.DSM771"                   
-[17,] "AJ012600.1Desulfotomaculumsp.R-IbutA1"                           
-[18,] "AJ012601.1Desulfotomaculumsp.R-AcA1"                             
-[19,] "Z26315.1Desulfotomaculumthermosapovoransstr.MLF"                 
-[20,] "Y11576.1Desulfotomaculumsp.str.DSM7213"                          
-      Id     
- [1,] "13651"
- [2,] "13652"
- [3,] "13654"
- [4,] "13655"
- [5,] "13657"
- [6,] "13658"
- [7,] "13659"
- [8,] "13661"
- [9,] "13664"
-[10,] "13665"
-[11,] "13667"
-[12,] "13668"
-[13,] "13669"
-[14,] "13671"
-[15,] "13677"
-[16,] "13678"
-[17,] "13679"
-[18,] "13680"
-[19,] "13681"
-[20,] "13682"
-> 
-> #getHierarchy(db)
+    Kingdom     Phylum      Class         Order         Family            Genus
+1  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+2  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+3  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+4  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+5  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+6  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+7  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+8  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+9  Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+10 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+11 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+12 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+13 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+14 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+15 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+16 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+17 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+18 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+19 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+20 Bacteria Firmicutes Clostridia Clostridiales Peptococcaceae Desulfotomaculum
+                            Species      Otu
+1                           unknown otu_2143
+2     Desulfotomaculum geothermicum otu_2146
+3                           unknown otu_2143
+4  Desulfotomaculum thermobenzoicum otu_2150
+5                           unknown otu_2143
+6                           unknown otu_2143
+7                           unknown otu_2143
+8  Desulfotomaculum thermobenzoicum otu_2150
+9                           unknown otu_2143
+10                          unknown otu_2143
+11                          unknown otu_2143
+12                          unknown otu_2143
+13                          unknown otu_2143
+14 Desulfotomaculum thermobenzoicum otu_2150
+15 Desulfotomaculum thermobenzoicum otu_2150
+16     Desulfotomaculum acetoxidans otu_2144
+17     Desulfotomaculum acetoxidans otu_2144
+18     Desulfotomaculum acetoxidans otu_2144
+19                          unknown otu_2143
+20       Desulfotomaculum gibsoniae otu_2147
+                                                           Org_name    Id
+1                   U33455.1Desulfotomaculumthermocisternumstr.ST90 13651
+2                   Y11567.1Desulfotomaculumgeothermicumstr.DSM3669 13652
+3                           AF069293.1Desulfotomaculumluciaestr.SLT 13654
+4              Y11573.1Desulfotomaculumthermoacetoxidansstr.DSM5813 13655
+5                       M96665.1Desulfotomaculumaustralicumstr.AB33 13657
+6                               U33456.1Desulfotomaculumsp.str.T93B 13658
+7                    U88891.1Desulfotomaculumhalophilumstr.SEBR3139 13659
+8                           L15628.1Desulfotomaculumthermobenzoicum 13661
+9               Y11575.1Desulfotomaculumthermosapovoransstr.DSM6562 13664
+10 AJ012599.1SulfatereducingfieldsoilandonricerootsDesulfotomaculum 13665
+11              Y14845.1Sporotomaculumhydroxybenzoicumstr.BTDSM5475 13667
+12                   Y11569.1Desulfotomaculumkuznetsoviistr.DSM6115 13668
+13                            AF009646.1Desulfotomaculumkuznetsovii 13669
+14               Y11574.1Desulfotomaculumthermobenzoicumstr.DSM6193 13671
+15                           Y11578.1Desulfotomaculumsp.str.DSM7476 13677
+16                    Y11566.1Desulfotomaculumacetoxidansstr.DSM771 13678
+17                            AJ012600.1Desulfotomaculumsp.R-IbutA1 13679
+18                              AJ012601.1Desulfotomaculumsp.R-AcA1 13680
+19                  Z26315.1Desulfotomaculumthermosapovoransstr.MLF 13681
+20                           Y11576.1Desulfotomaculumsp.str.DSM7213 13682
 > 
 > closeGenDB(db)
 > 

@@ -18,49 +18,44 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ## classification hierarchy for 16S
-GenClass16S_Greengenes <- function(kingdom=NA, phylum=NA, class=NA, order=NA, 
-	family=NA, genus=NA, species=NA, otu=NA,org_name=NA,id=NA) {
+GenClass16S_Greengenes <- function(Kingdom=NA, Phylum=NA, Class=NA, Order=NA, 
+	Family=NA, Genus=NA, Species=NA, Otu=NA, Org_name=NA, Id=NA) {
 
-    c(	    Kingdom=as.character(kingdom), 
-	    Phylum=as.character(phylum), 
-	    Class=as.character(class),
-	    Order=as.character(order), 
-	    Family=as.character(family), 
-	    Genus=as.character(genus), 
-	    Species=as.character(species),
-	    Otu=as.character(otu),
-	    Org_name=as.character(org_name),
-	    Id=as.character(id)
-	    )
+  ### prevent recycling
+  params <- as.list(environment())
+  l <- max(sapply(params, length))
+  params <- lapply(params, "length<-", l)
+  return(as.data.frame(do.call(cbind, params)))
 }
 
-
 Annotation_Greengenes <- function(annotation, decode=TRUE) {
-
+  
   if(decode) { ### decode metadata
     fields <- c("k__", "p__", "c__", "o__", "f__", "g__", "s__", "otu_") 
     ## add out and org_name
-
+    
     # remove leading ">"
     annotation <- sub(">", "", annotation)
     # split at "k__" 
-    tmp <- strsplit(annotation, " *k__")[[1]]
-    org_name <- gsub("'","",tmp[1])
-    id<-strsplit(org_name," ")[[1]][1]
-    #org_name<- trimSpace(sub(id,"",org_name))
-    org_name<- gsub(" ","",(sub(id,"",org_name)))
-    tmp <- strsplit(paste('k__',tmp[2], sep=''), '; *')[[1]]
+    tmp <- strsplit(annotation, " *k__")
+    org_name <- gsub("'","", sapply(tmp, "[", 1))
+    ss <- strsplit(org_name," ")
+    id <- sapply(ss, "[", 1)
+    org_name <- sapply(ss, FUN=function(s) paste(s[-1], collapse="_"))
+    
+    tmp <- sapply(tmp, "[", 2)
+    tmp <- paste("k__", tmp, sep='')
+    tmp <- strsplit(tmp, '; *')
+    
     cl <- sapply(fields, FUN=function(f) {
-		val <- grep(f, tmp, value=TRUE)
-		val <- sub('^.__', '', val)
-		if(length(val) ==0) val <- "unknown"
-		val
-	    })
-
- return(GenClass16S_Greengenes(cl[1], cl[2], cl[3], cl[4], cl[5], 
-		 cl[6], cl[7], cl[8], org_name, id))
-
-
+      val <- lapply(tmp, FUN=function(i) grep(f, i, value=TRUE))
+      sapply(val, FUN=function(s) if(length(s)==1) sub('^.__', '', s) else "unknown")
+    }, simplify=FALSE)
+    
+    return(GenClass16S_Greengenes(cl[[1]], cl[[2]], cl[[3]], cl[[4]], cl[[5]], 
+                                  cl[[6]], cl[[7]], cl[[8]], org_name, id))
+    
+    
   }else{ ### recreate meta data   
     return(paste(
       ">", annotation[,"Id"], " ", annotation[,"Org_name"],
@@ -75,6 +70,6 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
       sep=""))
   }
   
-  }
+}
 
 

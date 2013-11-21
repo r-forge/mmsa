@@ -172,8 +172,12 @@ trainRDP <- function(x, dir="classifier", rank="genus", java_args="-Xmx1g")
 		x<-x[-badHierarchy]
    	}
 	writeXStringSet(x,file.path(dir,"train.fasta"))
-	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),"edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",file.path(dir,"train.txt"), file.path(dir,"train.fasta")," 1 version1 test ", dir)) 
-#,ignore.stdout=TRUE, ignore.stderr=TRUE)
+	system(paste("java", java_args, "-cp", Sys.getenv("RDP_JAR_PATH"),
+               "edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",
+               file.path(dir,"train.txt"), file.path(dir,"train.fasta"),
+               " 1 version1 test ", dir),
+         #ignore.stdout=TRUE, 
+         ignore.stderr=TRUE)
     file.copy(system.file("examples/rRNAClassifier.properties",package="BioTools"),dir)
 
     RDP(dir)

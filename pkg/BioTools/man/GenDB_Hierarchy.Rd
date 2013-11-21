@@ -14,7 +14,7 @@ level i.e. kingdom.
   }
 \usage{
 getTaxonomyNames(db)
-getHierarchy(db, rank, name, drop=TRUE)
+getHierarchy(db, rank, name)
 getRank(db, rank = "Phylum", whereRank=NULL, whereName=NULL, table="sequences",  
     all=FALSE, count=FALSE, removeUnknown=FALSE)
 getIDs(db, whereRank=NULL, whereName=NULL, table="sequences",  
@@ -30,7 +30,6 @@ getIDs(db, whereRank=NULL, whereName=NULL, table="sequences",
 	\item{name}{Name of the rank at which the hierarchy object is required.}
 	\item{count}{logical; List the counts of rank along with the name?}
 	\item{removeUnknown}{logical; Remove "unknown" ranks ?}
-	\item{drop}{logical; drop a classification for a single element to a vector (from matrix).}
 }
 \details{
 	The \code{getRank()} function lists the distinct number of values at a
@@ -81,11 +80,11 @@ par(oldpar)
 ### get the hierarchy for genus Syntrophomonas
 getHierarchy(db, rank="genus", name="Syntrophomonas")
 
-### get the hierarchy for all Genera starting with S
-getHierarchy(db, rank="genus", name="S\%")
+### get the hierarchy for all Genera (g is expanded) starting with S
+getHierarchy(db, rank="g", name="S\%")
 
-### get the hierarchy for all Genera starting with Se and Sy
-getHierarchy(db, rank="genus", name=c("Se\%", "Sy\%"))
+### get the hierarchy for all Genera starting with Se and Ve
+getHierarchy(db, rank="genus", name=c("Se\%", "Ve\%"))
 
 ### get hierarchy for a sequence using id
 getHierarchy(db, rank="id", name="13655")

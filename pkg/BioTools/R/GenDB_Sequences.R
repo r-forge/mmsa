@@ -60,6 +60,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
     fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
 	}else fullRankSQL <-"-1"
 
+	### FIXME: If we get all the classification here then we don't need the expensive lookip below (getHierarchy)
   statement <- paste("SELECT ", lengthFilter, " AS data, classification.id AS id, ", 
                      fullRankSQL ," AS fullRank  FROM ", table ,
                      " INNER JOIN classification ON classification.id = ",
@@ -69,17 +70,18 @@ getSequences <- function(db,  rank=NULL, name=NULL,
   
 	res <- dbGetQuery(db$db, statement = statement)
 
+  if (nrow(res) == 0) stop("No rows found in the database")
+
+  ### make sure the oder is correct if rank is id
   if (!is.null(rank) && rank=="id" && nrow(res)==length(name)) {
-		if (!is.null(name)) res<-res[match(name,res$id),]	
+    res <- res[match(name,res$id),]	
 	}
 	
-  if (nrow(res) == 0) stop("No rows found in the database")
   ret <- DNAStringSet(res$data)
   
   if(identical(annotation, Annotation_Id)) names(ret) <- res$id
   else { ### this is slow
-    h <- getHierarchy(db, rank="id", name=res$id, 
-                      drop=FALSE)
+    h <- getHierarchy(db, rank="id", name=res$id)
     names(ret) <- annotation(h, decode=FALSE)
   }
     
@@ -117,12 +119,16 @@ addSequences <- function(db, sequences, table="sequences",
   fail <- 0
   total <- 0
   
+  ### prepare classification
+  ann <- annotation(names(sequences), decode=TRUE)
+  
   dbBeginTransaction(db$db)
   #start
   for(i in 1:length(sequences)) {
-    cl <- annotation(names(sequences)[i], decode=TRUE)
+    cl <- sapply(ann[i,], as.character)
     id <- cl["Id"]
     cl <- paste("'",cl,"'", sep='', collapse=', ') 
+    
     dat<- as.character(sequences[[i]])
     
     try(dbSendQuery(db$db,          

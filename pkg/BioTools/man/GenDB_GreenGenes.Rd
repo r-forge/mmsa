@@ -2,30 +2,28 @@
 \alias{GenDB_Greengenes}
 \alias{GenClass16S}
 \alias{GenClass16S_Greengenes}
-\alias{Annotation_Greengenes}
-\alias{Annotation_RDP}
+
 
 \title{Manage GenClass16S objects}
 \description{
 	These functions create objects of class GenClass16S which contain classification hierarchy.
 }
 \usage{
-	GenClass16S_Greengenes(kingdom=NA, phylum=NA, class=NA, order=NA, 
-	    family=NA, genus=NA, species=NA, otu=NA, org_name=NA, id=NA) 
-#	Annotation_Greengenes(annotation, decode)	
+	GenClass16S_Greengenes(Kingdom=NA, Phylum=NA, Class=NA, Order=NA, 
+	    Family=NA, Genus=NA, Species=NA, Otu=NA, Org_name=NA, Id=NA) 
+
 }
 \arguments{
-	\item{kingdom}{Name of the kingdom to which the organism belongs. } 
-	\item{phylum}{Name of the phylum to which the organism belongs. } 
-	\item{class}{Name of the class to which the organism belongs. } 
-	\item{order}{Name of the order to which the organism belongs. } 
-	\item{family}{Name of the family to which the organism belongs. } 
-	\item{genus}{Name of the genus to which the organism belongs. } 
-	\item{species}{Name of the species to which the organism belongs. } 
-	\item{otu}{Name of the otu to which the organism belongs. } 
-	\item{org_name}{Name of the organism. } 
-	\item{id}{ID of the sequence from Greengenes. } 
-%	\item{annotation, decode}{Used internally.}
+	\item{Kingdom}{Name of the kingdom to which the organism belongs. } 
+	\item{Phylum}{Name of the phylum to which the organism belongs. } 
+	\item{Class}{Name of the class to which the organism belongs. } 
+	\item{Order}{Name of the order to which the organism belongs. } 
+	\item{Family}{Name of the family to which the organism belongs. } 
+	\item{Genus}{Name of the genus to which the organism belongs. } 
+	\item{Species}{Name of the species to which the organism belongs. } 
+	\item{Otu}{Name of the otu to which the organism belongs. } 
+	\item{Org_name}{Name of the organism. } 
+	\item{Id}{ID of the sequence from Greengenes. } 
 }
 \details{
 \code{GenClass16S_Greengenes} creates a classification object for a 
@@ -43,8 +41,8 @@ annotations.
 \examples{
 ### example of how to create a classification object
 GenClass16S_Greengenes(
-	kingdom="Bacteria", phylum ="Firmicutes", class="Clostridia", 
-	order="Clostridiales", family="Peptococcaceae",
-	genus="Desulfotomaculum", species="Unclassified", otu="2143", 
-	org_name="Desulfotomaculum thermocisternum str. ST90", id="13651")
+	Kingdom="Bacteria", Phylum ="Firmicutes", Class="Clostridia", 
+	Order="Clostridiales", Family="Peptococcaceae",
+	Genus="Desulfotomaculum", Species="Unclassified", Otu="2143", 
+	Org_name="Desulfotomaculum thermocisternum str. ST90", Id="13651")
 }
