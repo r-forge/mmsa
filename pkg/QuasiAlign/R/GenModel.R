@@ -25,7 +25,8 @@ GenModel <- function(x, rank=NULL, name = NULL,
 # creates an model from sequences in the db 
 GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV", 
                        measure="Manhattan", threshold=30, 
-                       selection=NULL, limit=NULL, random=FALSE, saveClusterInfo=FALSE) {
+                       selection=NULL, limit=NULL, random=FALSE, 
+		       saveClusterInfo=FALSE, prune=1) {
   
   rank <- BioTools:::.pmatchRank(db, rank)
   
@@ -79,11 +80,13 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
     
     #get actual number of sequences
     build(emm, d)
-    
+
     if(saveClusterInfo) 
       clusterInfo <- .getClusterInfo(clusterInfo,
                                      last_clustering(emm), ids, i)
+
     
+    if(prune>0) prune(emm, count=prune, copy=FALSE, compact=FALSE)
     
     reset(emm) ### make sure there is a NA here
     

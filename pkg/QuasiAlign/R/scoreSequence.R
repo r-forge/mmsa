@@ -1,6 +1,6 @@
 scoreSequence <- function(x, newdata, 
 	method = "supported_transitions",
-	match_cluster="exact",...) {
+	match_cluster="weighted",...) {
 
 
     if(is(newdata, "NSVSet")) {

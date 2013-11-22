@@ -62,7 +62,7 @@ createNSVSet <- function(x, window=100, overlap=0, word=3,
 }
 
 
-createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL, 
+createNSVTable <- function(db, tableFrom="sequences", table="NSV", rank=NULL, name=NULL, 
 	window=100, overlap=0, word=3, last_window=FALSE, 
 	limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE) {
 
@@ -93,7 +93,7 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	    )	
     
     ## number of sequences
-    n <- nSequences(db, rank, name, "sequences")
+    n <- nSequences(db, rank, name, table=tableFrom)
     if(n<1) {
 	warning("No sequences to process!")
 	return()
@@ -120,7 +120,7 @@ createNSVTable <- function(db, table="NSV", rank=NULL, name=NULL,
 	
 	dbl <- reopenGenDB(db)
 	
-	s <- getSequences(dbl, rank, name, table="sequences",
+	s <- getSequences(dbl, rank, name, table=tableFrom,
 		limit=c(start, block))
 	n <- createNSVSet(s,  window, overlap, word, last_window, allOffsets)
 	n <- lapply(n, FUN=function(x) base64encode(serialize(x, NULL)))

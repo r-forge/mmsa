@@ -54,9 +54,10 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
   
   #get rank names
   if(is.null(selection))
-    rankNames <- getRank(db, rank)
+    rankNames <- getRank(db, rank, table=table)
   else
-    rankNames <- unique(rankNames_sel <- getRank(db, rank=rank , whereRank="id", 
+    rankNames <- unique(rankNames_sel <- getRank(db, rank=rank, table=table, 
+                                                 whereRank="id", 
                                                  whereName=selection))
   
   i <- 1  ### FIXME: otherwise R CMD check complains about missing global binding 
@@ -89,9 +90,7 @@ trainGenClassifier <- function(classifier_dir, db, rank = "Phylum",
 # of rankNames output is a data.frame containing the similarity scores,
 # predicted value and the actual value
 predict.GenClassifier <- function(object, newdata, rank="Phylum", 
-	method="supported_transitions", match_cluster="exact", ...) {
-#classify<-function(modelDir, NSVList, rank, method="supported_transitions")
-#{
+	method="supported_transitions", match_cluster="weighted", ...) {
 
     modelDir <- object$classifier_dir
     NSVList <- newdata
@@ -114,7 +113,8 @@ predict.GenClassifier <- function(object, newdata, rank="Phylum",
     colnames(classificationScores) <- modelNames
     
     winner <- apply(classificationScores, MARGIN=1, which.max)
-    prediction <- factor(winner, levels=1:ncol(classificationScores), labels=colnames(classificationScores))
+    prediction <- factor(winner, levels=1:ncol(classificationScores), 
+                         labels=colnames(classificationScores))
 
 	list(scores=classificationScores, 
 	    class=prediction)
