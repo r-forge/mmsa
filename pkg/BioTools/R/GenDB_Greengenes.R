@@ -45,11 +45,12 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
     
     tmp <- sapply(tmp, "[", 2)
     tmp <- paste("k__", tmp, sep='')
-    tmp <- strsplit(tmp, '; *')
+    tmp <- strsplit(tmp, "(?= .__)|(?= otu_)", perl=TRUE)
+    
     
     cl <- sapply(fields, FUN=function(f) {
       val <- lapply(tmp, FUN=function(i) grep(f, i, value=TRUE))
-      sapply(val, FUN=function(s) if(length(s)==1) sub('^.__', '', s) else "unknown")
+      sapply(val, FUN=function(s) if(length(s)==1) sub('(^.__)|(otu_)', '', s) else "unknown")
     }, simplify=FALSE)
     
     return(GenClass16S_Greengenes(cl[[1]], cl[[2]], cl[[3]], cl[[4]], cl[[5]], 
