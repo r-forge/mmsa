@@ -7,12 +7,14 @@
 This wizard helps with the installation of software used by BioTools.
 }
 \usage{
-BioTools_Software_Wizard(RDP = FALSE, clustal = FALSE, kalign = FALSE, MAFFT = FALSE, BLAST = FALSE, BLAST16S = FALSE, boxshade = FALSE)
+BioTools_Software_Wizard(RDP = FALSE, clustal = FALSE, kalign = FALSE, 
+  MAFFT = FALSE, MUSCLE = TRUE, BLAST = FALSE, BLAST16S = FALSE, boxshade = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{RDP, clustal, kalign, MAFFT, BLAST, BLAST16S, boxshade}{ logical; 
-  what would you like to install?
+  \item{RDP, clustal, kalign, MAFFT, MUSCLE, BLAST, BLAST16S, boxshade}{ logical; 
+  what would you like to install? Default is to install all except the BLAST16S
+  data.
 %%     ~~Describe \code{RDP} here~~
   }
 }

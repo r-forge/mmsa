@@ -7,7 +7,9 @@ import(proxy)
 importFrom(ape, dist.dna, as.DNAbin)
 
 export( 
-	### clustal
+	BioTools_Software_Wizard,
+  
+  ### clustal
 	clustal,
 	clustal_help,
 #	clustal_profile,

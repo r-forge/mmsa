@@ -20,7 +20,7 @@
 
 .findExecutable <- function(exe) {
     path <- Sys.which(exe)
-    if(all(path=="")) stop("Executable for ", paste(exe, collapse=" or "), " not found!", call.=FALSE)
+    if(all(path=="")) stop("Executable for ", paste(exe, collapse=" or "), " not found! Use BioTools_Software_Wizard() to install the needed software!", call.=FALSE)
     
     path[which(path!="")[1]]
 }

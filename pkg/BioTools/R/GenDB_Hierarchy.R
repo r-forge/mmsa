@@ -27,7 +27,7 @@ GenClass16S <- function(Domain=NA, Phylum=NA, Class=NA, Order=NA,
   params <- lapply(params, "length<-", l)
   return(as.data.frame(do.call(cbind, params)))
 }
-  
+
 
 ### this is a helper to create sequences with only the id as names
 Annotation_Id <- function(annotation, decode) {
@@ -139,7 +139,7 @@ getHierarchy <- function(db, rank, name){
   res <- dbGetQuery(db$db, statement = statement)
   
   if(nrow(res)<1) warning("No matching hierarchy found!")
-
+  
   ### make sure the oder is correct if rank is id
   if (!is.null(rank) && rank=="id" && nrow(res)==length(name)) {
     res<-res[match(name,res$Id),]  
