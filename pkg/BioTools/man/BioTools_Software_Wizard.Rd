@@ -8,7 +8,7 @@ This wizard helps with the installation of software used by BioTools.
 }
 \usage{
 BioTools_Software_Wizard(RDP = FALSE, clustal = FALSE, kalign = FALSE, 
-  MAFFT = FALSE, MUSCLE = TRUE, BLAST = FALSE, BLAST16S = FALSE, boxshade = FALSE)
+  MAFFT = FALSE, MUSCLE = FALSE, BLAST = FALSE, BLAST16S = FALSE, boxshade = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

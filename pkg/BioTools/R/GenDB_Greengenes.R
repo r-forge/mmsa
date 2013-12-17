@@ -53,6 +53,10 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
       sapply(val, FUN=function(s) if(length(s)==1) sub('(^.__)|(otu_)', '', s) else "unknown")
     }, simplify=FALSE)
     
+    #remove trailing ;
+    cl <- lapply(cl, FUN=function(s) sub(';$','', s))
+    
+    
     return(GenClass16S_Greengenes(cl[[1]], cl[[2]], cl[[3]], cl[[4]], cl[[5]], 
                                   cl[[6]], cl[[7]], cl[[8]], org_name, id))
     
@@ -60,13 +64,13 @@ Annotation_Greengenes <- function(annotation, decode=TRUE) {
   }else{ ### recreate meta data   
     return(paste(
       ">", annotation[,"Id"], " ", annotation[,"Org_name"],
-      " k__", annotation[,"Kingdom"], 
-      " p__", annotation[,"Phylum"],            
-      " c__", annotation[,"Class"], 
-      " o__", annotation[,"Order"], 
-      " f__", annotation[,"Family"],
-      " g__", annotation[,"Genus"], 
-      " s__", annotation[,"Species"], 
+      " k__", annotation[,"Kingdom"], ';',
+      " p__", annotation[,"Phylum"], ';',             
+      " c__", annotation[,"Class"], ';',
+      " o__", annotation[,"Order"],  ';',
+      " f__", annotation[,"Family"], ';',
+      " g__", annotation[,"Genus"], ';',
+      " s__", annotation[,"Species"], ';',
       " otu_", annotation[,"Otu"], 
       sep=""))
   }
