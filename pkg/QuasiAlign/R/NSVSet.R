@@ -232,7 +232,7 @@ processSequences <- function(dir, db, annotation=Annotation_Greengenes,
 	addSequences(db, f, annotation=annotation)
     }
 
-    createNSVTable(db, "NSV", ...)
+    createNSVTable(db, ...)
 }
 
 ## helper
