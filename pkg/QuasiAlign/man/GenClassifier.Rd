@@ -17,7 +17,7 @@ removeGenClassifier(object)
 trainGenClassifier(classifier_dir, db, rank = "Phylum",
         table="NSV", selection=NULL, limit=NULL, add=FALSE, ...)
 \method{predict}{GenClassifier}(object, newdata, rank="Phylum",
-        method="supported_transitions", match_cluster="exact", ...)
+        method="supported_transitions", match_cluster="weighted", ...)
 }
 \arguments{
 	\item{classifier_dir}{directory to store the classifier data.}

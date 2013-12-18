@@ -9,8 +9,7 @@ by the same process as the sequences used to build the model.
 \usage{
 \S4method{scoreSequence}{GenModel,matrix}(x, newdata, 
     method = "supported_transitions", 
-    match_cluster = "nn", plus_one = FALSE, 
-    initial_transition = FALSE)
+    match_cluster = "weighted", prior = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,13 +18,11 @@ by the same process as the sequences used to build the model.
   \item{method}{ method to calculate the score (see details). }
   \item{match_cluster}{ do the new observations have to fall within
     the threshold of the cluster (\code{"exact"}) or is nearest neighbor 
-    used (\code{"nn"})?}
-  \item{plus_one}{ add one to each transition count. This is equal
+    used (\code{"nn"}) or weighted neares neighbors (\code{"weighted"})?}
+  \item{prior}{ Use a uniform prior distribution. This is equal
       to start with one for each transition count, i.e. initially all
           transitions are equally likely. It prevents the product
           of probabilities to be zero if a transition was never observed. }
-  \item{initial_transition}{ include the initial transition 
-         in the computation?}
 }
 \details{
 This function delegates the score computation to the implementation of
@@ -37,7 +34,7 @@ The available scoring functions for these models are
 	Product of transition probabilities along the path of \eqn{x} in the 
 	    model. A single missing transition (transition probability of zero) 
 	    will result in
-	    a score of 0. Use \code{plus_one} to avoid this.
+	    a score of 0. Use \code{prior} to avoid this.
 	    \deqn{S_\mathrm{product} = \sqrt[l-1]{\prod_{i=1}^{l-1}{a_{s(i),s(i+1)}}}}{
 		S_product = prod(a_s(i),s(i+1))^(1/(l-1))}
     }
@@ -56,7 +53,7 @@ The available scoring functions for these models are
 
 	    A single missing transition (transition probability of zero)
 	    will result in a score of neg. infinity. 
-	    Use \code{plus_one} to avoid this. 
+	    Use \code{prior} to avoid this. 
 
 	    \deqn{S_\mathrm{log\_sum} = \frac{1}{l-1} \sum_{i=1}^{l-1}{\mathrm{log}(a_{s(i),s(i+1)})}}{
 		S_sum = 1/(l-1) sum(log(a_s(i),s(i+1)))}
@@ -122,7 +119,7 @@ names(random_sequence)
 
 scoreSequence(model, random_sequence)
 
-scoreSequence(model, random_sequence, method ="product", plus_one=TRUE)
+scoreSequence(model, random_sequence, method ="product")
 
 ### clean up
 closeGenDB(db)

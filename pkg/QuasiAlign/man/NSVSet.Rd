@@ -21,7 +21,7 @@ or directly from data stored in a GenDB with \code{createNSVTable}.
 createNSVSet(x, window=100, overlap=0, word=3, 
     last_window=FALSE, allOffsets=FALSE)
 
-createNSVTable(db, table="NSV", rank=NULL, name=NULL, 
+createNSVTable(db, tableFrom="sequences", table="NSV", rank=NULL, name=NULL, 
     window=100, overlap=0, word=3, last_window=FALSE, 
     limit=NULL, removeUnknownSpecies=FALSE, allOffsets=FALSE)
 
@@ -38,6 +38,7 @@ processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 \arguments{
 	\item{x}{An object of class DNAStringSet.} 
 	\item{db}{Handle of the GenDB.} 
+	\item{tableFrom}{Sequence table to convert.}
 	\item{table}{Name of the new NSV table which will store the NSV format sequences.}
 	\item{rank}{Name of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}
 	\item{name}{Value of Rank by which to filter. Fuzzy matching is performed if an incomplete name is specified.}

@@ -18,7 +18,7 @@ GenModel(x, rank=NULL, name=NULL, measure="Manhattan", threshold=30,
 
 GenModelDB(db, rank=NULL, name=NULL, table ="NSV", measure="Manhattan", 
     threshold=30, selection=NULL, limit=NULL, random=FALSE, 
-    saveClusterInfo=FALSE)
+    saveClusterInfo=FALSE, prune=1)
 
 getModelDetails(model, state=NULL, db=NULL)
 getModelSequences(db, model, state, table="sequences")
@@ -38,6 +38,7 @@ getModelSequences(db, model, state, table="sequences")
 	\item{model}{GenModel object returned by the GenModel and GenModelDB classes.} 
 	\item{state}{state in the model about which details are required.} 
 	\item{saveClusterInfo}{Flag to indicate whether the model should contain cluster assignment information.} 
+	\item{prune}{Prune the built model.} 
 	\item{random}{Used to select a random sample from the DB. Should be used for small selections.} 
 
 	\item{...}{arguments passed on to the next method. For \code{prune}

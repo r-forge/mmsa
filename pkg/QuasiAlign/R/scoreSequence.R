@@ -1,6 +1,6 @@
 scoreSequence <- function(x, newdata, 
 	method = "supported_transitions",
-	match_cluster="weighted",...) {
+	match_cluster="weighted", prior=TRUE, ...) {
 
 
     if(is(newdata, "NSVSet")) {
@@ -9,6 +9,6 @@ scoreSequence <- function(x, newdata,
     }
 
     rEMM::score(x$model, newdata, method=method, 
-                match_cluster=match_cluster, ...)
+                match_cluster=match_cluster, prior=prior, ...)
 }
 
