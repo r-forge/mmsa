@@ -205,8 +205,8 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
 
 ### overwrite getSequences so it can decode NSVs
 getSequences <- function(db,  rank=NULL, name=NULL,
-                         table="sequences", limit=NULL, random=FALSE, start=NULL, 
-                         length=NULL, removeUnknownSpecies=FALSE, 
+                         table="sequences", limit=NULL, random=FALSE, 
+			 start=NULL, length=NULL, removeUnknownSpecies=FALSE, 
                          annotation=Annotation_Id) {
   
   ### FIXME: check metadata table
@@ -216,10 +216,10 @@ getSequences <- function(db,  rank=NULL, name=NULL,
   if (type=="sequence") getX <- BioTools::getSequences
   else getX <- getNSVs
   
-  getX(db,  rank, name,
-       table, limit, random, start, 
-       length, removeUnknownSpecies, 
-       annotation)
+  getX(db=db, rank=rank, name=name,
+       table=table, limit=limit, random=random, start=start, 
+       length=length, removeUnknownSpecies=removeUnknownSpecies, 
+       annotation=annotation)
 }
 
 # reads all fasta files in a directory into a db and 
