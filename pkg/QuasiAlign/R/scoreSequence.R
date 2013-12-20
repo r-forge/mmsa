@@ -5,7 +5,7 @@ scoreSequence <- function(x, newdata,
 
     if(is(newdata, "NSVSet")) {
 	return(sapply(newdata, FUN=function(s) 
-			scoreSequence(x, s, method, match_cluster, ...)))
+			scoreSequence(x, s, method, match_cluster, prior, ...)))
     }
 
     rEMM::score(x$model, newdata, method=method, 
