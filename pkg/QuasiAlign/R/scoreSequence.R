@@ -8,6 +8,7 @@ scoreSequence <- function(x, newdata,
 			scoreSequence(x, s, method, match_cluster, prior, ...)))
     }
 
+
     rEMM::score(x$model, newdata, method=method, 
                 match_cluster=match_cluster, prior=prior, ...)
 }
