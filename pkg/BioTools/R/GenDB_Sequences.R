@@ -60,7 +60,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
     fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
 	}else fullRankSQL <-"-1"
 
-	### FIXME: If we get all the classification here then we don't need the expensive lookip below (getHierarchy)
+	### FIXME: If we get all the classification here then we don't need the expensive lookup below (getHierarchy)
   statement <- paste("SELECT ", lengthFilter, " AS data, classification.id AS id, ", 
                      fullRankSQL ," AS fullRank  FROM ", table ,
                      " INNER JOIN classification ON classification.id = ",

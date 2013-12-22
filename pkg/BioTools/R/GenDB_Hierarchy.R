@@ -188,9 +188,10 @@ getHierarchy <- function(db, rank, name){
                    paste(name, collapse="','"), "')", sep='')
   }
   
-  if (removeUnknownSpecies)
+  if (removeUnknownSpecies) {
     where <- paste(where, "AND classification.species NOT LIKE 'Unknown%'")
-  
+  }
+
   where
 }
 

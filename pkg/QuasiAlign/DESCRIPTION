@@ -9,5 +9,5 @@ Authors@R: c(person("Michael", "Hahsler", role = c("aut", "cre", "cph"),
 	    email="andynagar@yahoo.com"))
 Description: Infrastructure for position sensitive p-mer frequency clustering for gene sequence analysis, quasi-alignment, comparison, and classification. This work is supported by grant no. R21HG005912 from the National Human Genome Research Institute.
 License: GPL-2
-Depends: Biostrings, BioTools (>= 0.0-2), rEMM (>= 1.0-6), caTools, methods, foreach
+Depends: Biostrings, BioTools (>= 0.0-2), rEMM (>= 1.0-8), caTools, methods, foreach
 Suggests: caret, doParallel, testthat
