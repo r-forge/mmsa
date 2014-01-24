@@ -152,9 +152,10 @@ createNSVTable <- function(db, tableFrom="sequences", table="NSV", rank=NULL, na
 }
 
 
+### FIXME: annotation is currently not used!
 getNSVs <- function(db,  rank=NULL, name=NULL, 
 	table="NSV", limit=NULL, random=FALSE, start=NULL, length=NULL, 
-  removeUnknownSpecies=FALSE, annotation="id") {
+  removeUnknownSpecies=FALSE, annotation=NULL) {
 
     # limit = number of sequences to limit	
     # random = whether the sequences should be random
@@ -190,7 +191,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
   meta <- sapply(unlist(strsplit(meta,";")), strsplit, "=")	
   meta <- structure(sapply(meta, "[", 2), names=sapply(meta, "[", 1)) 
   
-  ret <- lapply(res$data,decodeSequence)
+  ret <- lapply(res$data, decodeSequence)
   names(ret) <- res$id
   
   NSVSet(ret, 
