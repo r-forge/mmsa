@@ -70,7 +70,10 @@ getSequences <- function(db,  rank=NULL, name=NULL,
   
 	res <- dbGetQuery(db$db, statement = statement)
 
-  if (nrow(res) == 0) stop("No rows found in the database")
+  if (nrow(res) == 0) {
+    warning("No rows found in the database. Returning empty set.")
+    return(DNAStringSet())
+  }
 
   ### make sure the oder is correct if rank is id
   if (!is.null(rank) && rank=="id" && nrow(res)==length(name)) {
