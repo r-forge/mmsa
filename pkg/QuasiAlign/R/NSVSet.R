@@ -184,7 +184,10 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
                                              limit, sep="")
   )
 
-  if (nrow(res) == 0) stop("No rows found in the database")
+  if (nrow(res) == 0) {
+    warning("No rows found in the database. Returning empty NSVSet.")
+    return(NSVSet())
+  }
   
   #get metadata about the table
   meta <- as.character(subset(metaGenDB(db),name==table)["annotation"])
