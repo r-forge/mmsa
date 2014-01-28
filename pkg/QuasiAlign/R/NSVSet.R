@@ -163,10 +163,10 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
     # length = length of the chunk eg: 100 (should be called width?)
   
   if(!is.null(limit)) 
-    limit <- paste(" LIMIT ", paste(limit,collapse=","))
+    limit <- paste("LIMIT", paste(limit,collapse=","))
   else limit <- "" 
   
-  if(random) limit <- paste(" ORDER BY RANDOM() ", limit)
+  if(random) limit <- paste("ORDER BY RANDOM()", limit)
   
   if (!is.null(rank)) {    
     fullRank<-BioTools:::.pmatchRank(db, rank)
@@ -175,14 +175,17 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
   }
   else fullRankSQL <-"-1"
   
-  res <- dbGetQuery(db$db, statement = paste("SELECT ", table, 
-                                             ".data AS data, classification.id AS id, ", 
-                                             fullRankSQL ," AS fullRank  FROM sequences ", 
-                                             " INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
-                                             BioTools:::.getWhere(db, rank, name,
-                                                                  removeUnknownSpecies), 
-                                             limit, sep="")
-  )
+  statement <-  paste("SELECT ", table, 
+    ".data AS data, classification.id AS id, ", 
+    fullRankSQL ," AS fullRank FROM sequences ", 
+    "INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
+    BioTools:::.getWhere(db, rank, name,
+      removeUnknownSpecies), 
+    limit, sep="")
+  
+  #cat(statement)
+  
+  res <- dbGetQuery(db$db, statement=statement)
 
   if (nrow(res) == 0) {
     warning("No rows found in the database. Returning empty NSVSet.")

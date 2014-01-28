@@ -644,8 +644,7 @@ against all
 the models stored in a directory. It returns a data.frame containing the
 score matrix and the actual and predicted ranks. 
 <<>>=
-unknown <- getSequences(db, table="NSV", rank="Phylum", 
-                        limit=10, random=TRUE)
+unknown <- getSequences(db, table="NSV", limit=10, random=TRUE)
 pred <- predict(classifier, unknown, rank="Phylum")
 head(pred$score)
 head(pred$class)
