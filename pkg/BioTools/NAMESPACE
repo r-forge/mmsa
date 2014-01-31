@@ -83,7 +83,10 @@ export(
   distCV,
   distFFP,
   distEdit,
-  distAlignment
+  distAlignment,
+  
+  s2c,
+  c2s
   
   )
 

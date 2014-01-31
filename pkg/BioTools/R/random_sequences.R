@@ -17,13 +17,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-s2c <- function(x) {
-  x <- as.character(x)
-  sapply(1:nchar(x), function(p) substr(x,p,p))
-}
-
-c2s <- function(x) paste(x, collapse='') 
-
 
 ### create random sequences
 
