@@ -7,6 +7,8 @@
 \alias{Annotation_Id}
 \alias{Annotation_Greengenes}
 \alias{Annotation_RDP}
+\alias{s2c}
+\alias{c2s}
 \title{Genetic Sequences}
 \description{
 Genetic sequences are stored in a GenDB (as character strings with meta
