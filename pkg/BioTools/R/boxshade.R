@@ -50,6 +50,7 @@ boxshade <- function(x, file, dev="pdf", param="-thr=0.5 -cons -def",
     param, sep=""))
   
   if(pdf) {
+    temp_file <- paste(file, ".tmp", sep='') 
     file.rename(file, temp_file)
     system(paste(.findExecutable(c("ps2pdf")), 
       if(pdfCrop) "-dEPSCrop" else "", 
