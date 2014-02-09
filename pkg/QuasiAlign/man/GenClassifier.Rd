@@ -52,7 +52,7 @@ modelRank <- "phylum"
 classifier <- trainGenClassifier("models", db=db, rank=modelRank, limit=10)
 
 ### classify new sequences
-sequences <- getSequences(db, modelRank, table="NSV", limit=5, random=TRUE)
+sequences <- getSequences(db, table="NSV", limit=5, random=TRUE)
 sequences
 
 pred <- predict(classifier, sequences, modelRank)

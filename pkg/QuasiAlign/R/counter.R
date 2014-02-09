@@ -46,7 +46,7 @@
     freq <- oligonucleotideFrequency(DNAString(x, start=1L, nchar=window), word)
     
     ### subsetting arrays of characters is much faster than for DNAString
-    xc <- BioTools:::s2c(as.character(x)) ### sequence as a character array
+    xc <- BioTools::s2c(as.character(x)) ### sequence as a character array
     xc[!(xc %in% c("G","A","T", "C"))] <- NA ### ignor odd characters
     n <- length(xc)
     
@@ -68,8 +68,8 @@
       seq.int(j, n-window+1L, by=window)))
     
     while(end <= n){
-      remove_word <- BioTools:::c2s(xc[(start-1L):(start+word-2L)])
-      add_word <- BioTools:::c2s(xc[(end-word+1L):end])
+      remove_word <- BioTools::c2s(xc[(start-1L):(start+word-2L)])
+      add_word <- BioTools::c2s(xc[(end-word+1L):end])
       
       if(nchar(remove_word)==word) freq[remove_word] <- freq[remove_word]-1L
       if(nchar(add_word)==word) freq[add_word] <- freq[add_word]+1L
