@@ -34,7 +34,7 @@ simRank <- function(x, k=7) {
     
     min <- outer(sum.kmer, sum.kmer, function(x, y) pmin(x,y)) 
 
-    as.simil(shared/min)
+    proxy::as.simil(shared/min)
 }
 
 

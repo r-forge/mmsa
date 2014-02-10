@@ -104,9 +104,10 @@ distKMer <- function(x, k=3) {
 }
 
 ### dist based on simRank
-### FIXME: proxy should handle the class attribure!
+### FIXME: proxy::as.dist does not work...
 distSimRank <- function(x, k=7) structure(proxy::pr_simil2dist(simRank(x, k)), 
-                                          class="dist")
+		class="dist")
+#proxy::as.dist(simRank(x, k))
 
 
 ### distances based on package ape

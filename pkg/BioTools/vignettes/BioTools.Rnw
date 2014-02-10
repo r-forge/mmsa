@@ -3,4 +3,5 @@
 \documentclass{article}
 %\VignetteIndexEntry{BioTools: Tools based on Biostrings (alignment, classification, database}
 \begin{document}
+Dummy...
 \end{document}

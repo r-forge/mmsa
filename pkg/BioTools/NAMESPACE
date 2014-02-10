@@ -2,8 +2,8 @@ import(Biostrings)
 import(DBI)
 import(RSQLite)
 import(seqLogo)
-import(proxy)
 
+importFrom(proxy, dist)
 importFrom(ape, dist.dna, as.DNAbin)
 
 export( 
@@ -86,7 +86,9 @@ export(
   distAlignment,
   
   s2c,
-  c2s
+  c2s,
+  .pmatchRank,
+  .getWhere
   
   )
 

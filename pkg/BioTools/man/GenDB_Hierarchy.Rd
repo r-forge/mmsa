@@ -4,6 +4,8 @@
 \alias{getIDs}
 \alias{getTaxonomyNames}
 \alias{getHierarchy}
+\alias{.pmatchRank}
+\alias{.getWhere}
 \title{Classification Hierarchy for Sequences}
 \description{
 Inspect the classifiaction hierarchy of sequences in a GenDB.
