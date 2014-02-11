@@ -169,7 +169,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
   if(random) limit <- paste("ORDER BY RANDOM()", limit)
   
   if (!is.null(rank)) {    
-    fullRank<-BioTools:::.pmatchRank(db, rank)
+    fullRank<-BioTools::.pmatchRank(db, rank)
     #Do this so that the column order appears as 'order' since ORDER is a SQL keyword
     fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
   }
@@ -179,7 +179,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
     ".data AS data, classification.id AS id, ", 
     fullRankSQL ," AS fullRank FROM sequences ", 
     "INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
-    BioTools:::.getWhere(db, rank, name,
+    BioTools::.getWhere(db, rank, name,
       removeUnknownSpecies), 
     limit, sep="")
   
