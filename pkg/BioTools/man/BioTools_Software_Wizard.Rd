@@ -18,10 +18,17 @@ BioTools_Software_Wizard(RDP = FALSE, clustal = FALSE, kalign = FALSE,
 %%     ~~Describe \code{RDP} here~~
   }
 }
-%\details{
-%%  ~~ If necessary, more details than the description above ~~
-%}
+\details{
+For RDP you need a working Java installation. Note: Under Windows
+you need to set PATH system variable so the java executible can be 
+located.
+}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
+\examples{
+\dontrun{
+BioTools_Software_Wizard(RDP=TRUE)
+}
+}
 %\keyword{ ~kwd1 }
 

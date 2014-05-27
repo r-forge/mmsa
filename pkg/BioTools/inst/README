@@ -1,41 +1,30 @@
-Install external software packages for BioTools
+Installation of  BioTools
 
-Linux (Ubuntu/Debian):
-* Install clustal, kalign and boxshade
-* BLAST: 
-    - Install blast+
-    - Download NCBI BLAST databases from ftp://ftp.ncbi.nlm.nih.gov/blast/db/
-* RDP: 
-    - Download and extract rdp_classifier 
-	from http://sourceforge.net/projects/rdp-classifier/
-    - Set environment variable RDP_JAR_PATH to point to the jar or
-	use Sys.setenv(RDP_JAR_PATH="/your_path/rdp_classifier-2.x.jar") in R
+Biostrings and seqLogo
+    Note that packages Biostrings and seqLogo need to be installed from
+    BioConductor using:
 
-OS X:
-* Install ClustalW from http://www.clustal.org/
-* Install kalign from http://msa.sbc.su.se/cgi-bin/msa.cgi by downloading the source of Kalign (current).
-* Boxshade is currenly not available for OS X 
-  (you can compile it with free pascal compiler) 
-* BLAST: Install blast+ 
-  from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/
-* RDP: same as Linux
+    source("http://bioconductor.org/biocLite.R")
+    biocLite("Biostrings")
+    biocLite("seqLogo")
 
-Windows:
-* Download clustalw.exe, kalign.exe 
-    (e.g., from http://www.tcoffee.org/Packages/Binaries/windows/)
-* Boxshade is currenly not available for Windows
-* BLAST: 
-    - Download and install blast+ 
-	from ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/
-    - Download NCBI BLAST databases 
-	from ftp://ftp.ncbi.nlm.nih.gov/blast/db/
-* RDP: see instructions for Linux
 
-* Set path variable:
-    - From the Desktop, right-click My Computer and click Properties.
-    - Click Advanced System Settings link in the left column.
-    - In the System Properties window click the Environment Variables button.
-    - Add the folder with the executables to the path variable (separated by ;)
-    - Try the following in R: Sys.which("clustalw")
+External software
+    Use BioTools_Software_Wizard() after loading the package.
 
+    Example:
+    BioTools_Software_Wizard(RDP=TRUE)
+
+    This will install RDP. 
+
+    Note that some software needs a working Java installation. Please make sure
+    taht you have a working Java runtime environment installed. 
+    
+    Note for Windows users: java.exe needs to be in the path.  
+    Go to Control Panel, and select System -> Advanced System Settings. Under 
+    the Advanced tab, there is a button called Environment Variables. Click 
+    that, and in the second list locate the Path variable. Select it and click 
+    Edit. Check that java is not already listed, and if not, add it to the 
+    front, with a semicolon after it. Often it is found in: 
+    c:\Program Files (x86)\Java\jre7\bin
 

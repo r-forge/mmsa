@@ -1,7 +1,9 @@
 %%% fake vignette. real vignette is in Work/vignette/
+%\VignetteIndexEntry{BioTools: Alignemnt and Classification Tools based on Biostrings}
 
 \documentclass{article}
-%\VignetteIndexEntry{BioTools: Tools based on Biostrings (alignment, classification, database}
+\usepackage{hyperref}
+\usepackage{pdfpages}
 \begin{document}
-Dummy...
+\includepdf[fitpaper=true,pages=-]{BioTools.pdf}
 \end{document}

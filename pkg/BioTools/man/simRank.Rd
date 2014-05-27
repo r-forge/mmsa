@@ -39,7 +39,7 @@ sequences
 simil <- simRank(sequences)
 
 ### use hierarchical clustering
-hc <- hclust(1-simil)
+hc <- hclust(distSimRank(sequences))
 plot(hc)
 }
 \keyword{model}
