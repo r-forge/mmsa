@@ -11,4 +11,4 @@ Description: Infrastructure for position sensitive p-mer frequency clustering fo
 License: GPL-2
 Depends: Biostrings, BioTools (>= 0.0-3), rEMM (>= 1.0-8) 
 Imports: methods, caTools, foreach
-Suggests: caret, class, doParallel, testthat
+Suggests: caret, class, e1071, doParallel, testthat

@@ -1,0 +1,645 @@
+%%%
+%%% Do not edit the .tex file. It is automatically generated
+%%% go to Work/vignette
+%%%
+
+%\documentclass[fleqn, letter, 10pt]{article}
+%\documentclass[article]{jss}
+\documentclass[nojss]{jss}
+%\usepackage[round,longnamesfirst]{natbib}
+%\usepackage[left=1.5in,top=1.5in,right=1.5in,bottom=1.5in,nohead]{geometry} 
+%\usepackage{graphicx,keyval,thumbpdf,url}
+%\usepackage{hyperref}
+%\usepackage{Sweave}
+%\SweaveOpts{strip.white=TRUE, eps=FALSE}
+%\AtBeginDocument{\setkeys{Gin}{width=0.6\textwidth}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+
+%\newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\newcommand{\class}[1]{\mbox{\textsf{#1}}}
+\newcommand{\func}[1]{\mbox{\texttt{#1()}}}
+%\newcommand{\code}[1]{\mbox{\texttt{#1}}}
+%\newcommand{\pkg}[1]{\strong{#1}}
+%\newcommand{\samp}[1]{`\mbox{\texttt{#1}}'}
+%\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\set}[1]{\mathcal{#1}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+%\newcommand{\sQuote}[1]{`{#1}'}
+%\newcommand{\dQuote}[1]{``{#1}''}
+\newcommand\R{{\mathbb{R}}}
+
+%\DeclareMathOperator*{\argmin}{argmin}
+%\DeclareMathOperator*{\argmax}{argmax}
+
+%\setlength{\parindent}{0mm}
+%\setlength{\parskip}{3mm plus2mm minus2mm}
+
+%\VignetteIndexEntry{BiostringsTools: Tools based on Biostrings (alignment, classification, database)}
+
+
+\author{
+    Michael Hahsler\\Southern Methodist University
+    \And
+    Anurag Nagar\\Southern Methodist University
+    }
+
+\title{\pkg{BiostringsTools}: Interface to Tools for Biostrings (alignment, classification, database)}
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Michael Hahsler, Anurag Nagar} %% comma-separated
+\Plaintitle{BiostringsTools:  Interface to Tools for Biostrings (alignment, classification, database)} %% without formatting
+\Shorttitle{BiostringsTools: Interface to Tools for Biostrings} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{
+Three are many stand-alone tools available for Bioinformatics. This package 
+aims at using R and the Biostrings package as the common interface for
+several important tools for multiple sequence alignment (clustalw, kalign), 
+classification (RDP), sequence retrieval (BLAST) as well as 
+database driven sequence management for 16S rRNA.
+}
+\Keywords{bioinformatics, Bioconductor, biostrings, sequence alignment, sequence classification, sequence management}
+\Plainkeywords{bioinformatics, Bioconductor, biostrings, sequence alignment, sequence classification, sequence management} %% without formatting
+
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+    Michael Hahsler\\
+        Engineering Management, Information, and Systems\\
+        Lyle School of Engineering\\
+        Southern Methodist University\\
+        P.O. Box 750123 \\
+        Dallas, TX 75275-0123\\
+        E-mail: \email{mhahsler@lyle.smu.edu}\\
+        URL: \url{http://lyle.smu.edu/~mhahsler}
+    
+    Anurag Nagar\\
+        Computer Science and Engineering\\
+        Lyle School of Engineering\\
+        Southern Methodist University\\
+        P.O. Box 750122 \\
+        Dallas, TX 75275-0122\\
+        E-mail: \email{anagar@smu.edu}\\
+    
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/1/31336-5053
+%% Fax: +43/1/31336-734
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% need no \usepackage{Sweave.sty}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+\sloppy
+
+%\abstract{}
+
+<<echo=FALSE>>=
+options(width = 70, prompt="R> ", digits=4)
+### for sampling
+set.seed(1234)
+unlink("example.sqlite")
+@
+
+\section{Introduction}
+There are many tools available for sequence alignment and classification.
+Some tools are:
+BAlibase \citep{sequence:Smith:1981},
+BLAST  \citep{sequence:Altschul:1990}, 
+T-Coffee \citep{sequence:Notredame:2000},
+MAFFT \citep{sequence:Katoh:2002}, 
+MUSCLE \citep{sequence:Edgar:2004,sequence:Edgar:2004b}, 
+Kalign \citep{sequence:Lassmann:2006} and
+ClustalW2 and ClustalX2 \citep{sequence:Larkin:2007}.
+Typically, these tools have a command-line interface 
+and the input and output data is stored in files using various formats.
+Also the parameters supplied to the command-line interface are different.
+All this makes using and comparing several approaches time consuming and
+error prone. The R-based Bioconductor project~\citep{sequence:BioC} 
+provides important infrastructure to handle and manipulate bioinformatics
+data. The \pkg{Biostrings} package in particular provides 
+infrastructure for DNA, RNA and protein sequences as well as 
+(multiple) alignments. Also algorithms for sequence alignment are included.
+However, for multiple sequence alignment using BLAST 
+the user needs to export the data into a file and then run the needed tool
+manually and re-import the results.
+Also, \pkg{Biostrings} stores sets of sequences in memory and does not 
+directly support storing and querying classification information. 
+
+In \pkg{BiostringsTools} we provide a simple interface to a growing 
+set of popular tools. The tools are called directly from within R and no manual
+data export or import is needed. Currently we
+interface \emph{clustalw, kalign, RDP} and  \emph{clustalw}.
+\pkg{BiostringsTools} also provides database backed sequence management where
+large amounts of sequences and classification information can be stored and
+used for selective and efficient sequence retrieval.
+
+%%% FIXME: Paper structure
+
+
+\section{Installing Third-Party Software}
+
+\pkg{BiostringsTools} is designed to make installation of third-party
+software (RDP, clustal, kalign, MAFFT, BLAST and boxshade) easy by providing
+\code{BiostringsTools_Software_Wizard()}. With this wizard the needed software
+can be installed individually. This is shown in the example section.
+
+Additional software is stored in a subdirectory of the home directory 
+called \code{BiostringsTools}. 
+
+\section{GenDB: Sequence storage an management}
+\pkg{BiostringsTools} provides
+a databases (GenDB) which can be used
+for efficient storage and retrieval of genetic sequences. 
+By default the light-weight SQLite database is used,
+but any other compatible database such as mySQL or Oracle can also be used.
+Figure~\ref{fig:ER_Diag} shows the basic table layout of a
+GenDB instance with a table containing classification information, a table 
+containing the sequence information and a meta data table.
+Each sequence we will have an entry in the classification table
+and an corresponding entry in the sequence table.
+The tables are connected by a unique sequence ID as the primary key.
+
+\begin{figure}
+\centering
+\includegraphics[width=.7\linewidth]{er-diagram}
+\caption{Entity Relationship diagram of GenDB}
+\label{fig:ER_Diag}
+\end{figure}
+
+GenDB is easy to use. 
+First, we load the library into the R environment.
+<<>>=
+library(BiostringsTools)
+@
+
+To start we need to create an empty GenDB to store and organize
+sequences.
+<<>>=
+db<-createGenDB("example.sqlite")
+db
+@
+
+The above command creates an empty database with a table structure similar to
+Figure~\ref{fig:ER_Diag} and stores it in the file example.sqlite.  If a
+GenDB already exists, then it can be opened using
+\func{openGenDB}.
+
+The next step is to import sequences into the database by reading FASTA files. 
+This is accomplished by function \func{addSequences}. 
+This function automatically
+extracts the classification information from the FASTA file's 
+description lines.
+The default is to expect 
+classification in the format used by the Greengenes project,
+however other meta data readers can be implemented (see manual page
+for addSequences).
+
+The command below uses a FASTA file provided by the package, hence we use
+\func{system.file} instead of just a string with the file name.
+<<>>= 
+addSequences(db,
+  system.file("examples/Firmicutes.fasta", package="BiostringsTools"))
+@
+
+After inserting the sequences, various querying and limiting functions can be
+used to check the data and obtain a subset of the sequences.  
+To get a count of the number of sequences in the database, the function \func{nSequences} can be used.
+<<>>=
+nSequences(db)
+@
+
+The function \func{getSequences} returns the sequences as a vector. 
+In the following example we get all sequences in the database and then show
+the first 50 bases of the first sequence.
+<<>>=
+s <- getSequences(db)
+s
+length(s)
+s[[1]]
+substr(s[[1]], 1, 50)
+@
+
+Sequences in the database can also be filtered using classification 
+information. For example, we can get all sequences of the genus name 
+``Desulfosporomusa'' by specifying rank and name.
+<<>>=
+s <- getSequences(db, rank="Genus", name="Desulfosporomusa")
+s
+@
+
+To obtain a single sequence, getSequences can be used with rank equal to "id" and supplying the sequence's greengenes ID as the name.
+<<>>=
+s <- getSequences(db, rank="id", name="1250")
+s
+@
+
+The database also stores a classification hierarchy.
+We can obtain the classification hierarchy used in 
+the database with \func{getTaxonomyNames}.     
+<<>>=
+getTaxonomyNames(db)
+@
+
+To obtain all unique names stored in the database 
+for a given rank we can use \func{getRank}.     
+<<>>=
+getRank(db, rank="Order")
+@
+
+The \Sexpr{nSequences(db)}~sequences 
+in our example data base contain
+organisms from \Sexpr{nrow(getRank(db, rank="order"))} different orders. 
+We can obtain the rank name for each sequence individually by using
+\code{all=TRUE} or count how many sequences we have 
+for each genus using \code{count=TRUE}.
+<<>>=
+getRank(db, rank="Genus", all=TRUE)
+getRank(db, rank="Genus", count=TRUE)
+@
+
+This information can be easily turned into a barplot showing the abundance
+of different orders in the data database (see Figure~\ref{fig:abundanceplot}).
+
+<<abundanceplot, fig=TRUE, include=FALSE>>=
+oldpar <- par(mar=c(12,5,5,5)) ### make space for labels
+barplot(sort(
+    getRank(db, rank="Genus", count=TRUE, removeUnknown=TRUE), 
+    decreasing=TRUE), las=2)
+par(oldpar)
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{BiostringsTools-abundanceplot}
+\caption{Abundance of different orders in the database.}
+\label{fig:abundanceplot}
+\end{figure}
+
+
+Filtering also works for \func{getRank}.
+For example, we can find the genera within the order
+``Thermoanaerobacterales''.
+<<>>=
+getRank(db, rank="Gen", 
+    whereRank="Ord", whereName="Thermo%")
+@
+
+Note that partial matching is performed 
+for the ranks (i.e., from ``Gen'' to Genus and ``Ord'' to Order) and also
+for the name from ``Thermo\%'' to 
+Thermoanaerobacterales. Partial matching is available for ranks and 
+names in most operations in \pkg{BiostringsTools}.
+
+We can also get the complete classification hierarchy for different ranks 
+down to individual sequences. In the following we get the classification
+hierarchy for genus Thermaerobacter, then all orders matching Therm and
+then for a list of names. 
+<<>>=
+getHierarchy(db, rank="Genus", name="Thermaerobacter")
+
+getHierarchy(db, rank="Genus", name="Therm%")
+
+getHierarchy(db, rank="Genus", name=c("Acid%", "Thermo%"))
+@
+
+To get individual sequences we can use again the unique sequence id.
+
+<<>>=
+getHierarchy(db, rank="id", name="1250")
+@
+
+Finally, we can close a GenDB after we are done working with it. The database
+can later be reopened using \func{openGenDB}.
+<<>>=
+closeGenDB(db)
+@
+
+To permanently remove the database we need to delete the file (for
+SQLite databases) or remove the database using the administrative tool
+for the database management system.
+<<>>=
+unlink("example.sqlite")
+@
+
+\section{Multiple Sequence Alignment}
+
+Multiple Sequence Alignment (MSA) involves comparing and aligning more than two sequences to each other and also possibly to many others in a sequence database. The aim  is to discover regions of high similarity for all the sequences taken together. The sequences are generally related such as those from the same species or same phylum.
+
+Although, computationally complex, MSA is quite often what biologists need to identify and characterize sequences from a given group. Sequences might also share an evolutionary relationship, such as having a common ancestor. Such sequences are said to be homologous. Similarly, biologists  might be interested in the similarity of genes from different organisms and want to compare their sequences. Another area of application is to find regions which are conserved for a given species or genus. Such conserved regions can be used for identification and classification of organisms. 
+
+MSA is a NP-hard problem \cite{ch2:MSAComplexity, ch2:MSAComplexity2} and is  computationally more complex than pairwise alignment. Various algorithms that are used for pairwise alignment, such as dynamic programming, can also be used for MSA but have much greater run time requirements. To obtain results in reasonable time, various heuristics have been proposed such as Progressive Alignment, Iterative Refinement methods, and Hidden Markov Models \cite{ch2:MSAAlgorithms}. Out of these, progressive alignment is the most commonly used in many tools for MSA such as Clustal\cite{ch2:clustal}. 
+
+Current methods for Clustal are through an online interface through the The European Bioinformatics Institute website at http://www.ebi.ac.uk/Tools/msa/clustalw2/ or through a webservice also at the same website. There is no current tool that can be run through the command line for a batch of sequences. Our package addresses this need by providing an interface that can be used for DNA Sequences. 
+
+The \pkg{BiostringsTools} provides a rich set of functionality for MSA operations including visualization options. The commands below will illustrate that in detail. 
+
+\subsection{clustalw}
+
+Install the clustal software. This has to be done only once.
+<<>>=
+BiostringsTools_Software_Wizard(clustal = TRUE)
+@
+
+We read an example FASTA file with DNA, take the first 60 nucleotides and run clustal. 
+<<>>=
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+        package="BiostringsTools"))
+dna <- narrow(dna, start=1, end=60)
+
+al <- clustal(dna)
+al
+@
+
+
+Using detail the alignment can be inspected.
+<<eval=false>>=
+detail(al)
+@
+
+Plot produces the  sequence logo shown in Figure~\ref{fig:abundanceplot}.
+<<sequencelogo, fig=TRUE, include=FALSE, height=3>>=
+plot(al, 1, 40)
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=.8\linewidth]{BiostringsTools-sequencelogo}
+\caption{Sequence logo of alignment.}
+\label{fig:abundanceplot}
+\end{figure}
+
+Boxshade can also be used for producing a pdf of the alignment. 
+Figure~\ref{fig:boxshade} shows the result.
+<<boxshade>>=
+BiostringsTools_Software_Wizard(boxshade = TRUE)
+boxshade(al, file="alignment.pdf")
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=1\linewidth]{alignment}
+\caption{Representaion of a DNA multiple alignment using boxshade.}
+\label{fig:boxshade}
+\end{figure}
+
+
+Clustal can also be used for RNA and protein sequences.
+<<>>=
+rna <- readRNAStringSet(system.file("examples/RNA_example.fasta",
+        package="BiostringsTools"))
+rna
+
+al <- clustal(rna)
+al
+
+aa <- readAAStringSet(system.file("examples/Protein_example.fasta",
+        package="BiostringsTools"))
+aa
+
+al <- clustal(aa)
+al
+@
+
+
+\subsection{kalign}
+
+Another popular technique for MSA is based on the KAlign algorithm \cite{kalign}. It uses a progressive method for sequence alignment by first calculating pairwise distances between sequences and then constructing a guide tree from these pairwise alignments. The guide tree is used to progressively create the multiple sequence alignment profile. KAlign uses the Wu-Manber approximate string matching algorithm \cite{Wu-Manber} for distance calculation. 
+KAlign has been evaluated to be faster and more efficient than other methods \cite{kalign}  due to the use of the approximate string matching algorithm and  efficient guide tree generation.
+
+<<>>=
+BiostringsTools_Software_Wizard(kalign = TRUE)
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+        package="BiostringsTools"))
+dna
+
+### align the sequences
+al <- kalign(dna)
+al
+@
+
+\subsection{MUSCLE}
+
+<<>>=
+BiostringsTools_Software_Wizard(MUSCLE = TRUE)
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+  package="BiostringsTools"))
+dna
+
+al <- MUSCLE(dna) 
+al
+@
+
+
+\subsection{MAFFT}
+<<>>=
+BiostringsTools_Software_Wizard(MAFFT = TRUE)
+dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
+  package="BiostringsTools"))
+dna
+
+al <- mafft(dna) 
+al
+@
+
+
+\section{Classification with RDP}
+
+The Ribosomal Database Project (RDP) provides various  tools and services to the scientific community for data related to 16S rRNA sequences. Among other tools, it provides a hierarchical browser and a classifier that can be used to assign sequences to taxonomies. The classifier uses a Naive Bayesian approach to quickly and accurately classify sequences. The classifier uses an alignment-free approach and compares the word frequency distribution with word size of 8\cite{RDP}.
+
+The RDP classifier needs to be trained first before it can be used. The default classifier comes trained with sequences from the microbial 16S rRNA gene. 
+
+First, we install RDP.
+<<>>=
+BiostringsTools_Software_Wizard(RDP = TRUE)
+@
+
+\subsection{Using the default RDP classifier}
+
+For this example we load some test sequences. we also shorten the names to only
+the sequence ID.
+<<>>=
+seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
+        package="BiostringsTools"))
+
+names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
+seq
+@
+
+Next, we apply RDP with the default training set.
+
+<<>>=
+predict(RDP(), seq)
+@
+
+\subsection{Training a custom RDP classifier}
+
+RDP can be trained using \code{trainRDP()}.
+<<>>=
+trainingSequences <- readDNAStringSet(
+    system.file("examples/trainingSequences.fasta", package="BiostringsTools"))
+
+customRDP <- trainRDP(trainingSequences, dir = "myRDP")
+customRDP
+@
+
+<<>>=
+testSequences <- readDNAStringSet(
+    system.file("examples/testSequences.fasta", package="BiostringsTools"))
+predict(customRDP, testSequences)
+@
+
+The clustom classifier is stored on disc and can be recalled anytime using
+\code{RDP()}.
+<<>>=
+customRDP <- RDP(dir = "myRDP")
+@
+
+To permanently remove the classifier use \code{removeRDP()}.
+
+<<>>=
+removeRDP(customRDP)
+@
+
+\section{Sequence Retrieval with BLAST}
+
+First we install BLAST.
+<<>>=
+BiostringsTools_Software_Wizard(BLAST = TRUE)
+@
+
+Next, we need a BLAST database. The installation wizard can install
+the default 16S rRNA database into the BiostringsTools
+folder. Now, we can initialize BLAST with the database.
+<<>>=
+BiostringsTools_Software_Wizard(BLAST16S = TRUE)
+blast <- BLAST(db="~/BiostringsTools/16SMicrobialDB/16SMicrobial")
+blast
+@
+
+We load again a few sequences.
+<<>>=
+seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
+        package="BiostringsTools"))
+
+## shorten names
+names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
+seq
+@
+
+Using, predict we can BLAST the sequences.
+<<>>=
+cl <- predict(blast, seq[1,])
+cl[1:5,]
+@
+
+
+\section{Creating Random Sequences}
+Creating random sequences given letter probabilities.
+<<>>=
+seqs <- random_sequences(100, number=10, prob=c(a=.5, c=.3, g=.1, t=.1))
+seqs
+@
+
+Creating random sequences using dinocleodite trandition probabilities
+<<>>=
+prob <-  matrix(runif(16), nrow=4, ncol=4, dimnames=list(DNA_BASES, DNA_BASES))
+prob <- prob/rowSums(prob)
+  
+seqs <- random_sequences(100, number=10, prob=prob)
+seqs
+@
+
+Creates a set of sequences which are random mutations (with base changes, insertions and deletions) for a given DNA, RNA or AA sequence.
+<<>>=
+s <- random_sequences(100, number=1)
+s
+
+### create 10 sequences with 1 percent base changes, insertions and deletions
+m <- mutations(s, 10, change=0.01, insertion=0.01, deletion=0.01)
+m
+
+clustal(c(s,m))
+@
+
+\section{Calculating Distances between Sequences}
+Calculating distances between sequences is important for many bioinformatics
+applications. The following distance metrics are available in \pkg{BiostringsTools}: 
+
+\begin{itemize}
+\item Feature frequency profile (distFFP): A FFP is the normalized (by the number of k-mers in the sequence) count of each possible k-mer in a sequence. The distance is defined as the Jensen-Shannon divergence (JSD) between FFPs (Sims and Kim, 2011).
+
+\item Composition Vector (distCV): A CV is a vector with the frequencies of each k-mer in the sequency minus the expected frequency of random background nice obtained from a Markov Model (not implemented yet!). The cosine distance is used between CVs. (Qi et al, 2007).
+
+\item Numerical Summarization Vector (distNSV): An NSV is frequency distribution of all possible k-mers in a sequence. The Manhattan distance is used between NSVs (Nagar and Hahsler, 2013).
+
+\item Distance between sets of k-mers (distkMer): Each sequence is represented as a set of k-mers. The Jaccard (binary) distance is used between sets (number of unique shared k-mers over the total number of unique k-mers in both sequences).
+
+\item Distance based on SimRank (distSimRank): 1-simRank (see simRank).
+
+\item Edit (Levenshtein) Distance (distEdit): Edit distance between sequences.
+
+\item Distance based on alignment score (distAlignment): see stringDist in Biostrings.
+
+\item Evolutionary distances (distApe): see dist.dna in ape.
+\end{itemize}
+
+
+<<>>=
+s <- mutations(random_sequences(100), 100)
+s
+
+### calculate NSV distance
+dNSV <- distNSV(s)
+
+### relationship with edit distance
+dEdit <- distEdit(s)
+
+df <- data.frame(dNSV=as.vector(dNSV), dEdit=as.vector(dEdit))
+plot(sapply(df, jitter), cex=.1)
+### add lower bound (2*k, for Manhattan distance)
+abline(0,1/(2*3), col="red", lwd=2)
+### add regression line
+abline(lm(dEdit~dNSV, data=df), col="blue", lwd=2)
+
+### check correlation
+cor(dNSV,dEdit)
+@
+
+
+\section{Conclusion}
+
+\section*{Acknowledgments}
+This research is supported by research grant no. R21HG005912 from the National Human Genome Research Institute (NHGRI / NIH).
+
+
+%\bibliographystyle{abbrvnat}
+\bibliography{BiostringsTools,sequence}
+
+
+\end{document}
