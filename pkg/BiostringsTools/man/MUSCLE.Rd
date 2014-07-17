@@ -1,6 +1,6 @@
 \name{MUSCLE}
-\alias{MUSCLE}
-\alias{MUSCLE_help}
+\alias{muscle}
+\alias{muscle_help}
 \title{
 Run Multiple Sequence Alignment (MUSCLE) on a Set of Sequences
 }
@@ -9,13 +9,13 @@ Executes MUSLCE on a set of sequences to obtain a multiple sequence
 alignment. 
 }
 \usage{
-MUSCLE(x, param="")
-MUSCLE_help()
+muscle(x, param="")
+muscle_help()
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{an object of class XStringSet (e.g., DNAStringSet) with the sequences to be aligned.}
-  \item{param}{character string with the command line parameters (see output of \code{MUSCE_help()}).}
+  \item{param}{character string with the command line parameters (see output of \code{musce_help()}).}
 
 }
 \details{
@@ -38,7 +38,7 @@ dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BiostringsTools"))
 dna
 
-al <- MUSCLE(dna) 
+al <- muscle(dna) 
 al
 
 ### inspect alignment

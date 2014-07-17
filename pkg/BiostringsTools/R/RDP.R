@@ -18,7 +18,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ### NULL is the default classifier
-RDP <- function(dir = NULL) {
+rdp <- function(dir = NULL) {
 	if(!.isRDP(dir)) stop("Not a RDP classifier directory!")	
     if(!is.null(dir)) 
 	dir <- normalizePath(dir)
@@ -168,7 +168,8 @@ trainRDP <- function(x, dir="classifier", rank="genus", java_args="-Xmx1g")
     #create parsed training files
 	if(length(badHierarchy)>0)
 	{
-		warning("Following sequences had bad sequence hierarchy information, so removing: ",names(x)[badHierarchy],"\n")
+		warning("Following sequences had bad sequence hierarchy information, so removing: ",
+      names(x)[badHierarchy],"\n")
 		x<-x[-badHierarchy]
    	}
 	writeXStringSet(x,file.path(dir,"train.fasta"))
@@ -178,9 +179,10 @@ trainRDP <- function(x, dir="classifier", rank="genus", java_args="-Xmx1g")
                " 1 version1 test ", dir),
          #ignore.stdout=TRUE, 
          ignore.stderr=TRUE)
-    file.copy(system.file("examples/rRNAClassifier.properties",package="BiostringsTools"),dir)
+    file.copy(system.file("examples/rRNAClassifier.properties",package="BiostringsTools"),
+      dir)
 
-    RDP(dir)
+    rdp(dir)
 }
 
 removeRDP <- function(object) {

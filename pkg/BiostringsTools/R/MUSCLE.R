@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-MUSCLE <- function(x, param="") {
+muscle <- function(x, param="") {
     
     ## get temp files and change working directory
     wd <- tempdir()
@@ -56,7 +56,7 @@ MUSCLE <- function(x, param="") {
     reader(outfile, format="clustal")
 }
 
-MUSCLE_help <- function() {
+muscle_help <- function() {
     system(paste(.findExecutable("muscle"), "-h"))
 }
 

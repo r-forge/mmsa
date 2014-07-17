@@ -17,8 +17,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FALSE, 
-  MAFFT=FALSE, MUSCLE = FALSE, BLAST=FALSE, BLAST16S=FALSE, 
+BiostringsTools_Software_Wizard <- function(rdp=FALSE, clustal=FALSE, kalign=FALSE, 
+  mafft=FALSE, muscle = FALSE, blast=FALSE, blast16S=FALSE, 
   boxshade=FALSE) {
   
   os <- toupper(Sys.info()["sysname"])
@@ -32,14 +32,14 @@ BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FAL
   on.exit({ setwd(getwd()) })
   setwd(dir)
   
-  ### do all (not BLAST16S)?
-  if(!(any(c(RDP, clustal, kalign, MAFFT, MUSCLE,
-    BLAST, BLAST16S, boxshade)))) {
-    RDP <- TRUE; clustal<- TRUE; kalign <- TRUE; MAFFT <- TRUE; MUSCLE <- TRUE;
-    BLAST <- TRUE; BLAST16S <- FALSE; boxshade <- TRUE
+  ### do all (not blast16S)?
+  if(!(any(c(rdp, clustal, kalign, mafft, muscle,
+    blast, blast16S, boxshade)))) {
+    rdp <- TRUE; clustal<- TRUE; kalign <- TRUE; mafft <- TRUE; muscle <- TRUE;
+    blast <- TRUE; blast16S <- FALSE; boxshade <- TRUE
   }
   
-  if(RDP) {
+  if(rdp) {
     if(!file.exists("rdp_classifier_2.5")) {
       cat("Installing RDP\n")
       ### any OS
@@ -89,7 +89,7 @@ BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FAL
       cat("Please install 'kalign' manually (in package manager)!\n")
   }
   
-  if(MAFFT) {
+  if(mafft) {
     if(any(Sys.which("mafft")!="")) cat("mafft ... installed.\n")
     else if(os=="Windows") {	
       cat("Please install package 'mafft' manually!\n")
@@ -102,7 +102,7 @@ BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FAL
       cat("Please install 'mafft' manually (in package manager)!\n")
   }
   
-  if(BLAST) {
+  if(blast) {
     if(any(Sys.which("blastn")!="")) cat("BLAST ... installed.\n")
     else if(os=="WINDOWS") {
       cat("Installing BLAST\n")
@@ -117,12 +117,14 @@ BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FAL
     } else cat("Please install package 'ncbi-blast+' manually!\n")
   }
   
-  if(BLAST16S) {
-    if(file.exists("16SMicrobialDB"))
-      cat("Installing the 16S rRNA database for BLAST\n")
-    download.file("ftp://ftp.ncbi.nlm.nih.gov/blast/db/16SMicrobial.tar.gz",
-      "16SMicrobial.tar.gz", mode='wb')
-    untar("16SMicrobial.tar.gz", exdir="16SMicrobialDB")
+  if(blast16S) {
+    if(file.exists("16SMicrobialDB")) cat("16SMicrobialDB ... installed.\n")
+      else {
+        cat("Installing the 16S rRNA database for BLAST\n")
+        download.file("ftp://ftp.ncbi.nlm.nih.gov/blast/db/16SMicrobial.tar.gz",
+          "16SMicrobial.tar.gz", mode='wb')
+        untar("16SMicrobial.tar.gz", exdir="16SMicrobialDB")
+      }
   }
   
   if(boxshade) {
@@ -130,7 +132,7 @@ BiostringsTools_Software_Wizard <- function(RDP=FALSE, clustal=FALSE, kalign=FAL
     else cat("Please install package 'boxshade' manually!\n")
   }
   
-  if(MUSCLE) {
+  if(muscle) {
     if(any(Sys.which("muscle")!="")) cat("MUSCLE ... installed.\n")
     else cat("Please install package 'muscle' manually!\n")
   }

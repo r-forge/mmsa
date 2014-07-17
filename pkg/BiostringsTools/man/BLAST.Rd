@@ -1,6 +1,6 @@
 \name{BLAST}
-\alias{BLAST}
-\alias{BLAST_help}
+\alias{blast}
+\alias{blast_help}
 \alias{predict.BLAST}
 \alias{print.BLAST}
 \title{
@@ -10,8 +10,8 @@ Basic Local Alignment Search Tool (BLAST)
 Execute blastn from blast+.
 }
 \usage{
-BLAST(db=NULL)
-BLAST_help()
+blast(db=NULL)
+blast_help()
 \method{predict}{BLAST}(object, newdata,
         BLAST_args="",  ...)
 \method{print}{BLAST}(x, info=TRUE, ...)
@@ -36,7 +36,7 @@ BLAST_help()
     from \url{ftp://ftp.ncbi.nlm.nih.gov/blast/db/}.
 }
 \value{
-\code{BLAST} returns a blast database object which can be used for queries 
+\code{blast()} returns a blast database object which can be used for queries 
 (via \code{predict}). \code{predict}
 returns a data.frame containing the 
 blast results.
@@ -55,15 +55,14 @@ names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
 ## load a BLAST database (replace db with the location + name of the BLAST DB)
-blast <- BLAST(db="~/tmp/blast/16SMicrobial")
-blast
+bl <- blast(db="~/tmp/blast/16SMicrobial")
+bl
 
-print(blast, info=TRUE)
+print(bl, info=TRUE)
 
 ## query a sequence using BLAST
-cl <- predict(blast, seq[1,])
+cl <- predict(bl, seq[1,])
 cl[1:5,]
-
 }
 }
 \keyword{model}

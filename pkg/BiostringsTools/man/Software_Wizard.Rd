@@ -7,14 +7,14 @@
 This wizard helps with the installation of software used by BiostringsTools.
 }
 \usage{
-BiostringsTools_Software_Wizard(RDP = FALSE, clustal = FALSE, 
-  kalign = FALSE, MAFFT = FALSE, MUSCLE = FALSE, BLAST = FALSE, 
-  BLAST16S = FALSE, boxshade = FALSE)
+BiostringsTools_Software_Wizard(rdp = FALSE, clustal = FALSE, 
+  kalign = FALSE, mafft = FALSE, muscle = FALSE, blast = FALSE, 
+  blast16S = FALSE, boxshade = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{RDP, clustal, kalign, MAFFT, MUSCLE, BLAST, BLAST16S, boxshade}{ logical; 
-  what would you like to install? Default is to install all except the BLAST16S
+  \item{rdp, clustal, kalign, mafft, muscle, blast, blast16S, boxshade}{ logical; 
+  what would you like to install? Default is to install all except the blast16S
   data.
 %%     ~~Describe \code{RDP} here~~
   }
@@ -28,7 +28,8 @@ located.
 % R documentation directory.
 \examples{
 \dontrun{
-BiostringsTools_Software_Wizard(RDP=TRUE)
+### just install RDP
+BiostringsTools_Software_Wizard(rdp=TRUE)
 }
 }
 %\keyword{ ~kwd1 }

@@ -1,5 +1,5 @@
 \name{RDP}
-\alias{RDP}
+\alias{rdp}
 \alias{predict}
 \alias{predict.RDPClassifier}
 \alias{print.RDPClassifier}
@@ -13,7 +13,7 @@ Ribosomal Database Project (RDP) Classifier for 16S rRNA
 Use the RDP classifier to classify 16S rRNA sequences.
 }
 \usage{
-RDP(dir = NULL)
+rdp(dir = NULL)
 \method{predict}{RDPClassifier}(object, newdata,
         confidence=.8, java_args="-Xmx1g", ...)
 trainRDP(x, dir="classifier", rank="genus", java_args="-Xmx1g")
@@ -40,7 +40,7 @@ You can set this variable using \code{Sys.setenv(RDP_JAR_PATH="/your_path/rdp_cl
 and test if it is set correctly with \code{Sys.getenv("RDP_JAR_PATH"}.
 Note that on Windows the path will look like \code{"c:/your_path/rdp_classifier-2.x.jar"}.
 
-\code{RDP()} creates a default classifier. Alternatively, a directory 
+\code{rdp()} creates a default classifier. Alternatively, a directory 
 with the data for an existing classifier (created with \code{trainRDP()}) 
 can be supplied.
 
@@ -54,7 +54,7 @@ A created classifier can be removed with \code{removeRDP()}. This will remove
 the directory which stores the classifier information.
 }
 \value{
-\code{RDP()} and \code{trainRDP()} return a RDPClassifier object.
+\code{rdp()} and \code{trainRDP()} return a RDPClassifier object.
 
 \code{predict()} returns a data.frame containing the classification 
 results for each sequence
@@ -75,7 +75,7 @@ names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
 ## use rdp for classification
-predict(RDP(), seq)
+predict(rdp(), seq)
 
 
 ### Train a custom RDP classifier on new data

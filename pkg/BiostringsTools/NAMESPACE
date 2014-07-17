@@ -23,11 +23,11 @@ export(
   mafft_help,
   
   ### MUSCLE
-  MUSCLE,
-  MUSCLE_help,
+  muscle,
+  muscle_help,
   
 	### RDP
-	RDP,
+	rdp,
 	trainRDP,	
 	removeRDP,	
 	findAccuracy,
@@ -36,8 +36,8 @@ export(
 	simRank,
 
 	### BLAST
-	BLAST,
-	BLAST_help,
+	blast,
+	blast_help,
 
 	### boxshade
 	boxshade,

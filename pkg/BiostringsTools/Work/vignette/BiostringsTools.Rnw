@@ -43,7 +43,7 @@
 %\setlength{\parindent}{0mm}
 %\setlength{\parskip}{3mm plus2mm minus2mm}
 
-%\VignetteIndexEntry{BiostringsTools: Tools based on Biostrings (alignment, classification, database)}
+%\VignetteIndexEntry{BiostringsTools: Interface to Tools for Biostrings (alignment, classification, database)}
 
 
 \author{
@@ -446,19 +446,19 @@ al
 \subsection{MUSCLE}
 
 <<>>=
-BiostringsTools_Software_Wizard(MUSCLE = TRUE)
+BiostringsTools_Software_Wizard(muscle = TRUE)
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
   package="BiostringsTools"))
 dna
 
-al <- MUSCLE(dna) 
+al <- muscle(dna) 
 al
 @
 
 
 \subsection{MAFFT}
 <<>>=
-BiostringsTools_Software_Wizard(MAFFT = TRUE)
+BiostringsTools_Software_Wizard(mafft = TRUE)
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
   package="BiostringsTools"))
 dna
@@ -476,7 +476,7 @@ The RDP classifier needs to be trained first before it can be used. The default 
 
 First, we install RDP.
 <<>>=
-BiostringsTools_Software_Wizard(RDP = TRUE)
+BiostringsTools_Software_Wizard(rdp = TRUE)
 @
 
 \subsection{Using the default RDP classifier}
@@ -494,7 +494,7 @@ seq
 Next, we apply RDP with the default training set.
 
 <<>>=
-predict(RDP(), seq)
+predict(rdp(), seq)
 @
 
 \subsection{Training a custom RDP classifier}
@@ -515,9 +515,9 @@ predict(customRDP, testSequences)
 @
 
 The clustom classifier is stored on disc and can be recalled anytime using
-\code{RDP()}.
+\code{rdp()}.
 <<>>=
-customRDP <- RDP(dir = "myRDP")
+customRDP <- rdp(dir = "myRDP")
 @
 
 To permanently remove the classifier use \code{removeRDP()}.
@@ -530,16 +530,16 @@ removeRDP(customRDP)
 
 First we install BLAST.
 <<>>=
-BiostringsTools_Software_Wizard(BLAST = TRUE)
+BiostringsTools_Software_Wizard(blast = TRUE)
 @
 
 Next, we need a BLAST database. The installation wizard can install
 the default 16S rRNA database into the BiostringsTools
 folder. Now, we can initialize BLAST with the database.
 <<>>=
-BiostringsTools_Software_Wizard(BLAST16S = TRUE)
-blast <- BLAST(db="~/BiostringsTools/16SMicrobialDB/16SMicrobial")
-blast
+BiostringsTools_Software_Wizard(blast16S = TRUE)
+bl <- blast(db="~/BiostringsTools/16SMicrobialDB/16SMicrobial")
+bl
 @
 
 We load again a few sequences.
@@ -554,7 +554,7 @@ seq
 
 Using, predict we can BLAST the sequences.
 <<>>=
-cl <- predict(blast, seq[1,])
+cl <- predict(bl, seq[1,])
 cl[1:5,]
 @
 
