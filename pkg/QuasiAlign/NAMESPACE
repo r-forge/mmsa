@@ -1,7 +1,7 @@
 import(methods)
 
 import(Biostrings)
-import(BioTools)
+import(BiostringsTools)
 import(foreach)
 
 importFrom("rEMM", "prune")

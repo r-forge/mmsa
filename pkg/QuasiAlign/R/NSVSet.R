@@ -169,7 +169,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
   if(random) limit <- paste("ORDER BY RANDOM()", limit)
   
   if (!is.null(rank)) {    
-    fullRank<-BioTools::.pmatchRank(db, rank)
+    fullRank<-BiostringsTools::.pmatchRank(db, rank)
     #Do this so that the column order appears as 'order' since ORDER is a SQL keyword
     fullRankSQL<-paste("classification.'",fullRank,"'",sep="")
   }
@@ -179,7 +179,7 @@ getNSVs <- function(db,  rank=NULL, name=NULL,
     ".data AS data, classification.id AS id, ", 
     fullRankSQL ," AS fullRank FROM sequences ", 
     "INNER JOIN classification ON classification.id = sequences.id INNER JOIN ", table, " ON ", table, ".id=sequences.id ",
-    BioTools::.getWhere(db, rank, name,
+    BiostringsTools::.getWhere(db, rank, name,
       removeUnknownSpecies), 
     limit, sep="")
   
@@ -220,7 +220,7 @@ getSequences <- function(db,  rank=NULL, name=NULL,
   type <- metaGenDB(db, table)[,"type"]
   if(length(type) !=1) stop("table does not exist!")    
   
-  if (type=="sequence") getX <- BioTools::getSequences
+  if (type=="sequence") getX <- BiostringsTools::getSequences
   else getX <- getNSVs
   
   getX(db=db, rank=rank, name=name,

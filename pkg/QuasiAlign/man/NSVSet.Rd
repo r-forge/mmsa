@@ -53,7 +53,7 @@ processSequences(dir, db, annotation=Annotation_Greengenes, ...)
 	\item{start}{Start position for the subsequence.}
 	\item{length}{ignored.}
 	\item{dir}{Directory which contains the FASTA format files which are to be read in.}
-	\item{annotation}{Reader for annotation format (see \pkg{BioTools}). }
+	\item{annotation}{Reader for annotation format (see \pkg{BiostringsTools}). }
 	\item{...}{additional aruments are passed on. }
 }
 \details{

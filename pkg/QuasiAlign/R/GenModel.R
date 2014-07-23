@@ -28,7 +28,7 @@ GenModelDB <- function(db, rank=NULL, name=NULL, table="NSV",
                        selection=NULL, limit=NULL, random=FALSE, 
 		       saveClusterInfo=FALSE, prune=1) {
   
-  rank <- BioTools::.pmatchRank(db, rank)
+  rank <- BiostringsTools::.pmatchRank(db, rank)
   
   if(random && !is.null(selection)) 
     stop("Cannot use random and selection!")

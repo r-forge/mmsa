@@ -317,7 +317,7 @@ this approach for taxonomic classification in \citep{hahsler:Kotamarti:2010}.
 \section{QuasiAlign Package}
 \pkg{QuasiAlign} builds on the packages 
 \pkg{Biostrings} for biological sequence analysis
-and \pkg{BioTools} for database supported
+and \pkg{BiostringsTools} for database supported
 sequence storage and data management. 
 For modeling, \pkg{rEMM}
 which implements TRACDS (Transitions Among Clusters for Data Streams)
