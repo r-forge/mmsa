@@ -18,7 +18,10 @@
 
 .get_rdp <- function() system.file("java/rdp_classifier.jar", package="rRDP")
 
-### NULL is the default classifier
+.isRDP <- function(dir) is.null(dir) || 
+  file.exists(file.path(dir, "wordConditionalProbIndexArr.txt"))
+
+### NULL is the default classifier in package rRDPData
 rdp <- function(dir = NULL) {
   if(is.null(dir)) {
     dir <- system.file("16srrna", package="rRDPData")  
@@ -61,9 +64,9 @@ predict.RDPClassifier <- function(object, newdata,
   else property <- ""
   
   writeXStringSet(x, infile, append=FALSE)
-  if (system(paste("java", java_args, "-jar", .get_rdp(), 
-    property, "-q", infile, "-o", outfile),
-    ignore.stdout=TRUE, ignore.stderr=TRUE)) 
+  if (system(paste("java", java_args, "-jar", .get_rdp(), "classify", 
+    property, "-o", outfile, "-c", confidence, infile),
+    ignore.stdout=TRUE, ignore.stderr=TRUE, intern=FALSE)) 
     stop("Error executing RDP")
   
   ## read and parse rdp output
@@ -84,6 +87,7 @@ predict.RDPClassifier <- function(object, newdata,
   conf <- as.matrix(cl_tab[,i+2])
   dimnames(conf) <- list(seq_names, as.matrix(cl_tab[1,i+1])[1,])
   
+  ### don't show assignments with too low confidence
   if(confidence>0) cl[conf < confidence] <- NA
   
   attr(cl, "confidence") <- conf    
@@ -174,14 +178,17 @@ trainRDP <- function(x, dir="classifier", rank="genus", java_args="-Xmx1g")
   }
   writeXStringSet(x,file.path(dir,"train.fasta"))
   
-  system(paste("java", java_args, "-cp", .get_rdp(),
-    "edu/msu/cme/rdp/classifier/train/ClassifierTraineeMaker ",
-    file.path(dir,"train.txt"), file.path(dir, "train.fasta"),
-    " 1 version1 test ", dir), ignore.stderr=TRUE)
-
+  if(system(paste("java", java_args, "-jar", .get_rdp(), "train",
+    "-o", dir, "-t", file.path(dir,"train.txt"), 
+    "-s", file.path(dir, "train.fasta")), 
+    ignore.stderr=TRUE, ignore.stdout=TRUE, intern=FALSE)){
+    unlink(dir, recursive=TRUE)
+    stop("Creating the classifier failed!")
+  }
+  
   file.copy(system.file("java/rRNAClassifier.properties",
     package="rRDP"), dir)
-
+  
   rdp(dir)
 }
 
@@ -192,23 +199,4 @@ removeRDP <- function(object) {
   ### don't remove the default data
   if(object$dir != normalizePath(system.file("16srrna", package="rRDPData"))) 
     unlink(object$dir, recursive=TRUE)
-}
-
-
-.isRDP <- function(dir) is.null(dir) || 
-  file.exists(file.path(dir, "wordConditionalProbIndexArr.txt"))
-
-
-
-findAccuracy <- function(actual, predicted, rank)
-{
-  rank <- colnames(actual)[grep(rank, colnames(actual), ignore.case=TRUE)]
-  actual <- factor(actual[,rank])
-  predicted <- factor(predicted[,rank])
-  
-  commonLevels <- sort(unique(c(levels(actual), levels(predicted))))
-  actual <- factor(actual, levels = commonLevels)
-  predicted <- factor(predicted, levels = commonLevels)
-  
-  table(actual,predicted, dnn=list("actual","predicted"))
 }

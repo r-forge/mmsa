@@ -5,12 +5,12 @@
 \alias{print.RDPClassifier}
 \alias{trainRDP}
 \alias{removeRDP}
-\alias{findAccuracy}
 \title{
 Ribosomal Database Project (RDP) Classifier for 16S rRNA
 }
 \description{
-Use the RDP classifier to classify 16S rRNA sequences.
+Use the RDP classifier to classify 16S rRNA sequences. Current RDP version 
+  is 2.8.
 }
 \usage{
 rdp(dir = NULL)
@@ -18,7 +18,6 @@ rdp(dir = NULL)
         confidence=.8, java_args="-Xmx1g", ...)
 trainRDP(x, dir="classifier", rank="genus", java_args="-Xmx1g")
 removeRDP(object)
-findAccuracy(actual, predicted, rank)
 }
 \arguments{
   \item{dir}{directory where the classifier information is stored.} 
@@ -27,9 +26,7 @@ findAccuracy(actual, predicted, rank)
   \item{confidence}{numeric; minimum confidence level for classification. Results with lower confidence are replaced by NAs. Set to 0 to disable.}
   \item{java_args}{additional arguments for java (default sets the max. heap memory to 1GB).}
   \item{x}{an object of class DNAStringSet with the 16S rRNA sequences for training.}
-  \item{actual}{A data frame containing the actual classification.}
-  \item{predicted}{A data frame containing the predicted classification.}
-  \item{rank}{Taxonomic rank at which the classification is learned/the accuracy is to be examined.}
+  \item{rank}{Taxonomic rank at which the classification is learned.}
   \item{...}{additional arguments (currently unused).}
 }
 \details{
@@ -62,7 +59,7 @@ Qiong Wang, George M. Garrity, James M. Tiedje and James R. Cole. Naive Bayesian
 \examples{
 ### Use the default classifier
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
-	package="BiostringsTools"))
+	package="rRDP"))
 
 ## shorten names
 names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
@@ -76,13 +73,13 @@ attr(pred, "confidence")
 
 ### Train a custom RDP classifier on new data
 trainingSequences <- readDNAStringSet(
-    system.file("examples/trainingSequences.fasta", package="BiostringsTools"))
+    system.file("examples/trainingSequences.fasta", package="rRDP"))
 
 customRDP <- trainRDP(trainingSequences)
 customRDP
 
 testSequences <- readDNAStringSet(
-    system.file("examples/testSequences.fasta", package="BiostringsTools"))
+    system.file("examples/testSequences.fasta", package="rRDP"))
 predict(customRDP, testSequences)
 
 ## clean up
