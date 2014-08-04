@@ -1,0 +1,12 @@
+import(Biostrings)
+
+export( 
+ 	### RDP
+	rdp,
+	trainRDP,	
+	removeRDP,	
+	findAccuracy
+  )
+
+S3method(print, RDPClassifier)
+S3method(predict, RDPClassifier)

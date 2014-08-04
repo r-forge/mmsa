@@ -1,0 +1,6 @@
+1. In code directory:  download new version.
+2. Copy jar to rRDPData/inst/java and rename to rdp_classifier.jar
+3. Unzip jar
+4. Delete data directoy
+5. Rebuild jar with jar -cvfm rdp_classifier.jar META-INF/MANIFEST.MF edu/ 
+6. move new jar to inst/java/
