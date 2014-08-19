@@ -9,8 +9,8 @@
 Ribosomal Database Project (RDP) Classifier for 16S rRNA
 }
 \description{
-Use the RDP classifier to classify 16S rRNA sequences. Current RDP version 
-  is 2.8.
+Use the RDP classifier to classify 16S rRNA sequences. This package contains
+currently RDP version 2.8.
 }
 \usage{
 rdp(dir = NULL)
@@ -30,6 +30,8 @@ removeRDP(object)
   \item{...}{additional arguments (currently unused).}
 }
 \details{
+RDP is a naive Bayes classifier using 8-mers as features.
+
 \code{rdp()} creates a default classifier trained with the data shipped with RDP. 
 Alternatively, a directory with the data for an existing classifier 
 (created with \code{trainRDP()}) can be supplied.
@@ -42,6 +44,9 @@ the classifier information in \code{dir}. The data in
 
 A created classifier can be removed with \code{removeRDP()}. This will remove
 the directory which stores the classifier information.
+
+The data for the default 16S rRNA classifier can be found in package 
+\pkg{rRDPData}.
 }
 \value{
 \code{rdp()} and \code{trainRDP()} return a RDPClassifier object.
@@ -65,7 +70,7 @@ seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
-## use rdp for classification 
+## use rdp for classification (this needs package rRDPData) 
 pred <- predict(rdp(), seq)
 pred
   

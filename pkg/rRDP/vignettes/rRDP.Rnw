@@ -60,10 +60,8 @@
 \Abstract{
 This package installs and interfaces the naive Bayesian classifier 
 for 16S rRNA sequences developed by the Ribosomal Database Project (RDP). 
-With this package the classifier trained with the standard training set can be used
-or a custom classifier can be trained.
-
-Current RDP version is 2.8.
+With this package the classifier trained with the standard training set can 
+be used or a custom classifier can be trained.
 }
 \Keywords{bioinformatics, Bioconductor, Biostrings, sequence classification}
 \Plainkeywords{bioinformatics, Bioconductor, Biostrings, sequence classification}
@@ -194,12 +192,21 @@ data that is shipped with the package.
 trainingSequences <- readDNAStringSet(
     system.file("examples/trainingSequences.fasta", package="rRDP"))
 trainingSequences
-names(trainingSequences)
 @
 
 Note that the training data needs to have names in a specific RDP format: 
 
 \centerline{\tt{"<ID> <Kingdom>;<Phylum>;<Class>;<Order>;<Family>;<Genus>"}}
+
+
+In the following we show the name for the first sequence.
+We use here \code{sprintf} to display
+only the first 65~characters so the it fits into a single line.
+
+<<>>=
+sprintf(names(trainingSequences[1]), fmt="%.65s...")
+@
+
 
 Now, we can train a the classifier. The model is stored in a directory specified
 by the parameter \code{dir}.
@@ -210,7 +217,7 @@ customRDP
 
 <<>>=
 testSequences <- readDNAStringSet(
-    system.file("examples/testSequences.fasta", package="BiostringsTools"))
+    system.file("examples/testSequences.fasta", package="rRDP"))
 pred <- predict(customRDP, testSequences)
 pred
 @
