@@ -2,10 +2,12 @@
 \alias{16SrRNA}
 \alias{16S}
 \title{
-RDP Ribosomal Database Project (RDP) 16S rRNA Training Set
+RDP Classifier Model for RDP 16S rRNA Trainingset No 9
 }
 \description{
-RDP classifier data learned from the standard 16S rRNA training set.
+Model data for the RDP classifier trained with the RDP 16S rRNA 
+Trainingset No 9.
+This is the default model data used by RDP.
 }
 %\usage{
 %}
@@ -13,6 +15,12 @@ RDP classifier data learned from the standard 16S rRNA training set.
 %}
 \details{
 \code{rdp()} creates a default classifier using this data set.
+
+The model data 
+is stored in \code{system.file("16srrna", package="rRDPData")} and
+consists of several files in proprietary format used by the RDP software. 
+Since RDP is a naive Bayes classifier the data mainly contain conditional 
+word (8-mer) probabilities.
 }
 %\value{
 %}
@@ -20,15 +28,15 @@ RDP classifier data learned from the standard 16S rRNA training set.
 RDP Classifier \url{http://sourceforge.net/projects/rdp-classifier/}
 }
 \examples{
-### Use the default classifier
+### Use the RDP with the default classifier model data
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
-	package="BiostringsTools"))
+	package="rRDP"))
 
 ## shorten names
 names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
-## use rdp for classification 
+## use RDP for classification 
 pred <- predict(rdp(), seq)
 pred
   
