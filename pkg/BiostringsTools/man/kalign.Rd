@@ -28,6 +28,8 @@ sequence alignment algorithm, BMC Bioinformatics 2005, 6:298
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(kalign = TRUE)
+
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BiostringsTools"))
 dna

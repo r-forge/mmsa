@@ -1,4 +1,4 @@
-Installation of  BioTools
+Installation of  BiostringsTools
 
 Biostrings and seqLogo
     Note that packages Biostrings and seqLogo need to be installed from
@@ -10,10 +10,10 @@ Biostrings and seqLogo
 
 
 External software
-    Use BioTools_Software_Wizard() after loading the package.
+    Use BiostringsTools_Software_Wizard() after loading the package.
 
     Example:
-    BioTools_Software_Wizard(RDP=TRUE)
+    BiostringsTools_Software_Wizard(rdp=TRUE)
 
     This will install RDP. 
 

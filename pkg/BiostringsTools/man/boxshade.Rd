@@ -40,6 +40,8 @@ Boxshade has been written by Kay Hofmann and Michael D. Baron
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(boxshade = TRUE)
+
 rna <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="BiostringsTools"))
 rna <- narrow(rna, start=1, end=50)

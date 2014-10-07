@@ -32,6 +32,8 @@ version 2.0, Bioinformatics 2007 23(21):2947-29
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(clustal = TRUE)
+
 ### DNA
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BiostringsTools"))

@@ -404,7 +404,7 @@ boxshade(al, file="alignment.pdf")
 \begin{figure}
 \centering
 \includegraphics[width=1\linewidth]{alignment}
-\caption{Representaion of a DNA multiple alignment using boxshade.}
+\caption{Representation of a DNA multiple alignment using boxshade.}
 \label{fig:boxshade}
 \end{figure}
 
@@ -566,7 +566,7 @@ seqs <- random_sequences(100, number=10, prob=c(a=.5, c=.3, g=.1, t=.1))
 seqs
 @
 
-Creating random sequences using dinocleodite trandition probabilities
+Creating random sequences using dinucleotides transition probabilities
 <<>>=
 prob <-  matrix(runif(16), nrow=4, ncol=4, dimnames=list(DNA_BASES, DNA_BASES))
 prob <- prob/rowSums(prob)
@@ -594,7 +594,7 @@ applications. The following distance metrics are available in \pkg{BiostringsToo
 \begin{itemize}
 \item Feature frequency profile (distFFP): A FFP is the normalized (by the number of k-mers in the sequence) count of each possible k-mer in a sequence. The distance is defined as the Jensen-Shannon divergence (JSD) between FFPs (Sims and Kim, 2011).
 
-\item Composition Vector (distCV): A CV is a vector with the frequencies of each k-mer in the sequency minus the expected frequency of random background nice obtained from a Markov Model (not implemented yet!). The cosine distance is used between CVs. (Qi et al, 2007).
+\item Composition Vector (distCV): A CV is a vector with the frequencies of each k-mer in the sequence minus the expected frequency of random background nice obtained from a Markov Model (not implemented yet!). The cosine distance is used between CVs. (Qi et al, 2007).
 
 \item Numerical Summarization Vector (distNSV): An NSV is frequency distribution of all possible k-mers in a sequence. The Manhattan distance is used between NSVs (Nagar and Hahsler, 2013).
 

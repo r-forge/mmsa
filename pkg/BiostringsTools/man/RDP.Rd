@@ -66,6 +66,8 @@ RDP Classifier \url{http://sourceforge.net/projects/rdp-classifier/}
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(rdp = TRUE)
+
 ### Use the default classifier
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="BiostringsTools"))

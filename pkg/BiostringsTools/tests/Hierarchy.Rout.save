@@ -339,6 +339,3 @@ character(0)
 > closeGenDB(db)
 > 
 > 
-> proc.time()
-   user  system elapsed 
-  3.487   0.081   3.542 

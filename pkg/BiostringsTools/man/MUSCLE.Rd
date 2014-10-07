@@ -33,6 +33,8 @@ Edgar, R.C. (2004) MUSCLE: a multiple sequence alignment method with reduced tim
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(muscle = TRUE)
+
 ### DNA
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BiostringsTools"))

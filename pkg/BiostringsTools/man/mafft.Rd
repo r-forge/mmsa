@@ -32,6 +32,8 @@ MAFFT multiple sequence alignment software version 7: improvements in performanc
 }
 \examples{
 \dontrun{
+BiostringsTools_Software_Wizard(mafft = TRUE)
+
 ### DNA
 dna <- readDNAStringSet(system.file("examples/DNA_example.fasta",
 	package="BiostringsTools"))

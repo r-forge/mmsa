@@ -18,10 +18,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-.findExecutable <- function(exe) {
-    path <- Sys.which(exe)
-    if(all(path=="")) stop("Executable for ", paste(exe, collapse=" or "), " not found! Use BiostringsTools_Software_Wizard() to install the needed software!", call.=FALSE)
-    
-    path[which(path!="")[1]]
+.findExecutable <- function(exe, interactive=TRUE) {
+  path <- Sys.which(exe)
+  if(all(path=="")) {
+    if(interactive) stop("Executable for ", paste(exe, collapse=" or "), " not found! Use BiostringsTools_Software_Wizard() to install the needed software!", call.=FALSE)
+    return(character(0))
+  }
+  
+  path[which(path!="")[1]]
 }
 

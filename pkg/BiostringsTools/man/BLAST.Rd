@@ -47,6 +47,10 @@ BLAST+ \url{http://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&
 }
 \examples{
 \dontrun{
+## install BLAST
+BiostringsTools_Software_Wizard(blast = TRUE)
+BiostringsTools_Software_Wizard(blast16S = TRUE)
+
 seq <- readRNAStringSet(system.file("examples/RNA_example.fasta",
 	package="BiostringsTools"))
 
@@ -55,7 +59,7 @@ names(seq) <-  sapply(strsplit(names(seq), " "), "[", 1)
 seq
 
 ## load a BLAST database (replace db with the location + name of the BLAST DB)
-bl <- blast(db="~/tmp/blast/16SMicrobial")
+bl <- blast(db="~/BiostringsTools/16SMicrobialDB/16SMicrobial")
 bl
 
 print(bl, info=TRUE)
