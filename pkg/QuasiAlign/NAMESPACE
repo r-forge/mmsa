@@ -1,5 +1,6 @@
 import(methods)
 
+
 import(Biostrings)
 import(BiostringsTools)
 import(foreach)
