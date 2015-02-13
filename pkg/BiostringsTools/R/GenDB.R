@@ -96,7 +96,7 @@ openGenDB <- function(dbName, drv=NULL, ...) {
 }
 
 closeGenDB <- function(db) {
-    dbCommit(db$db)
+    #dbCommit(db$db)
     ret <- dbDisconnect(db$db)
     return(invisible(ret))
 }
@@ -128,7 +128,7 @@ dropTableGenDB <-  function(db, table) {
   )
   dbSendQuery(db$db,statement= paste("DELETE FROM metaData where name=",
                                      .sq(table),sep=''))
-  dbCommit(db$db)
+#  dbCommit(db$db)
   invisible(NULL)
 }
 

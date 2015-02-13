@@ -125,7 +125,7 @@ addSequences <- function(db, sequences, table="sequences",
   ### prepare classification
   ann <- annotation(names(sequences), decode=TRUE)
   
-  dbBeginTransaction(db$db)
+  dbBegin(db$db)
   #start
   for(i in 1:length(sequences)) {
     cl <- sapply(ann[i,], as.character)
