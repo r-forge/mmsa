@@ -114,6 +114,7 @@ createNSVTable <- function(db, tableFrom="sequences", table="NSV", rank=NULL, na
     dir.create(tmp_dir)
 
     res <- foreach(start=seq(0, n-1, by=block), .combine=rbind) %dopar% {
+#    res <- foreach(start=seq(0, n-1, by=block), .combine=rbind) %do% {
 #	ok <- 0
 #	fail <- 0
 #	total <- 0
