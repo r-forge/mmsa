@@ -1,11 +1,11 @@
 import(methods)
 
-
 import(Biostrings)
 import(BiostringsTools)
 import(foreach)
+import(rEMM)
+import(DBI)
 
-importFrom("rEMM", "prune")
 importFrom("caTools", "base64decode", "base64encode")
 
 export( 

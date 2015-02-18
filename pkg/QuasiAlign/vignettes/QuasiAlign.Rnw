@@ -592,7 +592,6 @@ and places them in the subdirectory phylum.
 <<eval=false>>=
 library("doParallel")
 registerDoParallel()
-library("caret")
 @
 
 <<trainClassifier>>=
@@ -654,7 +653,9 @@ Compare the predictions with the true class labels.
 <<>>=
 actual<- getRank(db, rank="Phylum", whereRank="id", whereName=names(unknown))
 head(actual)
-caret::confusionMatrix(pred$class, reference=factor(actual, levels=levels(pred$class)))
+#library("caret")
+#caret::confusionMatrix(pred$class, reference=factor(actual, levels=levels(pred$class)))
+table(pred$class, reference=factor(actual, levels=levels(pred$class)))
 @
 
 The default method for \func{classify} is \verb|supported_transitions|, but other methods can also be easily used. 
