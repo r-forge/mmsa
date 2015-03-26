@@ -1,7 +1,7 @@
 import(Biostrings)
 import(DBI)
 import(RSQLite)
-import(seqLogo)
+importFrom(seqLogo, makePWM, seqLogo)
 
 importFrom(proxy, dist)
 importFrom(ape, dist.dna, as.DNAbin)
